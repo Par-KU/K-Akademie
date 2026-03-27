@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KÜ AKADEMIE — Acceso</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --purple: #7c6af7;
+    --purple-dim: #5548c8;
+    --teal: #4ecdc4;
+    --bg: #0a0b10;
+    --surface: #11121a;
+    --surface2: #181926;
+    --border: #1e2035;
+    --text: #e8e8f0;
+    --muted: #6b6d8a;
+    --muted2: #3a3d58;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 460px;
+    height: 100vh;
+  }
+
+  /* ── LEFT: BANNER ── */
+  .banner {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .slides-track {
+    position: absolute;
+    inset: 0;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 48px;
+  }
+  .slide.active { opacity: 1; }
+
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 8s ease;
+    transform: scale(1.05);
+  }
+  .slide.active .slide-bg { transform: scale(1); }
+
+  .slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(10,11,16,0.96) 0%,
+      rgba(10,11,16,0.5) 50%,
+      rgba(10,11,16,0.15) 100%
+    );
+  }
+
+  .slide-content {
+    position: relative;
+    z-index: 2;
+    transform: translateY(16px);
+    opacity: 0;
+    transition: transform 0.7s ease 0.4s, opacity 0.7s ease 0.4s;
+  }
+  .slide.active .slide-content {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .slide-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,106,247,0.18);
+    border: 1px solid rgba(124,106,247,0.35);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #b8b0ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .slide-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  .slide-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .slide-title em {
+    font-style: normal;
+    color: var(--teal);
+  }
+
+  .slide-desc {
+    font-size: 14px;
+    color: rgba(232,232,240,0.65);
+    line-height: 1.6;
+    max-width: 480px;
+    margin-bottom: 20px;
+  }
+
+  .slide-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .slide-instructor {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .instructor-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--purple);
+  }
+  .instructor-name { font-size: 13px; color: rgba(232,232,240,0.7); }
+  .slide-rating {
+    font-size: 13px;
+    color: #f0c060;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .slide-price {
+    margin-left: auto;
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .slide-price span {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    text-decoration: line-through;
+    margin-right: 4px;
+  }
+
+  /* slide dots */
+  .slide-dots {
+    position: absolute;
+    bottom: 48px;
+    right: 48px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.25);
+    transition: all 0.4s ease;
+    cursor: pointer;
+  }
+  .dot.active {
+    width: 24px;
+    background: var(--purple);
+  }
+
+  /* particles */
+  .particles {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-particle 6s ease-in-out infinite;
+  }
+  @keyframes float-particle {
+    0%   { opacity: 0; transform: translateY(0) scale(0); }
+    20%  { opacity: 0.6; transform: translateY(-20px) scale(1); }
+    80%  { opacity: 0.3; transform: translateY(-80px) scale(0.8); }
+    100% { opacity: 0; transform: translateY(-120px) scale(0); }
+  }
+
+  /* geometric accent */
+  .geo-accent {
+    position: absolute;
+    top: 40px; left: 40px;
+    z-index: 3;
+  }
+  .geo-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid rgba(124,106,247,0.4);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .geo-circle::before {
+    content: '';
+    position: absolute;
+    width: 26px; height: 2px;
+    background: var(--teal);
+    border-radius: 1px;
+    transform: rotate(-35deg) translateY(-4px);
+  }
+  .geo-circle::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 2px;
+    background: var(--purple);
+    border-radius: 1px;
+    transform: rotate(-35deg) translateY(5px);
+  }
+  .geo-wordmark {
+    font-family: 'Sora', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-left: 10px;
+  }
+  .geo-wordmark em { font-style: normal; color: var(--purple); }
+  .geo-row { display: flex; align-items: center; }
+
+  /* progress bar top */
+  .progress-bar {
+    position: absolute;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--purple);
+    z-index: 20;
+    transition: width 0.1s linear;
+  }
+
+  /* ── RIGHT: LOGIN PANEL ── */
+  .login-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 52px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-panel::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,106,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .login-panel::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(78,205,196,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-header { margin-bottom: 40px; }
+
+  .login-eyebrow {
+    font-size: 11px;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .login-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .login-sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* form */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(232,232,240,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted2);
+    font-size: 15px;
+    pointer-events: none;
+    transition: color 0.2s;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px 13px 42px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-input::placeholder { color: var(--muted2); }
+  .form-input:focus {
+    border-color: var(--purple);
+    background: rgba(124,106,247,0.05);
+  }
+  .form-input:focus + .input-border { opacity: 1; }
+  .form-input:focus ~ .input-icon { color: var(--purple); }
+
+  .password-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--muted2);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    transition: color 0.2s;
+  }
+  .password-toggle:hover { color: var(--purple); }
+
+  .form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    margin-top: -4px;
+  }
+
+  .remember-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--muted);
+    user-select: none;
+  }
+  .remember-check {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface2);
+    appearance: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .remember-check:checked {
+    background: var(--purple);
+    border-color: var(--purple);
+  }
+  .remember-check:checked::after {
+    content: '';
+    position: absolute;
+    left: 4px; top: 2px;
+    width: 5px; height: 8px;
+    border: 2px solid #fff;
+    border-top: none; border-left: none;
+    transform: rotate(45deg);
+  }
+
+  .forgot-link {
+    font-size: 13px;
+    color: var(--purple);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .forgot-link:hover { opacity: 0.7; }
+
+  .btn-login {
+    width: 100%;
+    background: var(--purple);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-login::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 0; height: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    transition: width 0.4s, height 0.4s;
+  }
+  .btn-login:hover { background: var(--purple-dim); }
+  .btn-login:hover::before { width: 300px; height: 300px; }
+  .btn-login:active { transform: scale(0.99); }
+
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider-text {
+    font-size: 12px;
+    color: var(--muted2);
+  }
+
+  .support-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .support-row a {
+    color: var(--teal);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .support-row a:hover { opacity: 0.7; }
+
+  /* stats strip */
+  .stats-strip {
+    position: absolute;
+    bottom: 28px; left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 0 52px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .stat-num em { font-style: normal; color: var(--purple); }
+  .stat-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .stat-sep {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    align-self: center;
+  }
+
+  /* error state */
+  .error-msg {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(224,75,75,0.1);
+    border: 1px solid rgba(224,75,75,0.25);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #f07070;
+    margin-bottom: 16px;
+  }
+  .error-msg.show { display: flex; }
+
+  /* loading spinner on button */
+  .btn-login .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto;
+  }
+  .btn-login.loading .btn-text { display: none; }
+  .btn-login.loading .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* slide backgrounds using CSS gradients as placeholders */
+  .bg-1 { background: linear-gradient(135deg, #0a0b10 0%, #1a1040 40%, #0d1a2e 100%); }
+  .bg-2 { background: linear-gradient(135deg, #0a0b10 0%, #0d2a1a 40%, #0a1820 100%); }
+  .bg-3 { background: linear-gradient(135deg, #0a0b10 0%, #2a1020 40%, #1a0a30 100%); }
+  .bg-4 { background: linear-gradient(135deg, #0a0b10 0%, #1a2010 40%, #0a1010 100%); }
+
+  /* decorative grid lines on slide bg */
+  .slide-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* course card preview */
+  .course-preview {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 340px;
+    opacity: 0;
+    transition: opacity 0.8s ease 0.2s;
+  }
+  .slide.active .course-preview { opacity: 1; }
+
+  .course-chip {
+    background: rgba(17,18,26,0.85);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .course-chip-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .course-chip-info { flex: 1; min-width: 0; }
+  .course-chip-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e8e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .course-chip-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .course-chip-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .floating-notif {
+    position: absolute;
+    z-index: 5;
+    background: rgba(17,18,26,0.92);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(8px);
+    animation: float-notif 4s ease-in-out infinite;
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  @keyframes float-notif {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .notif-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ══ LEFT BANNER ══ -->
+  <div class="banner">
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Logo top-left -->
+    <div class="geo-accent">
+      <div class="geo-row">
+        <div class="geo-circle"></div>
+        <div class="geo-wordmark">KÜ <em>Akademie</em></div>
+      </div>
+    </div>
+
+    <!-- Slides -->
+    <div class="slides-track" id="slidesTrack">
+
+      <div class="slide active" data-index="0">
+        <div class="slide-bg bg-1">
+          <div class="slide-grid"></div>
+          <!-- Decorative shapes -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.15" viewBox="0 0 700 700" preserveAspectRatio="xMidYMid slice">
+            <circle cx="560" cy="140" r="180" fill="none" stroke="#7c6af7" stroke-width="1"/>
+            <circle cx="560" cy="140" r="100" fill="none" stroke="#4ecdc4" stroke-width="0.5"/>
+            <line x1="400" y1="0" x2="700" y2="300" stroke="#7c6af7" stroke-width="0.5"/>
+            <line x1="500" y1="0" x2="700" y2="200" stroke="#4ecdc4" stroke-width="0.5"/>
+          </svg>
+        </div>
+        <div class="slide-overlay"></div>
+        <div class="particles" id="p0"></div>
+
+        <!-- floating cards -->
+        <div class="course-preview">
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(124,106,247,0.15)">🐍</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Python para Emprendedores</div>
+              <div class="course-chip-sub">Ana García · 4.9 ★ · 2,340 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(124,106,247,0.15);color:#b8b0ff">Popular</div>
+          </div>
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(78,205,196,0.12)">📊</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Excel Avanzado para Negocios</div>
+              <div class="course-chip-sub">Carlos R. · 4.8 ★ · 1,890 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(78,205,196,0.12);color:#4ecdc4">Nuevo</div>
+          </div>
+        </div>
+
+        <div class="floating-notif" style="top:38%;right:5%">
+          <div class="notif-dot" style="background:#4ecdc4"></div>
+          <span>Juan acaba de inscribirse</span>
+        </div>
+
+        <div class="slide-content">
+          <div class="slide-tag">Tecnología & Negocios</div>
+          <div class="slide-title">Domina las herramientas<br>del <em>emprendedor digital</em></div>
+          <div class="slide-desc">Cursos prácticos para lanzar tu negocio, automatizar procesos y crecer desde cero con tecnología.</div>
+          <div class="slide-meta">
+            <div class="slide-instructor">
+              <div class="instructor-avatar">AG</div>
+              <span class="instructor-name">Ana García</span>
+            </div>
+            <div class="slide-rating">★★★★★ <span style="color:rgba(232,232,240,0.4)">4.9</span></div>
+            <div class="slide-price"><span>$899</span>$399 MXN</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide" data-index="1">
+        <div class="slide-bg bg-2">
+          <div class="slide-grid"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.12" viewBox="0 0 700 700" preserveAspectRatio="xMidYMid slice">
+            <rect x="400" y="80" width="200" height="200" rx="8" fill="none" stroke="#4ecdc4" stroke-width="1"/>
+            <rect x="450" y="130" width="200" height="200" rx="8" fill="none" stroke="#7c6af7" stroke-width="0.5"/>
+            <circle cx="180" cy="500" r="140" fill="none" stroke="#4ecdc4" stroke-width="0.5"/>
+          </svg>
+        </div>
+        <div class="slide-overlay"></div>
+        <div class="particles" id="p1"></div>
+
+        <div class="course-preview">
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(78,205,196,0.12)">🚀</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Lanza tu Startup en 30 días</div>
+              <div class="course-chip-sub">Miguel Torres · 4.9 ★ · 3,120 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(240,185,66,0.15);color:#f0c060">Top</div>
+          </div>
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(124,106,247,0.15)">💡</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Validación de Ideas de Negocio</div>
+              <div class="course-chip-sub">Laura M. · 4.7 ★ · 980 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(124,106,247,0.15);color:#b8b0ff">Popular</div>
+          </div>
+        </div>
+
+        <div class="floating-notif" style="top:36%;left:5%">
+          <div class="notif-dot" style="background:#f0c060"></div>
+          <span>+120 inscritos hoy</span>
+        </div>
+
+        <div class="slide-content">
+          <div class="slide-tag">Emprendimiento</div>
+          <div class="slide-title">De la idea al negocio<br><em>en tiempo récord</em></div>
+          <div class="slide-desc">Metodologías probadas para validar, lanzar y escalar tu emprendimiento con instructores que ya lo lograron.</div>
+          <div class="slide-meta">
+            <div class="slide-instructor">
+              <div class="instructor-avatar">MT</div>
+              <span class="instructor-name">Miguel Torres</span>
+            </div>
+            <div class="slide-rating">★★★★★ <span style="color:rgba(232,232,240,0.4)">4.9</span></div>
+            <div class="slide-price"><span>$1,199</span>$549 MXN</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide" data-index="2">
+        <div class="slide-bg bg-3">
+          <div class="slide-grid"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.12" viewBox="0 0 700 700" preserveAspectRatio="xMidYMid slice">
+            <line x1="0" y1="350" x2="700" y2="350" stroke="#d4537e" stroke-width="0.5"/>
+            <circle cx="350" cy="350" r="200" fill="none" stroke="#d4537e" stroke-width="1"/>
+            <circle cx="350" cy="350" r="100" fill="none" stroke="#7c6af7" stroke-width="0.5"/>
+            <circle cx="350" cy="350" r="50" fill="none" stroke="#4ecdc4" stroke-width="0.5"/>
+          </svg>
+        </div>
+        <div class="slide-overlay"></div>
+        <div class="particles" id="p2"></div>
+
+        <div class="course-preview">
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(212,83,126,0.12)">🎨</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Diseño UI/UX para No Diseñadores</div>
+              <div class="course-chip-sub">Sofía Ríos · 4.8 ★ · 1,560 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(212,83,126,0.12);color:#ed93b1">Nuevo</div>
+          </div>
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(124,106,247,0.15)">📱</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Marketing Digital desde Cero</div>
+              <div class="course-chip-sub">Diego Lara · 4.6 ★ · 2,010 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(78,205,196,0.12);color:#4ecdc4">Popular</div>
+          </div>
+        </div>
+
+        <div class="slide-content">
+          <div class="slide-tag">Creatividad & Marketing</div>
+          <div class="slide-title">Crea, diseña y vende<br><em>sin ser experto</em></div>
+          <div class="slide-desc">Aprende diseño, branding y marketing digital para que tu negocio se vea y venda como uno grande.</div>
+          <div class="slide-meta">
+            <div class="slide-instructor">
+              <div class="instructor-avatar">SR</div>
+              <span class="instructor-name">Sofía Ríos</span>
+            </div>
+            <div class="slide-rating">★★★★★ <span style="color:rgba(232,232,240,0.4)">4.8</span></div>
+            <div class="slide-price"><span>$799</span>$349 MXN</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide" data-index="3">
+        <div class="slide-bg bg-4">
+          <div class="slide-grid"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.12" viewBox="0 0 700 700" preserveAspectRatio="xMidYMid slice">
+            <polygon points="350,100 600,400 100,400" fill="none" stroke="#639922" stroke-width="0.8"/>
+            <polygon points="350,200 500,380 200,380" fill="none" stroke="#4ecdc4" stroke-width="0.5"/>
+            <circle cx="600" cy="550" r="120" fill="none" stroke="#639922" stroke-width="0.5"/>
+          </svg>
+        </div>
+        <div class="slide-overlay"></div>
+        <div class="particles" id="p3"></div>
+
+        <div class="course-preview">
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(99,153,34,0.12)">💰</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Finanzas Personales para Emprender</div>
+              <div class="course-chip-sub">Roberto V. · 4.9 ★ · 4,200 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(240,185,66,0.15);color:#f0c060">Top</div>
+          </div>
+          <div class="course-chip">
+            <div class="course-chip-icon" style="background:rgba(78,205,196,0.12)">📈</div>
+            <div class="course-chip-info">
+              <div class="course-chip-title">Ventas y Negociación Efectiva</div>
+              <div class="course-chip-sub">Carla N. · 4.7 ★ · 1,340 alumnos</div>
+            </div>
+            <div class="course-chip-badge" style="background:rgba(124,106,247,0.15);color:#b8b0ff">Popular</div>
+          </div>
+        </div>
+
+        <div class="floating-notif" style="top:40%;right:6%">
+          <div class="notif-dot" style="background:#639922"></div>
+          <span>Certificado disponible</span>
+        </div>
+
+        <div class="slide-content">
+          <div class="slide-tag">Finanzas & Ventas</div>
+          <div class="slide-title">Tu dinero trabajando<br><em>para tu negocio</em></div>
+          <div class="slide-desc">Controla tus finanzas, cierra más ventas y construye el negocio rentable que siempre quisiste.</div>
+          <div class="slide-meta">
+            <div class="slide-instructor">
+              <div class="instructor-avatar">RV</div>
+              <span class="instructor-name">Roberto Vega</span>
+            </div>
+            <div class="slide-rating">★★★★★ <span style="color:rgba(232,232,240,0.4)">4.9</span></div>
+            <div class="slide-price"><span>$999</span>$449 MXN</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /slides-track -->
+
+    <!-- Dots -->
+    <div class="slide-dots" id="slideDots">
+      <div class="dot active" onclick="goTo(0)"></div>
+      <div class="dot" onclick="goTo(1)"></div>
+      <div class="dot" onclick="goTo(2)"></div>
+      <div class="dot" onclick="goTo(3)"></div>
+    </div>
+
+  </div><!-- /banner -->
+
+  <!-- ══ RIGHT LOGIN PANEL ══ -->
+  <div class="login-panel">
+
+    <div class="login-header">
+      <div class="login-eyebrow">Bienvenido a Kü Akademie</div>
+      <div class="login-title">Accede a tu<br>aula virtual</div>
+      <div class="login-sub">Ingresa con tu matrícula y contraseña asignadas.</div>
+    </div>
+
+    <div class="error-msg" id="errorMsg">
+      <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" stroke="#f07070" stroke-width="1.2"/><path d="M8 5v3.5M8 11v.5" stroke="#f07070" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Matrícula o contraseña incorrectos. Intenta de nuevo.
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="matricula">Matrícula</label>
+      <div class="input-wrap">
+        <svg class="input-icon" width="16" height="16" fill="none" viewBox="0 0 16 16">
+          <rect x="2" y="2" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M5 6h6M5 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <input class="form-input" type="text" id="matricula" placeholder="Ej: NX-2024-001" autocomplete="username" spellcheck="false">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Contraseña</label>
+      <div class="input-wrap">
+        <svg class="input-icon" width="16" height="16" fill="none" viewBox="0 0 16 16">
+          <rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <input class="form-input" type="password" id="password" placeholder="Tu contraseña" autocomplete="current-password">
+        <button class="password-toggle" id="togglePwd" type="button" title="Mostrar contraseña">
+          <svg id="eyeIcon" width="16" height="16" fill="none" viewBox="0 0 16 16">
+            <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-options">
+      <label class="remember-label">
+        <input class="remember-check" type="checkbox" id="remember">
+        Recordar sesión
+      </label>
+      <a class="forgot-link" href="#">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <button class="btn-login" id="btnLogin" type="button">
+      <span class="btn-text">Ingresar al aula</span>
+      <div class="spinner"></div>
+    </button>
+
+    <div class="login-divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">¿Necesitas ayuda?</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="support-row">
+      <span>¿Sin acceso?</span>
+      <a href="#">Contacta a soporte</a>
+      <span>·</span>
+      <a href="#">Ver cursos disponibles</a>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat-item">
+        <div class="stat-num">12<em>K+</em></div>
+        <div class="stat-lbl">Estudiantes</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num">240<em>+</em></div>
+        <div class="stat-lbl">Cursos</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <div class="stat-num">98<em>%</em></div>
+        <div class="stat-lbl">Satisfacción</div>
+      </div>
+    </div>
+
+  </div><!-- /login-panel -->
+
+</div><!-- /page -->
+
+<script type="module">
+  const SLIDE_DURATION = 6000;
+  const PROGRESS_INTERVAL = 50;
+  let current = 0;
+  let progress = 0;
+  let timer, progTimer;
+
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  const bar = document.getElementById('progressBar');
+
+  window.goTo = function goTo(idx) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = idx;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    resetProgress();
+  }
+
+  function nextSlide() {
+    goTo((current + 1) % slides.length);
+  }
+
+  function resetProgress() {
+    clearInterval(progTimer);
+    progress = 0;
+    bar.style.width = '0%';
+    progTimer = setInterval(() => {
+      progress += (PROGRESS_INTERVAL / SLIDE_DURATION) * 100;
+      bar.style.width = Math.min(progress, 100) + '%';
+      if (progress >= 100) {
+        clearInterval(progTimer);
+        nextSlide();
+      }
+    }, PROGRESS_INTERVAL);
+  }
+
+  resetProgress();
+
+  // particles
+  const colors = ['#7c6af7', '#4ecdc4', '#ffffff'];
+  document.querySelectorAll('.particles').forEach(container => {
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 4 + 2;
+      p.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${Math.random()*100}%;
+        bottom:${Math.random()*30}%;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-delay:${Math.random()*4}s;
+        animation-duration:${4+Math.random()*4}s;
+      `;
+      container.appendChild(p);
+    }
+  });
+
+  // password toggle
+  const togglePwd = document.getElementById('togglePwd');
+  const pwdInput = document.getElementById('password');
+  togglePwd.addEventListener('click', () => {
+    const show = pwdInput.type === 'password';
+    pwdInput.type = show ? 'text' : 'password';
+    togglePwd.innerHTML = show
+      ? `<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M2 2l12 12M6.5 6.7A2 2 0 019.3 9.5M1 8s2.5-5 7-5c1.1 0 2.1.2 3 .6M15 8s-.8 1.7-2.3 3M6 13.4C6.6 13.8 7.3 14 8 14c4.5 0 7-5 7-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`
+      : `<svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/></svg>`;
+  });
+
+  // ── FIREBASE AUTH ──
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, collection, query, where, getDocs }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBEXEQArv1biBw-ZTQUt9QOsP4BalV8BIY",
+    authDomain: "nexora-914f6.firebaseapp.com",
+    projectId: "nexora-914f6",
+    storageBucket: "nexora-914f6.firebasestorage.app",
+    messagingSenderId: "1042987858149",
+    appId: "1:1042987858149:web:f647c9e9caa0d8dee93c0c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // Si ya hay sesión activa → ir directo al aula
+  onAuthStateChanged(auth, user => {
+    if (user) window.location.href = 'aula.html';
+  });
+
+  const btnLogin = document.getElementById('btnLogin');
+  const errorMsg = document.getElementById('errorMsg');
+
+  async function doLogin() {
+    const mat = document.getElementById('matricula').value.trim();
+    const pwd = document.getElementById('password').value.trim();
+    errorMsg.classList.remove('show');
+
+    if (!mat || !pwd) {
+      errorMsg.lastChild.textContent = ' Por favor ingresa tu matrícula y contraseña.';
+      errorMsg.classList.add('show');
+      return;
+    }
+
+    btnLogin.classList.add('loading');
+
+    try {
+      // Buscar el correo asociado a esta matrícula en Firestore
+      const q = query(collection(db, 'students'), where('matricula', '==', mat));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        throw new Error('Matrícula no encontrada');
+      }
+
+      const studentData = snap.docs[0].data();
+      const email = studentData.email;
+
+      // Autenticar con Firebase Auth usando el correo del estudiante
+      await signInWithEmailAndPassword(auth, email, pwd);
+
+      // Guardar datos del estudiante en sessionStorage para el aula
+      sessionStorage.setItem('nx_student', JSON.stringify({
+        name: studentData.name,
+        matricula: studentData.matricula,
+        course: studentData.course,
+        email: studentData.email
+      }));
+
+      // Redirigir al aula
+      window.location.href = 'aula.html';
+
+    } catch (e) {
+      btnLogin.classList.remove('loading');
+      const msgs = {
+        'Matrícula no encontrada': 'Matrícula no registrada. Contacta a soporte.',
+        'auth/wrong-password': 'Contraseña incorrecta. Intenta de nuevo.',
+        'auth/invalid-credential': 'Matrícula o contraseña incorrectos.',
+        'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos.',
+        'auth/network-request-failed': 'Sin conexión. Revisa tu internet.',
+      };
+      const key = Object.keys(msgs).find(k => e.message?.includes(k) || e.code?.includes(k));
+      errorMsg.lastChild.textContent = ' ' + (msgs[key] || 'Error al iniciar sesión. Intenta de nuevo.');
+      errorMsg.classList.add('show');
+    }
+  }
+
+  btnLogin.addEventListener('click', doLogin);
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+
+</body>
+</html>
