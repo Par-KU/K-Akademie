@@ -217,6 +217,7 @@ section{padding:100px 40px}
 .preview-video-cover{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   background:linear-gradient(135deg,#1a1040,#0d1a2e);cursor:pointer;transition:opacity .3s;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
 }
 .preview-video-cover.hidden{opacity:0;pointer-events:none}
 .preview-play{
@@ -818,7 +819,12 @@ async function loadLandingContent() {
     if (d.prev_old) document.querySelector('.preview-price-old').textContent = d.prev_old;
     if (d.prev_save) document.querySelector('.preview-price-save').textContent = d.prev_save;
     if (d.prev_label) document.querySelector('.preview-label').childNodes[1] && (document.querySelector('.preview-label').lastChild.textContent = ' '+d.prev_label);
-    if (d.prev_cover) document.querySelector('.preview-video-cover').style.backgroundImage = `url('${d.prev_cover}')`;
+    if (d.prev_cover) {
+      const cover = document.querySelector('.preview-video-cover');
+      cover.style.backgroundImage = `url('${d.prev_cover}')`;
+      cover.style.backgroundSize = 'cover';
+      cover.style.backgroundPosition = 'center';
+    }
     if (d.prev_videoid) window._previewVideoId = d.prev_videoid;
     if (d.prev_lessons) {
       const lines = d.prev_lessons.split('\n').filter(l=>l.trim());
@@ -1020,7 +1026,7 @@ window.playVideo = function() {
   const cover = document.getElementById('videoCover');
   const frame = document.getElementById('videoFrame');
   const videoId = window._previewVideoId || 'VIDEO_ID_AQUI';
-  frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
+  frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1`;
   cover.classList.add('hidden');
 };
 
