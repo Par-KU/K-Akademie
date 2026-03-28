@@ -759,7 +759,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:60px
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, query, where, orderBy }
+import { getFirestore, collection, getDocs, query, where, doc, getDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -784,6 +784,123 @@ const observer = new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
 },{threshold:0.1});
 document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+
+// ── LOAD LANDING DATA FROM FIREBASE ──
+async function loadLandingContent() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'landing'));
+    if (!snap.exists()) return;
+    const d = snap.data();
+
+    // HERO
+    if (d.hero_bg) document.querySelector('.hero').style.backgroundImage = `url('${d.hero_bg}')`;
+    if (d.hero_badge) document.querySelector('.hero-badge').childNodes[2] && (document.querySelector('.hero-badge').lastChild.textContent = ' '+d.hero_badge);
+    if (d.hero_t1) document.querySelector('.hero-title').innerHTML = `${d.hero_t1||''}<br><span class="line2">${d.hero_t2||''}</span><br><span class="line3">${d.hero_t3||''}</span>`;
+    if (d.hero_sub) document.querySelector('.hero-sub').textContent = d.hero_sub;
+    if (d.hero_btn) document.querySelector('.btn-hero').childNodes[0].textContent = d.hero_btn+' ';
+
+    // STATS
+    const stats = [
+      [d.stat1_num, d.stat1_lbl],[d.stat2_num, d.stat2_lbl],
+      [d.stat3_num, d.stat3_lbl],[d.stat4_num, d.stat4_lbl]
+    ];
+    const statEls = document.querySelectorAll('.hero-stats > div:not(.hero-stat-sep)');
+    stats.forEach(([num,lbl],i) => {
+      if (!statEls[i]) return;
+      if (num) statEls[i].querySelector('.hero-stat-num').innerHTML = num;
+      if (lbl) statEls[i].querySelector('.hero-stat-lbl').textContent = lbl;
+    });
+
+    // PREVIEW
+    if (d.prev_title) document.querySelector('.preview-title').textContent = d.prev_title;
+    if (d.prev_desc) document.querySelector('.preview-desc').textContent = d.prev_desc;
+    if (d.prev_price) document.querySelector('.preview-price').innerHTML = d.prev_price+' <span style="font-size:14px;color:var(--muted)">MXN</span>';
+    if (d.prev_old) document.querySelector('.preview-price-old').textContent = d.prev_old;
+    if (d.prev_save) document.querySelector('.preview-price-save').textContent = d.prev_save;
+    if (d.prev_label) document.querySelector('.preview-label').childNodes[1] && (document.querySelector('.preview-label').lastChild.textContent = ' '+d.prev_label);
+    if (d.prev_cover) document.querySelector('.preview-video-cover').style.backgroundImage = `url('${d.prev_cover}')`;
+    if (d.prev_videoid) window._previewVideoId = d.prev_videoid;
+    if (d.prev_lessons) {
+      const lines = d.prev_lessons.split('\n').filter(l=>l.trim());
+      const container = document.querySelector('.preview-includes');
+      container.innerHTML = lines.map(line => {
+        const locked = line.startsWith('🔒');
+        const text = line.replace('🔒','').trim();
+        return locked
+          ? `<div class="pi-item locked-item"><div class="pi-locked">🔒</div>${text}</div>`
+          : `<div class="pi-item"><div class="pi-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="var(--purple)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>${text}</div>`;
+      }).join('');
+    }
+
+    // STEPS
+    if (d.steps_title) document.querySelector('.how-section .section-title').textContent = d.steps_title;
+    if (d.steps_sub) document.querySelector('.how-section .section-sub').textContent = d.steps_sub;
+    const stepCards = document.querySelectorAll('.step-card');
+    [1,2,3,4].forEach((n,i) => {
+      if (!stepCards[i]) return;
+      if (d[`step${n}_img`]) stepCards[i].querySelector('.step-icon').innerHTML = `<img src="${d[`step${n}_img`]}" style="width:48px;height:48px;object-fit:cover;border-radius:10px">`;
+      if (d[`step${n}_title`]) stepCards[i].querySelector('.step-title').textContent = d[`step${n}_title`];
+      if (d[`step${n}_desc`]) stepCards[i].querySelector('.step-desc').textContent = d[`step${n}_desc`];
+    });
+
+    // TESTIMONIALS
+    if (d.testi_title) document.querySelector('.testimonials-section .section-title').textContent = d.testi_title;
+    if (d.testi_sub) document.querySelector('.testimonials-section .section-sub').textContent = d.testi_sub;
+    const testiCards = document.querySelectorAll('.testi-card');
+    [1,2,3].forEach((n,i) => {
+      if (!testiCards[i]) return;
+      if (d[`t${n}_text`]) testiCards[i].querySelector('.testi-text').textContent = '"'+d[`t${n}_text`]+'"';
+      if (d[`t${n}_name`]) testiCards[i].querySelector('.testi-name').textContent = d[`t${n}_name`];
+      if (d[`t${n}_role`]) testiCards[i].querySelector('.testi-role').textContent = d[`t${n}_role`];
+      if (d[`t${n}_img`]) {
+        const av = testiCards[i].querySelector('.testi-av');
+        av.style.backgroundImage = `url('${d[`t${n}_img`]}')`;
+        av.style.backgroundSize = 'cover';
+        av.textContent = '';
+      }
+    });
+
+    // PRICING
+    if (d.price_title) document.querySelector('.pricing-section .section-title').textContent = d.price_title;
+    if (d.price_sub) document.querySelector('.pricing-section .section-sub').textContent = d.price_sub;
+    const priceCards = document.querySelectorAll('.price-card');
+    [1,2,3].forEach((n,i) => {
+      if (!priceCards[i]) return;
+      if (d[`plan${n}_name`]) priceCards[i].querySelector('.price-name').textContent = d[`plan${n}_name`];
+      if (d[`plan${n}_price`]) priceCards[i].querySelector('.price-amount').innerHTML = `<span>$</span>${d[`plan${n}_price`].replace('$','')}`;
+      if (d[`plan${n}_period`]) priceCards[i].querySelector('.price-period').textContent = d[`plan${n}_period`];
+      if (d[`plan${n}_btn`]) priceCards[i].querySelector('.btn-plan').textContent = d[`plan${n}_btn`];
+      if (d[`plan${n}_features`]) {
+        const feats = d[`plan${n}_features`].split('\n').filter(f=>f.trim());
+        priceCards[i].querySelector('.price-features').innerHTML = feats.map(f=>
+          `<div class="pf-item"><span class="pf-check">✓</span>${f}</div>`
+        ).join('');
+      }
+      if (d[`plan${n}_featured`]) {
+        priceCards[i].classList.add('featured');
+        if (!priceCards[i].querySelector('.price-featured-badge')) {
+          const badge = document.createElement('div');
+          badge.className = 'price-featured-badge';
+          badge.textContent = 'MÁS POPULAR';
+          priceCards[i].prepend(badge);
+        }
+      }
+    });
+
+    // FOOTER
+    if (d.footer_desc) document.querySelector('.footer-brand p').innerHTML = d.footer_desc+'<br>La plataforma para quienes quieren más.';
+    if (d.footer_copy) document.querySelector('.footer-bottom span:first-child').textContent = d.footer_copy+'. Todos los derechos reservados.';
+    if (d.footer_tag) document.querySelector('.footer-bottom span:last-child').textContent = d.footer_tag;
+    if (d.footer_logo) {
+      const brandEl = document.querySelector('.footer-brand');
+      const logoRow = brandEl.querySelector('div');
+      logoRow.innerHTML = `<img src="${d.footer_logo}" style="height:36px;object-fit:contain">`;
+    }
+
+  } catch(e) {
+    console.log('Sin datos de landing en Firebase, usando defaults');
+  }
+}
 
 // ── LOAD COURSES FROM FIREBASE ──
 let _allCourses = [];
@@ -949,6 +1066,7 @@ window.submitRegistration = function() {
 };
 
 // ── INIT ──
+loadLandingContent();
 loadCourses();
 </script>
 </body>
