@@ -282,6 +282,12 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 .config-card p{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5}
 .config-card .field{margin-bottom:10px}
 
+/* landing tabs */
+.tab{padding:8px 16px;border-radius:7px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab.active{background:var(--surface);color:#fff}
+.landing-tab{display:none}
+.landing-tab.active{display:block}
+
 /* preview strip */
 .preview-strip{
   background:var(--surface2);border:1px solid var(--border);border-radius:10px;
@@ -346,6 +352,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
       <div class="sb-item" onclick="setSection('admins')"><div class="sb-dot"></div>Administradores</div>
 
       <div class="sb-section">Plataforma</div>
+      <div class="sb-item" onclick="setSection('landing')"><div class="sb-dot"></div>Landing Page</div>
       <div class="sb-item" onclick="setSection('courses')"><div class="sb-dot"></div>Cursos <span class="sb-count" id="coursesCount">0</span></div>
       <div class="sb-item" onclick="setSection('config')"><div class="sb-dot"></div>Configuración</div>
     </div>
@@ -426,6 +433,184 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
         <div class="slides-editor" id="slidesEditor">
           <!-- rendered by JS -->
         </div>
+      </div>
+
+      <!-- LANDING CMS -->
+      <div class="section" id="sec-landing">
+        <div class="preview-strip">
+          <div class="preview-dot"></div>
+          <div class="preview-text">Todo lo que edites aquí se refleja automáticamente en la <strong>landing pública</strong>.</div>
+        </div>
+
+        <!-- TABS -->
+        <div style="display:flex;gap:4px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px;width:fit-content">
+          <div class="tab active" onclick="setLandingTab('hero',this)">Hero</div>
+          <div class="tab" onclick="setLandingTab('preview',this)">Preview</div>
+          <div class="tab" onclick="setLandingTab('steps',this)">Cómo funciona</div>
+          <div class="tab" onclick="setLandingTab('testimonials',this)">Testimonios</div>
+          <div class="tab" onclick="setLandingTab('pricing',this)">Precios</div>
+          <div class="tab" onclick="setLandingTab('footer',this)">Footer</div>
+        </div>
+
+        <!-- HERO TAB -->
+        <div class="landing-tab active" id="ltab-hero">
+          <div class="config-grid">
+            <div class="config-card" style="grid-column:1/-1">
+              <h4>Imagen de fondo del Hero</h4>
+              <p>Imagen principal que se ve detrás del título. Sube a assets/img/ en GitHub.</p>
+              <div class="field"><label>URL de imagen</label><input type="text" id="hero_bg" placeholder="assets/img/hero-bg.jpg"></div>
+            </div>
+            <div class="config-card">
+              <h4>Badge superior</h4>
+              <p>El texto pequeño que aparece sobre el título.</p>
+              <div class="field"><label>Texto del badge</label><input type="text" id="hero_badge" placeholder="Plataforma #1 para emprendedores"></div>
+            </div>
+            <div class="config-card">
+              <h4>Título principal</h4>
+              <p>Las 3 líneas del título grande.</p>
+              <div class="field"><label>Línea 1</label><input type="text" id="hero_t1" placeholder="Aprende hoy."></div>
+              <div class="field"><label>Línea 2 (morada)</label><input type="text" id="hero_t2" placeholder="Lanza mañana."></div>
+              <div class="field"><label>Línea 3 (gradiente)</label><input type="text" id="hero_t3" placeholder="Crece siempre."></div>
+            </div>
+            <div class="config-card">
+              <h4>Subtítulo</h4>
+              <p>El párrafo debajo del título.</p>
+              <div class="field"><label>Texto</label><textarea id="hero_sub" style="min-height:80px"></textarea></div>
+              <div class="field"><label>Botón principal</label><input type="text" id="hero_btn" placeholder="Empieza gratis hoy"></div>
+            </div>
+            <div class="config-card" style="grid-column:1/-1">
+              <h4>Estadísticas</h4>
+              <p>Los 4 números que aparecen en la parte inferior del hero.</p>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+                <div class="field"><label>Número 1</label><input type="text" id="stat1_num" placeholder="12K+"></div>
+                <div class="field"><label>Label 1</label><input type="text" id="stat1_lbl" placeholder="Estudiantes activos"></div>
+                <div class="field"><label>Número 2</label><input type="text" id="stat2_num" placeholder="240+"></div>
+                <div class="field"><label>Label 2</label><input type="text" id="stat2_lbl" placeholder="Cursos disponibles"></div>
+                <div class="field"><label>Número 3</label><input type="text" id="stat3_num" placeholder="98%"></div>
+                <div class="field"><label>Label 3</label><input type="text" id="stat3_lbl" placeholder="Satisfacción"></div>
+                <div class="field"><label>Número 4</label><input type="text" id="stat4_num" placeholder="4.9★"></div>
+                <div class="field"><label>Label 4</label><input type="text" id="stat4_lbl" placeholder="Calificación promedio"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-save" style="margin-top:16px" onclick="saveLandingSection('hero')">💾 Guardar Hero</button>
+        </div>
+
+        <!-- PREVIEW TAB -->
+        <div class="landing-tab" id="ltab-preview" style="display:none">
+          <div class="config-grid">
+            <div class="config-card">
+              <h4>Video de clase gratis</h4>
+              <p>ID del video de YouTube (lo que va después de v= en la URL).</p>
+              <div class="field"><label>ID de YouTube</label><input type="text" id="prev_videoid" placeholder="dQw4w9WgXcQ"></div>
+              <div class="field"><label>Imagen de portada del video</label><input type="text" id="prev_cover" placeholder="assets/img/video-cover.jpg"></div>
+              <div class="field"><label>Etiqueta debajo del video</label><input type="text" id="prev_label" placeholder="Clase 1 de 48 · Gratis para todos"></div>
+            </div>
+            <div class="config-card">
+              <h4>Info del curso en preview</h4>
+              <div class="field"><label>Título del curso</label><input type="text" id="prev_title" placeholder="Python para Emprendedores"></div>
+              <div class="field"><label>Descripción</label><textarea id="prev_desc" style="min-height:80px"></textarea></div>
+              <div class="field"><label>Precio actual</label><input type="text" id="prev_price" placeholder="$399 MXN"></div>
+              <div class="field"><label>Precio tachado</label><input type="text" id="prev_old" placeholder="$899"></div>
+              <div class="field"><label>% de descuento</label><input type="text" id="prev_save" placeholder="-55%"></div>
+            </div>
+            <div class="config-card" style="grid-column:1/-1">
+              <h4>Lista de lecciones visibles</h4>
+              <p>Una por línea. Agrega 🔒 al inicio para mostrarla bloqueada.</p>
+              <textarea id="prev_lessons" style="min-height:100px;font-family:monospace;font-size:12px" placeholder="Clase 1: Introducción — GRATIS&#10;🔒 Clase 2: Variables y tipos&#10;🔒 Clase 3: Tu primer programa"></textarea>
+            </div>
+          </div>
+          <button class="btn-save" style="margin-top:16px" onclick="saveLandingSection('preview')">💾 Guardar Preview</button>
+        </div>
+
+        <!-- STEPS TAB -->
+        <div class="landing-tab" id="ltab-steps" style="display:none">
+          <div class="config-grid">
+            <div class="config-card" style="grid-column:1/-1">
+              <h4>Título de la sección</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field"><label>Título</label><input type="text" id="steps_title" placeholder="Así de simple es empezar"></div>
+                <div class="field"><label>Subtítulo</label><input type="text" id="steps_sub" placeholder="De cero a emprendedor en 4 pasos."></div>
+              </div>
+            </div>
+            ${[1,2,3,4].map(i=>`
+            <div class="config-card">
+              <h4>Paso ${i}</h4>
+              <div class="field"><label>Imagen</label><input type="text" id="step${i}_img" placeholder="assets/img/paso-${i}.jpg"></div>
+              <div class="field"><label>Título</label><input type="text" id="step${i}_title" placeholder="Título del paso ${i}"></div>
+              <div class="field"><label>Descripción</label><textarea id="step${i}_desc" style="min-height:60px"></textarea></div>
+            </div>`).join('')}
+          </div>
+          <button class="btn-save" style="margin-top:16px" onclick="saveLandingSection('steps')">💾 Guardar Pasos</button>
+        </div>
+
+        <!-- TESTIMONIALS TAB -->
+        <div class="landing-tab" id="ltab-testimonials" style="display:none">
+          <div class="config-grid">
+            <div class="config-card" style="grid-column:1/-1">
+              <h4>Título de la sección</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field"><label>Título</label><input type="text" id="testi_title" placeholder="Lo que dicen nuestros estudiantes"></div>
+                <div class="field"><label>Subtítulo</label><input type="text" id="testi_sub" placeholder="Miles de personas ya transformaron..."></div>
+              </div>
+            </div>
+            ${[1,2,3].map(i=>`
+            <div class="config-card">
+              <h4>Testimonio ${i}</h4>
+              <div class="field"><label>Foto del estudiante</label><input type="text" id="t${i}_img" placeholder="assets/img/alumno-${i}.jpg"></div>
+              <div class="field"><label>Nombre</label><input type="text" id="t${i}_name" placeholder="María Rodríguez"></div>
+              <div class="field"><label>Rol / Ciudad</label><input type="text" id="t${i}_role" placeholder="Dueña de tienda · Guadalajara"></div>
+              <div class="field"><label>Testimonio</label><textarea id="t${i}_text" style="min-height:80px" placeholder="Escribe el testimonio aquí..."></textarea></div>
+            </div>`).join('')}
+          </div>
+          <button class="btn-save" style="margin-top:16px" onclick="saveLandingSection('testimonials')">💾 Guardar Testimonios</button>
+        </div>
+
+        <!-- PRICING TAB -->
+        <div class="landing-tab" id="ltab-pricing" style="display:none">
+          <div class="config-grid">
+            <div class="config-card" style="grid-column:1/-1">
+              <h4>Título de la sección</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field"><label>Título</label><input type="text" id="price_title" placeholder="Elige tu plan"></div>
+                <div class="field"><label>Subtítulo</label><input type="text" id="price_sub" placeholder="Paga una vez o suscríbete"></div>
+              </div>
+            </div>
+            ${[{n:1,name:'Individual'},{n:2,name:'Pro Mensual'},{n:3,name:'Pro Anual'}].map(p=>`
+            <div class="config-card">
+              <h4>Plan ${p.name}</h4>
+              <div class="field"><label>Nombre del plan</label><input type="text" id="plan${p.n}_name" placeholder="${p.name}"></div>
+              <div class="field"><label>Precio</label><input type="text" id="plan${p.n}_price" placeholder="$499"></div>
+              <div class="field"><label>Período</label><input type="text" id="plan${p.n}_period" placeholder="por mes · cancela cuando quieras"></div>
+              <div class="field"><label>Características (una por línea)</label><textarea id="plan${p.n}_features" style="min-height:100px;font-family:monospace;font-size:12px" placeholder="Acceso a todos los cursos&#10;Videos y PDFs&#10;Certificados"></textarea></div>
+              <div class="field"><label>Texto del botón</label><input type="text" id="plan${p.n}_btn" placeholder="Comenzar ahora"></div>
+              <div class="field"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="plan${p.n}_featured"> Marcar como destacado</label></div>
+            </div>`).join('')}
+          </div>
+          <button class="btn-save" style="margin-top:16px" onclick="saveLandingSection('pricing')">💾 Guardar Planes</button>
+        </div>
+
+        <!-- FOOTER TAB -->
+        <div class="landing-tab" id="ltab-footer" style="display:none">
+          <div class="config-grid">
+            <div class="config-card">
+              <h4>Marca en footer</h4>
+              <div class="field"><label>Logo / imagen</label><input type="text" id="footer_logo" placeholder="assets/img/logo.png"></div>
+              <div class="field"><label>Descripción</label><textarea id="footer_desc" style="min-height:60px" placeholder="Tu plataforma de cursos..."></textarea></div>
+              <div class="field"><label>Copyright</label><input type="text" id="footer_copy" placeholder="© 2025 Kü Akademie"></div>
+              <div class="field"><label>Tagline inferior</label><input type="text" id="footer_tag" placeholder="Hecho con ❤️ para emprendedores de LATAM"></div>
+            </div>
+            <div class="config-card">
+              <h4>Datos de contacto</h4>
+              <div class="field"><label>Correo de soporte</label><input type="email" id="footer_email" placeholder="hola@ku-akademie.mx"></div>
+              <div class="field"><label>WhatsApp</label><input type="text" id="footer_wa" placeholder="+52 55 1234 5678"></div>
+              <div class="field"><label>Instagram</label><input type="text" id="footer_ig" placeholder="@ku.akademie"></div>
+              <div class="field"><label>Facebook</label><input type="text" id="footer_fb" placeholder="KüAkademie"></div>
+            </div>
+          </div>
+          <button class="btn-save" style="margin-top:16px" onclick="saveLandingSection('footer')">💾 Guardar Footer</button>
+        </div>
+
       </div>
 
       <!-- STUDENTS -->
@@ -692,6 +877,7 @@ function showApp(user) {
   loadStudents();
   loadAdmins();
   loadCourses();
+  loadLandingData();
 }
 
 // AUTH
@@ -1188,6 +1374,66 @@ window.deleteCourse = async function(id) {
   } catch(e) { showToast('Error al eliminar', '#e05555'); }
 };
 
+// ── LANDING CMS ──
+window.setLandingTab = function(id, el) {
+  document.querySelectorAll('.landing-tab').forEach(t=>t.style.display='none');
+  document.querySelectorAll('#sec-landing .tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('ltab-'+id).style.display='block';
+  el.classList.add('active');
+};
+
+const landingFields = {
+  hero: ['hero_bg','hero_badge','hero_t1','hero_t2','hero_t3','hero_sub','hero_btn',
+         'stat1_num','stat1_lbl','stat2_num','stat2_lbl','stat3_num','stat3_lbl','stat4_num','stat4_lbl'],
+  preview: ['prev_videoid','prev_cover','prev_label','prev_title','prev_desc','prev_price','prev_old','prev_save','prev_lessons'],
+  steps: ['steps_title','steps_sub','step1_img','step1_title','step1_desc','step2_img','step2_title','step2_desc',
+          'step3_img','step3_title','step3_desc','step4_img','step4_title','step4_desc'],
+  testimonials: ['testi_title','testi_sub','t1_img','t1_name','t1_role','t1_text','t2_img','t2_name','t2_role','t2_text','t3_img','t3_name','t3_role','t3_text'],
+  pricing: ['price_title','price_sub','plan1_name','plan1_price','plan1_period','plan1_features','plan1_btn',
+            'plan2_name','plan2_price','plan2_period','plan2_features','plan2_btn',
+            'plan3_name','plan3_price','plan3_period','plan3_features','plan3_btn'],
+  footer: ['footer_logo','footer_desc','footer_copy','footer_tag','footer_email','footer_wa','footer_ig','footer_fb']
+};
+
+async function loadLandingData() {
+  try {
+    const snap = await getDoc(doc(db,'config','landing'));
+    if (!snap.exists()) return;
+    const data = snap.data();
+    Object.entries(data).forEach(([key, val]) => {
+      const el = document.getElementById(key);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = !!val;
+      else el.value = val || '';
+    });
+  } catch(e) {}
+}
+
+window.saveLandingSection = async function(section) {
+  const fields = landingFields[section] || [];
+  const data = {};
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    data[id] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  // Include plan featured checkboxes
+  if (section === 'pricing') {
+    [1,2,3].forEach(n => {
+      const el = document.getElementById(`plan${n}_featured`);
+      if (el) data[`plan${n}_featured`] = el.checked;
+    });
+  }
+  try {
+    const snap = await getDoc(doc(db,'config','landing'));
+    const existing = snap.exists() ? snap.data() : {};
+    await setDoc(doc(db,'config','landing'), {...existing, ...data});
+    showToast(`Sección "${section}" guardada ✓`, '#4caf82');
+  } catch(e) {
+    showToast('Error: ' + e.message, '#e05555');
+  }
+};
+
 // CONFIG SAVE
 window.saveConfig = async function() {
   const cfg = {
@@ -1213,8 +1459,8 @@ window.setSection = function(id) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+id).classList.add('active');
-  const labels = {dashboard:'Dashboard',banner:'Banner / Slides',students:'Estudiantes',admins:'Administradores',courses:'Cursos',config:'Configuración'};
-  const subs = {dashboard:'— Resumen general',banner:'— Editor de slides',students:'— Gestión de accesos',admins:'— Control de acceso',courses:'— Módulos y contenido',config:'— Ajustes de la plataforma'};
+  const labels = {dashboard:'Dashboard',banner:'Banner / Slides',students:'Estudiantes',admins:'Administradores',landing:'Landing Page',courses:'Cursos',config:'Configuración'};
+  const subs = {dashboard:'— Resumen general',banner:'— Editor de slides',students:'— Gestión de accesos',admins:'— Control de acceso',landing:'— Editor completo de la landing',courses:'— Módulos y contenido',config:'— Ajustes de la plataforma'};
   document.getElementById('topbarTitle').textContent = labels[id]||id;
   document.getElementById('topbarSub').textContent = subs[id]||'';
   event.currentTarget.classList.add('active');
