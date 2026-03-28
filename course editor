@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KÜ AKADEMIE — Editor de Curso</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --purple:#7c6af7;--purple-dim:#5548c8;--purple-light:rgba(124,106,247,0.12);
+  --teal:#4ecdc4;--bg:#0a0b10;--surface:#11121a;--surface2:#181926;--surface3:#1e2035;
+  --border:#1e2035;--border2:#252640;--text:#e8e8f0;--muted:#6b6d8a;--muted2:#3a3d58;
+  --green:#4caf82;--green-light:rgba(76,175,130,0.12);--amber:#f0b942;--red:#e05555;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;height:56px}
+.tb-back{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--muted);font-size:13px;transition:color .15s}
+.tb-back:hover{color:var(--text)}
+.tb-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:#fff;margin-left:4px}
+.tb-subtitle{font-size:12px;color:var(--muted)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn-save{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:6px}
+.btn-save:hover{background:var(--purple-dim)}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s}
+.btn-secondary:hover{border-color:var(--border2);color:var(--text)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* WIZARD STEPS */
+.wizard{max-width:1100px;margin:0 auto;padding:32px 28px}
+.wizard-steps{display:flex;align-items:center;gap:0;margin-bottom:40px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px;overflow:hidden}
+.wstep{flex:1;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;cursor:pointer;transition:all .2s;position:relative}
+.wstep:hover{background:var(--surface2)}
+.wstep.active{background:var(--purple-light)}
+.wstep.done{background:var(--green-light)}
+.wstep-num{width:28px;height:28px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--muted);flex-shrink:0;transition:all .2s}
+.wstep.active .wstep-num{background:var(--purple);color:#fff}
+.wstep.done .wstep-num{background:var(--green);color:#fff}
+.wstep-info{}
+.wstep-title{font-size:12px;font-weight:500;color:var(--muted)}
+.wstep.active .wstep-title{color:#fff}
+.wstep.done .wstep-title{color:var(--green)}
+.wstep-sub{font-size:10px;color:var(--muted2)}
+.wstep-arrow{color:var(--muted2);font-size:12px;margin:0 4px}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
+
+/* FIELD */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-size:11px;color:rgba(232,232,240,.5);text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple)}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted2)}
+.field select option{background:var(--surface2)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
+.card-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+
+/* IMAGE PREVIEW */
+.img-preview-wrap{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:16/9;background:linear-gradient(135deg,#1a1040,#0d1a2e);margin-bottom:12px;display:flex;align-items:center;justify-content:center}
+.img-preview-wrap img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.img-preview-placeholder{font-size:48px;opacity:.3}
+.img-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;cursor:pointer}
+.img-preview-wrap:hover .img-overlay{opacity:1}
+.img-overlay-btn{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* UNITS */
+.units-list{display:flex;flex-direction:column;gap:12px}
+.unit-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.unit-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+.unit-handle{color:var(--muted2);cursor:grab;font-size:16px}
+.unit-num{width:28px;height:28px;border-radius:8px;background:var(--purple-light);color:var(--purple);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.unit-name{font-size:14px;font-weight:500;color:var(--text);flex:1}
+.unit-count{font-size:11px;color:var(--muted2)}
+.unit-toggle{color:var(--muted);font-size:18px;transition:transform .2s}
+.unit-toggle.open{transform:rotate(180deg)}
+.unit-body{padding:0 16px 16px;display:none}
+.unit-body.open{display:block}
+.unit-actions{display:flex;gap:8px;margin-top:12px}
+
+/* LESSONS */
+.lessons-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.lesson-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.lesson-handle{color:var(--muted2);cursor:grab;font-size:14px;flex-shrink:0}
+.lesson-num{font-size:11px;color:var(--muted2);min-width:20px}
+.lesson-info{flex:1;min-width:0}
+.lesson-title-input{background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);width:100%;padding:0}
+.lesson-title-input::placeholder{color:var(--muted2)}
+.lesson-video-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);outline:none;width:180px;transition:border-color .2s}
+.lesson-video-input:focus{border-color:var(--purple)}
+.lesson-video-input::placeholder{color:var(--muted2)}
+.lesson-dur-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);outline:none;width:70px}
+.lesson-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:2px 4px;transition:color .15s;flex-shrink:0}
+.lesson-del:hover{color:var(--red)}
+
+/* EXAMS */
+.exam-builder{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.exam-unit-header{padding:12px 16px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.exam-unit-name{font-size:13px;font-weight:500;color:var(--text)}
+.exam-unit-body{padding:16px;display:none}
+.exam-unit-body.open{display:block}
+.question-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.q-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.q-num-badge{background:var(--purple-light);color:var(--purple);font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;flex-shrink:0}
+.q-del{margin-left:auto;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;transition:color .15s}
+.q-del:hover{color:var(--red)}
+.options-grid{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.option-row{display:flex;align-items:center;gap:8px}
+.option-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;appearance:none;transition:all .15s;position:relative}
+.option-radio:checked{border-color:var(--green);background:var(--green)}
+.option-radio:checked::after{content:'';position:absolute;top:2px;left:2px;width:8px;height:8px;border-radius:50%;background:#fff}
+.option-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .2s}
+.option-input:focus{border-color:var(--purple)}
+.option-input::placeholder{color:var(--muted2)}
+.correct-label{font-size:10px;color:var(--green);font-weight:500;min-width:50px}
+
+/* PDFS */
+.pdf-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.pdf-item{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.pdf-icon{width:36px;height:36px;border-radius:8px;background:rgba(224,85,85,.12);border:1px solid rgba(224,85,85,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pdf-inputs{flex:1;display:flex;gap:8px;min-width:0}
+.pdf-name-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none}
+.pdf-url-input{flex:2;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);outline:none}
+.pdf-name-input::placeholder,.pdf-url-input::placeholder{color:var(--muted2)}
+.pdf-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;transition:color .15s;flex-shrink:0}
+.pdf-del:hover{color:var(--red)}
+
+/* ADD BTN */
+.add-btn{display:flex;align-items:center;gap:8px;background:none;border:1px dashed var(--border2);border-radius:9px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;width:100%;justify-content:center;transition:all .2s}
+.add-btn:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px 20px;display:flex;align-items:center;gap:10px;z-index:999;transition:transform .3s;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.4);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* NAV BTNS */
+.wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.nav-hint{font-size:12px;color:var(--muted2)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="tb-back" href="admin.html">
+    <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Volver al admin
+  </a>
+  <div style="width:1px;height:20px;background:var(--border)"></div>
+  <div>
+    <div class="tb-title" id="topbarTitle">Editor de curso</div>
+    <div class="tb-subtitle" id="topbarSub">Cargando...</div>
+  </div>
+  <div class="tb-right">
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">
+      <div class="status-dot" id="statusDot" style="background:var(--amber)"></div>
+      <span id="statusText">Conectando...</span>
+    </div>
+    <button class="btn-secondary" onclick="history.back()">Cancelar</button>
+    <button class="btn-save" onclick="saveAll()">
+      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 2h8l2 2v8a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="#fff" stroke-width="1.2"/><path d="M5 2v3h4V2M4 8h6" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Guardar todo
+    </button>
+  </div>
+</div>
+
+<!-- WIZARD -->
+<div class="wizard">
+
+  <!-- STEPS -->
+  <div class="wizard-steps">
+    <div class="wstep active" id="ws1" onclick="goStep(1)">
+      <div class="wstep-num">1</div>
+      <div class="wstep-info">
+        <div class="wstep-title">Info general</div>
+        <div class="wstep-sub">Título, imagen, precio</div>
+      </div>
+    </div>
+    <div class="wstep-arrow">›</div>
+    <div class="wstep" id="ws2" onclick="goStep(2)">
+      <div class="wstep-num">2</div>
+      <div class="wstep-info">
+        <div class="wstep-title">Unidades y lecciones</div>
+        <div class="wstep-sub">Videos de YouTube</div>
+      </div>
+    </div>
+    <div class="wstep-arrow">›</div>
+    <div class="wstep" id="ws3" onclick="goStep(3)">
+      <div class="wstep-num">3</div>
+      <div class="wstep-info">
+        <div class="wstep-title">Exámenes</div>
+        <div class="wstep-sub">Por unidad</div>
+      </div>
+    </div>
+    <div class="wstep-arrow">›</div>
+    <div class="wstep" id="ws4" onclick="goStep(4)">
+      <div class="wstep-num">4</div>
+      <div class="wstep-info">
+        <div class="wstep-title">Material PDF</div>
+        <div class="wstep-sub">Archivos descargables</div>
+      </div>
+    </div>
+    <div class="wstep-arrow">›</div>
+    <div class="wstep" id="ws5" onclick="goStep(5)">
+      <div class="wstep-num">5</div>
+      <div class="wstep-info">
+        <div class="wstep-title">Revisar y publicar</div>
+        <div class="wstep-sub">Vista previa final</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 1: INFO GENERAL -->
+  <div class="panel active" id="panel1">
+    <div class="card">
+      <div class="card-title">Información general del curso</div>
+      <div class="card-sub">Lo primero que verán los estudiantes en la landing y en su dashboard.</div>
+
+      <div class="field-row">
+        <div style="grid-column:1/-1">
+          <div class="field"><label>Imagen de portada del curso</label></div>
+          <div class="img-preview-wrap" id="coverPreview" onclick="document.getElementById('coverFileInput').click()">
+            <div class="img-preview-placeholder">🖼</div>
+            <div class="img-overlay"><button class="img-overlay-btn">Cambiar imagen</button></div>
+          </div>
+          <input type="file" id="coverFileInput" accept="image/*" style="display:none" onchange="previewCover(this)">
+          <div class="field"><label>O pega una URL / ruta</label><input type="text" id="f_imageUrl" placeholder="assets/img/curso-portada.jpg" oninput="updateCoverFromUrl(this.value)"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field"><label>Título del curso</label><input type="text" id="f_title" placeholder="Python para Emprendedores"></div>
+        <div class="field"><label>Categoría</label>
+          <select id="f_category">
+            <option value="">Seleccionar...</option>
+            <option>Tecnología</option><option>Emprendimiento</option>
+            <option>Diseño</option><option>Finanzas</option><option>Marketing</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field"><label>Descripción corta</label><textarea id="f_desc" placeholder="Aprende a automatizar tu negocio con Python desde cero..."></textarea></div>
+
+      <div class="field-row">
+        <div class="field"><label>Nombre del instructor</label><input type="text" id="f_instructor" placeholder="Ana García"></div>
+        <div class="field"><label>Duración total</label><input type="text" id="f_duration" placeholder="12 horas · 48 lecciones"></div>
+      </div>
+
+      <div class="field-row3">
+        <div class="field"><label>Precio actual</label><input type="text" id="f_price" placeholder="$399 MXN"></div>
+        <div class="field"><label>Precio tachado</label><input type="text" id="f_priceOld" placeholder="$899 MXN"></div>
+        <div class="field"><label>Calificación</label><input type="text" id="f_rating" placeholder="4.9" maxlength="3"></div>
+      </div>
+
+      <div class="field-row">
+        <div class="field"><label>Alumnos inscritos</label><input type="text" id="f_students" placeholder="2,340"></div>
+        <div class="field"><label>Badge destacado</label>
+          <select id="f_badge">
+            <option value="">Sin badge</option>
+            <option value="popular">Popular</option>
+            <option value="new">Nuevo</option>
+            <option value="hot">Top ventas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field"><label>ID Video YouTube — Clase gratis (preview)</label><input type="text" id="f_videoId" placeholder="kxLDrZG6Px4"></div>
+        <div class="field"><label>Estado</label>
+          <select id="f_status">
+            <option value="published">Publicado</option>
+            <option value="draft">Borrador</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-nav">
+      <span class="nav-hint">Paso 1 de 5</span>
+      <button class="btn-save" onclick="saveAndNext(1)">Siguiente → Unidades y lecciones</button>
+    </div>
+  </div>
+
+  <!-- PANEL 2: UNIDADES Y LECCIONES -->
+  <div class="panel" id="panel2">
+    <div class="card">
+      <div class="card-title">Unidades y lecciones</div>
+      <div class="card-sub">Organiza el curso en unidades. Cada unidad contiene lecciones con su video de YouTube.</div>
+
+      <div class="units-list" id="unitsList"></div>
+      <button class="add-btn" onclick="addUnit()">+ Agregar unidad</button>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn-secondary" onclick="goStep(1)">← Anterior</button>
+      <span class="nav-hint">Paso 2 de 5</span>
+      <button class="btn-save" onclick="saveAndNext(2)">Siguiente → Exámenes</button>
+    </div>
+  </div>
+
+  <!-- PANEL 3: EXÁMENES -->
+  <div class="panel" id="panel3">
+    <div class="card">
+      <div class="card-title">Exámenes por unidad</div>
+      <div class="card-sub">Crea un examen al final de cada unidad. Marca cuál opción es la correcta con el círculo verde.</div>
+      <div id="examsList"></div>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn-secondary" onclick="goStep(2)">← Anterior</button>
+      <span class="nav-hint">Paso 3 de 5</span>
+      <button class="btn-save" onclick="saveAndNext(3)">Siguiente → Material PDF</button>
+    </div>
+  </div>
+
+  <!-- PANEL 4: PDFS -->
+  <div class="panel" id="panel4">
+    <div class="card">
+      <div class="card-title">Material PDF descargable</div>
+      <div class="card-sub">Agrega los archivos que los estudiantes podrán descargar. Sube los PDFs a assets/pdf/ en GitHub o usa Google Drive.</div>
+
+      <div class="pdf-list" id="pdfList"></div>
+      <button class="add-btn" onclick="addPdf()">+ Agregar PDF</button>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn-secondary" onclick="goStep(3)">← Anterior</button>
+      <span class="nav-hint">Paso 4 de 5</span>
+      <button class="btn-save" onclick="saveAndNext(4)">Siguiente → Revisar y publicar</button>
+    </div>
+  </div>
+
+  <!-- PANEL 5: REVIEW -->
+  <div class="panel" id="panel5">
+    <div class="card">
+      <div class="card-title">Revisión final</div>
+      <div class="card-sub">Verifica que todo esté correcto antes de publicar.</div>
+      <div id="reviewContent" style="display:flex;flex-direction:column;gap:16px"></div>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn-secondary" onclick="goStep(4)">← Anterior</button>
+      <span class="nav-hint">Paso 5 de 5</span>
+      <button class="btn-save" onclick="saveAll()" style="background:var(--green)">
+        ✓ Guardar y publicar curso
+      </button>
+    </div>
+  </div>
+
+</div><!-- /wizard -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-dot" id="toastDot"></div>
+  <span id="toastMsg">Guardado</span>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBEXEQArv1biBw-ZTQUt9QOsP4BalV8BIY",
+  authDomain: "nexora-914f6.firebaseapp.com",
+  projectId: "nexora-914f6",
+  storageBucket: "nexora-914f6.firebasestorage.app",
+  messagingSenderId: "1042987858149",
+  appId: "1:1042987858149:web:f647c9e9caa0d8dee93c0c"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
+
+// Get course ID from URL
+const params = new URLSearchParams(window.location.search);
+const courseId = params.get('id');
+let courseData = {};
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  document.getElementById('statusDot').style.background = 'var(--green)';
+  document.getElementById('statusText').textContent = 'Firebase conectado';
+
+  if (courseId) {
+    await loadCourse();
+  } else {
+    document.getElementById('topbarTitle').textContent = 'Nuevo curso';
+    document.getElementById('topbarSub').textContent = 'Completa los 5 pasos';
+    initEmptyState();
+  }
+});
+
+async function loadCourse() {
+  try {
+    const snap = await getDoc(doc(db, 'courses', courseId));
+    if (!snap.exists()) { showToast('Curso no encontrado','#e05555'); return; }
+    courseData = snap.data();
+    document.getElementById('topbarTitle').textContent = courseData.title || 'Editor de curso';
+    document.getElementById('topbarSub').textContent = `ID: ${courseId}`;
+
+    // Fill panel 1
+    document.getElementById('f_title').value      = courseData.title||'';
+    document.getElementById('f_category').value   = courseData.category||'';
+    document.getElementById('f_desc').value        = courseData.desc||'';
+    document.getElementById('f_instructor').value  = courseData.instructor||'';
+    document.getElementById('f_duration').value    = courseData.duration||'';
+    document.getElementById('f_price').value       = courseData.price||'';
+    document.getElementById('f_priceOld').value    = courseData.priceOld||'';
+    document.getElementById('f_rating').value      = courseData.rating||'';
+    document.getElementById('f_students').value    = courseData.students||'';
+    document.getElementById('f_badge').value       = courseData.badge||'';
+    document.getElementById('f_videoId').value     = courseData.videoId||'';
+    document.getElementById('f_status').value      = courseData.status||'published';
+    document.getElementById('f_imageUrl').value    = courseData.imageUrl||'';
+    if (courseData.imageUrl) updateCoverFromUrl(courseData.imageUrl);
+
+    renderUnits(courseData.units||[]);
+    renderPdfs(courseData.pdfs||[]);
+
+  } catch(e) {
+    showToast('Error cargando curso: '+e.message,'#e05555');
+  }
+}
+
+function initEmptyState() {
+  renderUnits([]);
+  renderPdfs([]);
+}
+
+// ── STEP NAVIGATION ──
+window.goStep = function(n) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.wstep').forEach(s=>s.classList.remove('active'));
+  document.getElementById('panel'+n).classList.add('active');
+  document.getElementById('ws'+n).classList.add('active');
+  if (n === 3) buildExams();
+  if (n === 5) buildReview();
+  window.scrollTo(0,0);
+};
+
+window.saveAndNext = function(current) {
+  showToast('Guardando paso '+(current)+'...','#f0b942');
+  document.getElementById('ws'+current).classList.add('done');
+  goStep(current+1);
+};
+
+// ── COVER IMAGE ──
+window.previewCover = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => updateCoverFromUrl(e.target.result);
+  reader.readAsDataURL(file);
+};
+
+window.updateCoverFromUrl = function(url) {
+  const wrap = document.getElementById('coverPreview');
+  if (!url) { wrap.querySelector('.img-preview-placeholder').style.display=''; return; }
+  let img = wrap.querySelector('img');
+  if (!img) { img = document.createElement('img'); wrap.appendChild(img); }
+  img.src = url;
+  wrap.querySelector('.img-preview-placeholder').style.display='none';
+};
+
+// ── UNITS ──
+let _units = [];
+
+function renderUnits(units) {
+  _units = units.map((u,i) => ({...u, _id: u._id||Date.now()+i}));
+  const list = document.getElementById('unitsList');
+  list.innerHTML = _units.map((u,i) => buildUnitHTML(u,i)).join('');
+}
+
+function buildUnitHTML(u, i) {
+  const lessons = (u.lessons||[]).map((l,li) => `
+    <div class="lesson-item" data-uid="${u._id}" data-li="${li}">
+      <span class="lesson-handle">⠿</span>
+      <span class="lesson-num">${li+1}</span>
+      <div class="lesson-info">
+        <input class="lesson-title-input" type="text" placeholder="Título de la lección" value="${l.title||''}" onchange="updateLesson(${u._id},${li},'title',this.value)">
+      </div>
+      <input class="lesson-video-input" type="text" placeholder="ID de YouTube" value="${l.videoId||''}" onchange="updateLesson(${u._id},${li},'videoId',this.value)">
+      <input class="lesson-dur-input" type="text" placeholder="15 min" value="${l.duration||''}" onchange="updateLesson(${u._id},${li},'duration',this.value)">
+      <button class="lesson-del" onclick="deleteLesson(${u._id},${li})" title="Eliminar lección">×</button>
+    </div>`).join('');
+
+  return `
+    <div class="unit-item" id="unit-${u._id}">
+      <div class="unit-header" onclick="toggleUnit(${u._id})">
+        <span class="unit-handle">⠿</span>
+        <div class="unit-num">${i+1}</div>
+        <input type="text" value="${u.name||''}" placeholder="Nombre de la unidad"
+          style="background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text);flex:1"
+          onclick="event.stopPropagation()" onchange="updateUnitName(${u._id},this.value)">
+        <span class="unit-count">${(u.lessons||[]).length} lecciones</span>
+        <span class="unit-toggle" id="utog-${u._id}">▼</span>
+      </div>
+      <div class="unit-body" id="ubody-${u._id}">
+        <div class="lessons-list" id="lessons-${u._id}">${lessons}</div>
+        <div class="unit-actions">
+          <button class="add-btn" style="flex:1" onclick="addLesson(${u._id})">+ Agregar lección</button>
+          <button class="btn-secondary" style="color:var(--red);border-color:rgba(224,85,85,.3)" onclick="deleteUnit(${u._id})">Eliminar unidad</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+window.toggleUnit = function(uid) {
+  const body = document.getElementById('ubody-'+uid);
+  const tog  = document.getElementById('utog-'+uid);
+  const open = body.classList.toggle('open');
+  tog.classList.toggle('open', open);
+};
+
+window.addUnit = function() {
+  const uid = Date.now();
+  _units.push({ _id:uid, name:'Nueva unidad', lessons:[] });
+  document.getElementById('unitsList').insertAdjacentHTML('beforeend', buildUnitHTML({_id:uid,name:'Nueva unidad',lessons:[]}, _units.length-1));
+};
+
+window.deleteUnit = function(uid) {
+  if (!confirm('¿Eliminar esta unidad y todas sus lecciones?')) return;
+  _units = _units.filter(u=>u._id!==uid);
+  document.getElementById('unit-'+uid)?.remove();
+};
+
+window.updateUnitName = function(uid, val) {
+  const u = _units.find(u=>u._id===uid);
+  if (u) u.name = val;
+};
+
+window.addLesson = function(uid) {
+  const u = _units.find(u=>u._id===uid);
+  if (!u) return;
+  if (!u.lessons) u.lessons = [];
+  const li = u.lessons.length;
+  u.lessons.push({ title:'', videoId:'', duration:'' });
+  const container = document.getElementById('lessons-'+uid);
+  container.insertAdjacentHTML('beforeend', `
+    <div class="lesson-item" data-uid="${uid}" data-li="${li}">
+      <span class="lesson-handle">⠿</span>
+      <span class="lesson-num">${li+1}</span>
+      <div class="lesson-info">
+        <input class="lesson-title-input" type="text" placeholder="Título de la lección" onchange="updateLesson(${uid},${li},'title',this.value)">
+      </div>
+      <input class="lesson-video-input" type="text" placeholder="ID de YouTube" onchange="updateLesson(${uid},${li},'videoId',this.value)">
+      <input class="lesson-dur-input" type="text" placeholder="15 min" onchange="updateLesson(${uid},${li},'duration',this.value)">
+      <button class="lesson-del" onclick="deleteLesson(${uid},${li})" title="Eliminar">×</button>
+    </div>`);
+  // update count
+  const countEl = document.querySelector(`#unit-${uid} .unit-count`);
+  if (countEl) countEl.textContent = u.lessons.length + ' lecciones';
+};
+
+window.updateLesson = function(uid, li, field, val) {
+  const u = _units.find(u=>u._id===uid);
+  if (u && u.lessons[li]) u.lessons[li][field] = val;
+};
+
+window.deleteLesson = function(uid, li) {
+  const u = _units.find(u=>u._id===uid);
+  if (!u) return;
+  u.lessons.splice(li, 1);
+  // Re-render lessons for this unit
+  const container = document.getElementById('lessons-'+uid);
+  container.innerHTML = u.lessons.map((l,i) => `
+    <div class="lesson-item">
+      <span class="lesson-handle">⠿</span>
+      <span class="lesson-num">${i+1}</span>
+      <div class="lesson-info">
+        <input class="lesson-title-input" type="text" placeholder="Título de la lección" value="${l.title||''}" onchange="updateLesson(${uid},${i},'title',this.value)">
+      </div>
+      <input class="lesson-video-input" type="text" placeholder="ID de YouTube" value="${l.videoId||''}" onchange="updateLesson(${uid},${i},'videoId',this.value)">
+      <input class="lesson-dur-input" type="text" placeholder="15 min" value="${l.duration||''}" onchange="updateLesson(${uid},${i},'duration',this.value)">
+      <button class="lesson-del" onclick="deleteLesson(${uid},${i})">×</button>
+    </div>`).join('');
+};
+
+// ── EXAMS ──
+let _exams = {};
+
+function buildExams() {
+  const container = document.getElementById('examsList');
+  if (!_units.length) {
+    container.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted)">Primero crea unidades en el paso 2.</div>';
+    return;
+  }
+  container.innerHTML = _units.map((u,i) => {
+    const exam = courseData.exams?.[u._id] || courseData.exams?.[i] || { questions:[] };
+    if (!_exams[u._id]) _exams[u._id] = exam;
+    const qs = (_exams[u._id].questions||[]);
+    return `
+      <div class="exam-builder">
+        <div class="exam-unit-header" onclick="toggleExam('${u._id}')">
+          <span class="exam-unit-name">Examen: ${u.name||'Unidad '+(i+1)}</span>
+          <span style="font-size:12px;color:var(--muted)">${qs.length} preguntas ▼</span>
+        </div>
+        <div class="exam-unit-body" id="exam-${u._id}">
+          <div id="qlist-${u._id}">
+            ${qs.map((q,qi) => buildQuestionHTML(u._id, qi, q)).join('')}
+          </div>
+          <button class="add-btn" onclick="addQuestion('${u._id}')">+ Agregar pregunta</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function buildQuestionHTML(uid, qi, q) {
+  const opts = q.options||['','','',''];
+  return `
+    <div class="question-item" id="q-${uid}-${qi}">
+      <div class="q-header">
+        <span class="q-num-badge">Pregunta ${qi+1}</span>
+        <input type="text" value="${q.text||''}" placeholder="Escribe la pregunta aquí..."
+          style="flex:1;background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text)"
+          onchange="updateQuestion('${uid}',${qi},'text',this.value)">
+        <button class="q-del" onclick="deleteQuestion('${uid}',${qi})">×</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Selecciona el círculo verde de la respuesta correcta</div>
+      <div class="options-grid">
+        ${opts.map((opt,oi) => `
+          <div class="option-row">
+            <input type="radio" name="correct-${uid}-${qi}" class="option-radio" ${q.correct===oi?'checked':''} onchange="updateQuestion('${uid}',${qi},'correct',${oi})">
+            <input type="text" class="option-input" value="${opt}" placeholder="Opción ${oi+1}"
+              onchange="updateOption('${uid}',${qi},${oi},this.value)">
+            <span class="correct-label">${q.correct===oi?'✓ Correcta':''}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+window.toggleExam = function(uid) {
+  document.getElementById('exam-'+uid)?.classList.toggle('open');
+};
+
+window.addQuestion = function(uid) {
+  if (!_exams[uid]) _exams[uid] = { questions:[] };
+  const qi = _exams[uid].questions.length;
+  _exams[uid].questions.push({ text:'', options:['','','',''], correct:0 });
+  document.getElementById('qlist-'+uid).insertAdjacentHTML('beforeend',
+    buildQuestionHTML(uid, qi, _exams[uid].questions[qi]));
+};
+
+window.deleteQuestion = function(uid, qi) {
+  _exams[uid]?.questions.splice(qi,1);
+  buildExams();
+};
+
+window.updateQuestion = function(uid, qi, field, val) {
+  if (_exams[uid]?.questions[qi]) _exams[uid].questions[qi][field] = val;
+  if (field==='correct') {
+    // update correct labels
+    document.querySelectorAll(`#q-${uid}-${qi} .correct-label`).forEach((el,i)=>{
+      el.textContent = i===parseInt(val)?'✓ Correcta':'';
+    });
+  }
+};
+
+window.updateOption = function(uid, qi, oi, val) {
+  if (_exams[uid]?.questions[qi]?.options) _exams[uid].questions[qi].options[oi] = val;
+};
+
+// ── PDFS ──
+let _pdfs = [];
+
+function renderPdfs(pdfs) {
+  _pdfs = [...pdfs];
+  const list = document.getElementById('pdfList');
+  list.innerHTML = _pdfs.map((p,i) => buildPdfHTML(p,i)).join('');
+}
+
+function buildPdfHTML(p, i) {
+  return `
+    <div class="pdf-item" id="pdf-${i}">
+      <div class="pdf-icon">📄</div>
+      <div class="pdf-inputs">
+        <input class="pdf-name-input" type="text" value="${p.name||''}" placeholder="Nombre del archivo" onchange="updatePdf(${i},'name',this.value)">
+        <input class="pdf-url-input" type="text" value="${p.url||''}" placeholder="assets/pdf/archivo.pdf  o  https://drive.google.com/..." onchange="updatePdf(${i},'url',this.value)">
+      </div>
+      <button class="pdf-del" onclick="deletePdf(${i})">×</button>
+    </div>`;
+}
+
+window.addPdf = function() {
+  _pdfs.push({ name:'', url:'' });
+  const i = _pdfs.length-1;
+  document.getElementById('pdfList').insertAdjacentHTML('beforeend', buildPdfHTML({name:'',url:''}, i));
+};
+
+window.updatePdf = function(i, field, val) {
+  if (_pdfs[i]) _pdfs[i][field] = val;
+};
+
+window.deletePdf = function(i) {
+  _pdfs.splice(i,1);
+  renderPdfs(_pdfs);
+};
+
+// ── REVIEW ──
+function buildReview() {
+  const title = document.getElementById('f_title').value;
+  const units = _units.length;
+  const lessons = _units.reduce((sum,u)=>sum+(u.lessons||[]).length,0);
+  const exams = Object.values(_exams).filter(e=>(e.questions||[]).length>0).length;
+  const pdfs = _pdfs.filter(p=>p.name).length;
+
+  document.getElementById('reviewContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Curso</div>
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:600;color:#fff;margin-bottom:4px">${title||'Sin título'}</div>
+        <div style="font-size:12px;color:var(--muted)">${document.getElementById('f_instructor').value||'Sin instructor'}</div>
+        <div style="font-size:13px;color:var(--purple);font-weight:500;margin-top:8px">${document.getElementById('f_price').value||'Sin precio'}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">Contenido</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Unidades</span><span style="color:#fff;font-weight:500">${units}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Lecciones</span><span style="color:#fff;font-weight:500">${lessons}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Exámenes</span><span style="color:#fff;font-weight:500">${exams}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">PDFs</span><span style="color:#fff;font-weight:500">${pdfs}</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="background:${title&&units&&lessons?'var(--green-light)':'rgba(240,185,66,.08)'};border:1px solid ${title&&units&&lessons?'rgba(76,175,130,.3)':'rgba(240,185,66,.25)'};border-radius:10px;padding:16px;font-size:13px;color:${title&&units&&lessons?'var(--green)':'var(--amber)'}">
+      ${title&&units&&lessons
+        ? '✓ Todo listo para publicar. El curso aparecerá en la landing y en el dashboard de los estudiantes asignados.'
+        : '⚠ Faltan datos: '+((!title)?'título, ':'')+(!units?'unidades, ':'')+(!lessons?'lecciones ':'')+'. Revisa los pasos anteriores.'}
+    </div>`;
+}
+
+// ── SAVE ALL ──
+window.saveAll = async function() {
+  const title = document.getElementById('f_title').value.trim();
+  if (!title) { showToast('El título del curso es obligatorio','#e05555'); goStep(1); return; }
+
+  const cleanUnits = _units.map(u => ({
+    name: u.name||'',
+    lessons: (u.lessons||[]).map(l => ({
+      title: l.title||'', videoId: l.videoId||'', duration: l.duration||''
+    }))
+  }));
+
+  // Build exams object keyed by unit index
+  const examsObj = {};
+  _units.forEach((u,i) => {
+    if (_exams[u._id]?.questions?.length) {
+      examsObj[i] = {
+        questions: _exams[u._id].questions.map(q => ({
+          text: q.text||'', options: q.options||[], correct: q.correct||0
+        }))
+      };
+    }
+  });
+
+  const data = {
+    title,
+    category:    document.getElementById('f_category').value,
+    desc:        document.getElementById('f_desc').value,
+    instructor:  document.getElementById('f_instructor').value,
+    duration:    document.getElementById('f_duration').value,
+    price:       document.getElementById('f_price').value,
+    priceOld:    document.getElementById('f_priceOld').value,
+    rating:      document.getElementById('f_rating').value,
+    students:    document.getElementById('f_students').value,
+    badge:       document.getElementById('f_badge').value,
+    videoId:     document.getElementById('f_videoId').value,
+    status:      document.getElementById('f_status').value,
+    imageUrl:    document.getElementById('f_imageUrl').value,
+    units:       cleanUnits,
+    exams:       examsObj,
+    pdfs:        _pdfs.filter(p=>p.name),
+    updatedAt:   new Date().toISOString(),
+  };
+
+  try {
+    if (courseId) {
+      await setDoc(doc(db,'courses',courseId), data, {merge:true});
+    } else {
+      data.createdAt = new Date().toISOString();
+      const ref = await addDoc(collection(db,'courses'), data);
+      window.history.replaceState(null,'',`?id=${ref.id}`);
+    }
+    // Mark all steps done
+    [1,2,3,4,5].forEach(n => document.getElementById('ws'+n).classList.add('done'));
+    showToast('✓ Curso guardado exitosamente en Firebase','#4caf82');
+  } catch(e) {
+    showToast('Error: '+e.message,'#e05555');
+  }
+};
+
+// ── TOAST ──
+function showToast(msg, color='#4caf82') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastDot').style.background = color;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
