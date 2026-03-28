@@ -731,21 +731,52 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
 
 <!-- ADD USER MODAL -->
 <div class="modal-overlay" id="userModal">
-  <div class="modal">
+  <div class="modal" style="max-width:540px">
     <div class="modal-title" id="modalTitle">Agregar estudiante</div>
     <div class="modal-sub" id="modalSub">El estudiante recibirá sus credenciales de acceso.</div>
     <div class="modal-fields">
       <div class="field"><label>Nombre completo</label><input type="text" id="newName" placeholder="Juan Pérez García"></div>
       <div class="field"><label>Matrícula</label><input type="text" id="newMatricula" placeholder="NX-2024-001"></div>
       <div class="field"><label>Correo electrónico</label><input type="email" id="newEmail" placeholder="juan@correo.com"></div>
-      <div class="field"><label>Contraseña inicial</label><input type="text" id="newPassword" placeholder="Mínimo 8 caracteres"></div>
-      <div class="field"><label>Curso asignado</label>
-        <select id="newCourse"><option value="">Sin asignar</option><option>Python para Emprendedores</option><option>Lanza tu Startup en 30 días</option><option>Diseño UI/UX para No Diseñadores</option><option>Finanzas Personales para Emprender</option></select>
+      <div class="field"><label>Contraseña inicial</label><input type="text" id="newPassword" placeholder="Mínimo 6 caracteres"></div>
+      <div class="field">
+        <label>Cursos asignados <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(selecciona uno o más)</span></label>
+        <div id="coursesCheckboxList" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;max-height:160px;overflow-y:auto">
+          <div style="font-size:12px;color:var(--muted2)">Cargando cursos...</div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
       <button class="btn-save" onclick="saveNewUser()">Crear estudiante</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT STUDENT MODAL -->
+<div class="modal-overlay" id="editStudentModal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-title">Editar estudiante</div>
+    <div class="modal-sub">Modifica los datos y cursos asignados.</div>
+    <div class="modal-fields">
+      <div class="field"><label>Nombre completo</label><input type="text" id="editName" placeholder="Juan Pérez García"></div>
+      <div class="field"><label>Matrícula</label><input type="text" id="editMatricula" placeholder="NX-2024-001"></div>
+      <div class="field"><label>Correo electrónico</label><input type="email" id="editEmail" placeholder="juan@correo.com"></div>
+      <div class="field">
+        <label>Cursos asignados</label>
+        <div id="editCoursesCheckboxList" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;max-height:160px;overflow-y:auto">
+          <div style="font-size:12px;color:var(--muted2)">Cargando cursos...</div>
+        </div>
+      </div>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="editActive" checked> Cuenta activa
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeEditModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveEditStudent()">Guardar cambios</button>
     </div>
   </div>
 </div>
@@ -1106,8 +1137,46 @@ window.deleteStudent = async function(id) {
   } catch(e) { showToast('Error al eliminar','#e05555'); }
 };
 
-window.editStudent = function(id) {
-  showToast('Editor de estudiante: próximamente','#f0b942');
+let _editingStudentId = null;
+
+window.editStudent = async function(id) {
+  _editingStudentId = id;
+  try {
+    const snap = await getDoc(doc(db,'students',id));
+    if (!snap.exists()) return;
+    const s = snap.data();
+    document.getElementById('editName').value = s.name||'';
+    document.getElementById('editMatricula').value = s.matricula||'';
+    document.getElementById('editEmail').value = s.email||'';
+    document.getElementById('editActive').checked = s.active !== false;
+    // Load courses checkboxes
+    await loadCoursesIntoCheckboxes('editCoursesCheckboxList', s.courses||[s.course].filter(Boolean));
+    document.getElementById('editStudentModal').classList.add('show');
+  } catch(e) { showToast('Error cargando estudiante','#e05555'); }
+};
+
+window.closeEditModal = function() {
+  document.getElementById('editStudentModal').classList.remove('show');
+  _editingStudentId = null;
+};
+
+window.saveEditStudent = async function() {
+  if (!_editingStudentId) return;
+  const name = document.getElementById('editName').value.trim();
+  const mat  = document.getElementById('editMatricula').value.trim();
+  const email= document.getElementById('editEmail').value.trim();
+  const active = document.getElementById('editActive').checked;
+  const courses = getSelectedCourses('editCoursesCheckboxList');
+  if (!name||!email) { showToast('Nombre y correo son obligatorios','#e05555'); return; }
+  try {
+    await setDoc(doc(db,'students',_editingStudentId), {
+      name, matricula:mat, email, active, courses,
+      course: courses[0]||'', updatedAt: new Date().toISOString()
+    }, {merge:true});
+    showToast('Estudiante actualizado ✓','#4caf82');
+    closeEditModal();
+    loadStudents();
+  } catch(e) { showToast('Error: '+e.message,'#e05555'); }
 };
 
 // ADMINS
@@ -1142,18 +1211,18 @@ window.deleteAdmin = async function(id) {
 
 // ADD USER
 window._addingAdmin = false;
-window.openAddUser = function() {
+window.openAddUser = async function() {
   window._addingAdmin = false;
   document.getElementById('modalTitle').textContent = 'Agregar estudiante';
   document.getElementById('modalSub').textContent = 'El estudiante recibirá sus credenciales de acceso.';
-  document.getElementById('newCourse').style.display = 'block';
+  await loadCoursesIntoCheckboxes('coursesCheckboxList', []);
   document.getElementById('userModal').classList.add('show');
 };
 window.openAddAdmin = function() {
   window._addingAdmin = true;
   document.getElementById('modalTitle').textContent = 'Agregar administrador';
   document.getElementById('modalSub').textContent = 'El admin podrá acceder a este panel con email + contraseña de Firebase.';
-  document.getElementById('newCourse').style.display = 'none';
+  document.getElementById('coursesCheckboxList').innerHTML = '';
   document.getElementById('userModal').classList.add('show');
 };
 window.closeModal = function() {
@@ -1165,42 +1234,26 @@ window.saveNewUser = async function() {
   const mat   = document.getElementById('newMatricula').value.trim();
   const email = document.getElementById('newEmail').value.trim();
   const pass  = document.getElementById('newPassword').value.trim();
-  const course= document.getElementById('newCourse').value;
+  const courses = getSelectedCourses('coursesCheckboxList');
   if (!name||!email) { showToast('Nombre y correo son obligatorios','#e05555'); return; }
-
   try {
     if (window._addingAdmin) {
-      // Solo registrar en Firestore — el admin se crea manualmente en Firebase Console
       await addDoc(collection(db,'admins'), { name, email, role:'Admin', createdAt: new Date().toISOString() });
       showToast('Admin registrado ✓ — Crea su acceso en Firebase Console → Auth','#4caf82');
       loadAdmins();
     } else {
       if (!mat) { showToast('La matrícula es obligatoria','#e05555'); return; }
       if (!pass || pass.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres','#e05555'); return; }
-
-      // 1. Crear usuario en Firebase Auth usando Admin REST API
-      // Nota: createUserWithEmailAndPassword cierra la sesión del admin actual,
-      // por eso guardamos el perfil en Firestore y el admin crea Auth desde la consola
-      // O usamos la alternativa: guardar en Firestore con la contraseña temporal visible para el admin
-
       await addDoc(collection(db,'students'), {
-        name,
-        matricula: mat,
-        email,
-        course,
-        active: true,
-        tempPassword: pass, // Visible solo para el admin hasta que el estudiante entre
+        name, matricula:mat, email,
+        courses, course: courses[0]||'',
+        active:true, tempPassword:pass,
         createdAt: new Date().toISOString()
       });
-
-      // Mostrar instrucción al admin
-      showToast(`Estudiante guardado ✓ — Crea ${email} en Firebase Auth con contraseña: ${pass}`, '#4caf82');
-
-      // Mostrar recordatorio visual
+      showToast(`Estudiante guardado ✓ — Crea ${email} en Firebase Auth`, '#4caf82');
       document.getElementById('authReminder').style.display = 'block';
       document.getElementById('authReminderEmail').textContent = email;
       document.getElementById('authReminderPass').textContent = pass;
-
       loadStudents();
     }
     closeModal();
