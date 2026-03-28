@@ -795,7 +795,7 @@
 
   // Si ya hay sesión activa → ir directo al aula
   onAuthStateChanged(auth, user => {
-    if (user) window.location.href = 'aula.html';
+    if (user) window.location.href = 'dashboard.html';
   });
 
   // ── SLIDES ──
@@ -943,7 +943,7 @@
         name: studentData.name, matricula: studentData.matricula,
         course: studentData.course, email: studentData.email
       }));
-      window.location.href = 'aula.html';
+      window.location.href = 'dashboard.html';
     } catch(e) {
       btnLogin.classList.remove('loading');
       const msgs = {
