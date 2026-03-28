@@ -807,7 +807,9 @@ const badgeMap = {
 
 async function loadCourses() {
   try {
+    console.log('🔥 Iniciando carga de cursos...');
     const snap = await getDocs(query(collection(db,'courses'), where('status','==','published')));
+    console.log('✅ Cursos encontrados:', snap.docs.length);
     _allCourses = snap.docs.map(d=>({id:d.id,...d.data()}));
 
     // Build dynamic filter buttons
@@ -818,6 +820,7 @@ async function loadCourses() {
 
     renderCourses(_allCourses);
   } catch(e) {
+    console.error('❌ Error cargando cursos:', e.code, e.message);
     document.getElementById('coursesGrid').innerHTML = `
       <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
         <div style="font-size:32px;margin-bottom:12px">🎓</div>
