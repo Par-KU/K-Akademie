@@ -463,141 +463,14 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:60px
   <div class="section-label">Catálogo</div>
   <h2 class="section-title">Cursos que transforman carreras</h2>
   <p class="section-sub">El primer video de cada curso es gratis. Sin tarjeta, sin compromisos.</p>
-  <div class="courses-filter">
+  <div class="courses-filter" id="coursesFilter">
     <button class="filter-btn active" onclick="filterCourses('all',this)">Todos</button>
-    <button class="filter-btn" onclick="filterCourses('tech',this)">Tecnología</button>
-    <button class="filter-btn" onclick="filterCourses('biz',this)">Negocios</button>
-    <button class="filter-btn" onclick="filterCourses('design',this)">Diseño</button>
-    <button class="filter-btn" onclick="filterCourses('finance',this)">Finanzas</button>
   </div>
   <div class="courses-grid" id="coursesGrid">
-
-    <div class="course-card" data-cat="tech" onclick="openPreview(this)">
-      <div class="course-thumb" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)">
-        <span style="position:relative;z-index:1">🐍</span>
-        <div class="course-thumb-overlay"></div>
-        <div class="course-tags"><span class="ctag ctag-pop">Popular</span></div>
-        <div class="free-badge">1° GRATIS</div>
-        <div class="play-overlay"><div class="play-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l9 5-9 5V3z" fill="#fff"/></svg></div></div>
-      </div>
-      <div class="course-body">
-        <div class="course-category">Tecnología</div>
-        <div class="course-title">Python para Emprendedores</div>
-        <div class="course-desc">Automatiza tareas, analiza datos y crea herramientas para tu negocio sin experiencia previa.</div>
-        <div class="course-instructor"><div class="inst-av">AG</div><span class="inst-name">Ana García · 48 lecciones · 12h</span></div>
-        <div class="course-meta">
-          <span class="course-rating">★★★★★ <span style="color:var(--muted);margin-left:2px">4.9</span></span>
-          <span class="course-students">2,340 alumnos</span>
-          <span class="course-price"><span class="course-price-old">$899</span>$399</span>
-        </div>
-      </div>
+    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:12px">⏳</div>
+      Cargando cursos...
     </div>
-
-    <div class="course-card" data-cat="biz" onclick="openPreview(this)">
-      <div class="course-thumb" style="background:linear-gradient(135deg,#0d2a1a,#0a1820)">
-        <span style="position:relative;z-index:1">🚀</span>
-        <div class="course-thumb-overlay"></div>
-        <div class="course-tags"><span class="ctag ctag-hot">Top ventas</span></div>
-        <div class="free-badge">1° GRATIS</div>
-        <div class="play-overlay"><div class="play-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l9 5-9 5V3z" fill="#fff"/></svg></div></div>
-      </div>
-      <div class="course-body">
-        <div class="course-category">Emprendimiento</div>
-        <div class="course-title">Lanza tu Startup en 30 días</div>
-        <div class="course-desc">Valida tu idea, consigue tus primeros clientes y lanza tu negocio con metodología probada.</div>
-        <div class="course-instructor"><div class="inst-av">MT</div><span class="inst-name">Miguel Torres · 60 lecciones · 18h</span></div>
-        <div class="course-meta">
-          <span class="course-rating">★★★★★ <span style="color:var(--muted);margin-left:2px">4.9</span></span>
-          <span class="course-students">3,120 alumnos</span>
-          <span class="course-price"><span class="course-price-old">$1,199</span>$549</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="course-card" data-cat="design" onclick="openPreview(this)">
-      <div class="course-thumb" style="background:linear-gradient(135deg,#2a1020,#1a0a30)">
-        <span style="position:relative;z-index:1">🎨</span>
-        <div class="course-thumb-overlay"></div>
-        <div class="course-tags"><span class="ctag ctag-new">Nuevo</span></div>
-        <div class="free-badge">1° GRATIS</div>
-        <div class="play-overlay"><div class="play-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l9 5-9 5V3z" fill="#fff"/></svg></div></div>
-      </div>
-      <div class="course-body">
-        <div class="course-category">Diseño</div>
-        <div class="course-title">UI/UX para No Diseñadores</div>
-        <div class="course-desc">Crea interfaces bonitas y funcionales para tu app o negocio aunque nunca hayas diseñado.</div>
-        <div class="course-instructor"><div class="inst-av">SR</div><span class="inst-name">Sofía Ríos · 32 lecciones · 10h</span></div>
-        <div class="course-meta">
-          <span class="course-rating">★★★★★ <span style="color:var(--muted);margin-left:2px">4.8</span></span>
-          <span class="course-students">1,560 alumnos</span>
-          <span class="course-price"><span class="course-price-old">$799</span>$349</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="course-card" data-cat="finance" onclick="openPreview(this)">
-      <div class="course-thumb" style="background:linear-gradient(135deg,#1a2010,#0a1010)">
-        <span style="position:relative;z-index:1">💰</span>
-        <div class="course-thumb-overlay"></div>
-        <div class="course-tags"><span class="ctag ctag-hot">Top ventas</span></div>
-        <div class="free-badge">1° GRATIS</div>
-        <div class="play-overlay"><div class="play-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l9 5-9 5V3z" fill="#fff"/></svg></div></div>
-      </div>
-      <div class="course-body">
-        <div class="course-category">Finanzas</div>
-        <div class="course-title">Finanzas para Emprender</div>
-        <div class="course-desc">Controla tu dinero, entiende los números de tu negocio y toma decisiones que te hagan crecer.</div>
-        <div class="course-instructor"><div class="inst-av">RV</div><span class="inst-name">Roberto Vega · 44 lecciones · 14h</span></div>
-        <div class="course-meta">
-          <span class="course-rating">★★★★★ <span style="color:var(--muted);margin-left:2px">4.9</span></span>
-          <span class="course-students">4,200 alumnos</span>
-          <span class="course-price"><span class="course-price-old">$999</span>$449</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="course-card" data-cat="biz" onclick="openPreview(this)">
-      <div class="course-thumb" style="background:linear-gradient(135deg,#1a1530,#0d0d20)">
-        <span style="position:relative;z-index:1">📱</span>
-        <div class="course-thumb-overlay"></div>
-        <div class="course-tags"><span class="ctag ctag-new">Nuevo</span></div>
-        <div class="free-badge">1° GRATIS</div>
-        <div class="play-overlay"><div class="play-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l9 5-9 5V3z" fill="#fff"/></svg></div></div>
-      </div>
-      <div class="course-body">
-        <div class="course-category">Marketing</div>
-        <div class="course-title">Marketing Digital desde Cero</div>
-        <div class="course-desc">Aprende a vender en redes sociales, Google y email marketing para hacer crecer tu negocio.</div>
-        <div class="course-instructor"><div class="inst-av">DL</div><span class="inst-name">Diego Lara · 36 lecciones · 11h</span></div>
-        <div class="course-meta">
-          <span class="course-rating">★★★★☆ <span style="color:var(--muted);margin-left:2px">4.6</span></span>
-          <span class="course-students">2,010 alumnos</span>
-          <span class="course-price"><span class="course-price-old">$699</span>$299</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="course-card" data-cat="tech" onclick="openPreview(this)">
-      <div class="course-thumb" style="background:linear-gradient(135deg,#102030,#0a1520)">
-        <span style="position:relative;z-index:1">📊</span>
-        <div class="course-thumb-overlay"></div>
-        <div class="course-tags"><span class="ctag ctag-pop">Popular</span></div>
-        <div class="free-badge">1° GRATIS</div>
-        <div class="play-overlay"><div class="play-btn"><svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l9 5-9 5V3z" fill="#fff"/></svg></div></div>
-      </div>
-      <div class="course-body">
-        <div class="course-category">Tecnología</div>
-        <div class="course-title">Excel Avanzado para Negocios</div>
-        <div class="course-desc">Dashboards, tablas dinámicas y automatización con macros para tomar mejores decisiones.</div>
-        <div class="course-instructor"><div class="inst-av">CR</div><span class="inst-name">Carlos Ruiz · 28 lecciones · 8h</span></div>
-        <div class="course-meta">
-          <span class="course-rating">★★★★★ <span style="color:var(--muted);margin-left:2px">4.8</span></span>
-          <span class="course-students">1,890 alumnos</span>
-          <span class="course-price"><span class="course-price-old">$599</span>$249</span>
-        </div>
-      </div>
-    </div>
-
   </div>
 </section>
 
@@ -884,19 +757,121 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:60px
   </div>
 </div>
 
-<script>
-// NAVBAR scroll
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, query, where, orderBy }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBEXEQArv1biBw-ZTQUt9QOsP4BalV8BIY",
+  authDomain: "nexora-914f6.firebaseapp.com",
+  projectId: "nexora-914f6",
+  storageBucket: "nexora-914f6.firebasestorage.app",
+  messagingSenderId: "1042987858149",
+  appId: "1:1042987858149:web:f647c9e9caa0d8dee93c0c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── NAVBAR scroll ──
 window.addEventListener('scroll',()=>{
   document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>40);
 });
 
-// FADE IN on scroll
+// ── FADE IN ──
 const observer = new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
 },{threshold:0.1});
 document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
 
-// COURSE FILTER
+// ── LOAD COURSES FROM FIREBASE ──
+let _allCourses = [];
+
+const catMap = {
+  'Tecnología':'tech','Emprendimiento':'biz','Diseño':'design',
+  'Finanzas':'finance','Marketing':'biz'
+};
+const bgMap = {
+  'Tecnología':'linear-gradient(135deg,#1a1040,#0d1a2e)',
+  'Emprendimiento':'linear-gradient(135deg,#0d2a1a,#0a1820)',
+  'Diseño':'linear-gradient(135deg,#2a1020,#1a0a30)',
+  'Finanzas':'linear-gradient(135deg,#1a2010,#0a1010)',
+  'Marketing':'linear-gradient(135deg,#1a1530,#0d0d20)',
+};
+const badgeMap = {
+  'popular':'<span class="ctag ctag-pop">Popular</span>',
+  'new':'<span class="ctag ctag-new">Nuevo</span>',
+  'hot':'<span class="ctag ctag-hot">Top ventas</span>',
+};
+
+async function loadCourses() {
+  try {
+    const snap = await getDocs(query(collection(db,'courses'), where('status','==','published')));
+    _allCourses = snap.docs.map(d=>({id:d.id,...d.data()}));
+
+    // Build dynamic filter buttons
+    const cats = [...new Set(_allCourses.map(c=>c.category).filter(Boolean))];
+    const filterEl = document.getElementById('coursesFilter');
+    filterEl.innerHTML = `<button class="filter-btn active" onclick="filterCourses('all',this)">Todos</button>`
+      + cats.map(cat=>`<button class="filter-btn" onclick="filterCourses('${catMap[cat]||cat}',this)">${cat}</button>`).join('');
+
+    renderCourses(_allCourses);
+  } catch(e) {
+    document.getElementById('coursesGrid').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
+        <div style="font-size:32px;margin-bottom:12px">🎓</div>
+        Próximamente — los cursos se están preparando.
+      </div>`;
+  }
+}
+
+function renderCourses(courses) {
+  const grid = document.getElementById('coursesGrid');
+  if (!courses.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:12px">🎓</div>
+      Próximamente — los cursos se están preparando.
+    </div>`;
+    return;
+  }
+  grid.innerHTML = courses.map(c => {
+    const cat = catMap[c.category] || 'other';
+    const bg  = c.imageUrl
+      ? `background:url('${c.imageUrl}') center/cover`
+      : `background:${bgMap[c.category]||'linear-gradient(135deg,#1a1040,#0d1a2e)'}`;
+    const initials = (c.instructor||'??').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const badge = badgeMap[c.badge] || '';
+    return `
+      <div class="course-card" data-cat="${cat}" data-id="${c.id}" onclick="openPreview(this)">
+        <div class="course-thumb" style="${bg}">
+          ${!c.imageUrl?`<span style="position:relative;z-index:1">${c.emoji||'📚'}</span>`:''}
+          <div class="course-thumb-overlay"></div>
+          ${badge?`<div class="course-tags">${badge}</div>`:''}
+          <div class="free-badge">1° GRATIS</div>
+          <div class="play-overlay"><div class="play-btn">
+            <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M5 3l9 5-9 5V3z" fill="#fff"/></svg>
+          </div></div>
+        </div>
+        <div class="course-body">
+          <div class="course-category">${c.category||'Curso'}</div>
+          <div class="course-title">${c.title||'Sin título'}</div>
+          <div class="course-desc">${c.desc||''}</div>
+          <div class="course-instructor">
+            <div class="inst-av">${initials}</div>
+            <span class="inst-name">${c.instructor||'—'} · ${c.duration||''}</span>
+          </div>
+          <div class="course-meta">
+            <span class="course-rating">★★★★★ <span style="color:var(--muted);margin-left:2px">${c.rating||'5.0'}</span></span>
+            <span class="course-students">${c.students||'0'} alumnos</span>
+            <span class="course-price"><span class="course-price-old">${c.priceOld||''}</span>${c.price||''}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── FILTER ──
 window.filterCourses = function(cat, btn) {
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -905,21 +880,31 @@ window.filterCourses = function(cat, btn) {
   });
 };
 
-// OPEN PREVIEW on course click
+// ── OPEN PREVIEW ──
 window.openPreview = function(card) {
+  const courseId = card.dataset.id;
+  const course = _allCourses.find(c=>c.id===courseId);
+  if (course && course.videoId) {
+    document.querySelector('.preview-cover-emoji').textContent = course.emoji||'📚';
+    document.querySelector('.preview-title').textContent = course.title;
+    document.querySelector('.preview-desc').textContent = course.desc||'';
+    document.querySelector('.preview-price').childNodes[0].textContent = course.price||'';
+    document.querySelector('.preview-price-old').textContent = course.priceOld||'';
+    window._previewVideoId = course.videoId;
+  }
   document.getElementById('preview-section').scrollIntoView({behavior:'smooth'});
 };
 
-// VIDEO PLAY
+// ── VIDEO PLAY ──
 window.playVideo = function() {
   const cover = document.getElementById('videoCover');
   const frame = document.getElementById('videoFrame');
-  // Reemplaza VIDEO_ID_AQUI con el ID real de tu video de YouTube no listado
-  frame.src = 'https://www.youtube.com/embed/VIDEO_ID_AQUI?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
+  const videoId = window._previewVideoId || 'VIDEO_ID_AQUI';
+  frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3`;
   cover.classList.add('hidden');
 };
 
-// MODAL
+// ── MODAL ──
 window.openModal = function() {
   document.getElementById('regModal').classList.add('show');
   document.body.style.overflow='hidden';
@@ -932,8 +917,8 @@ document.getElementById('regModal').addEventListener('click',function(e){
   if(e.target===this) closeModal();
 });
 
-let selectedCourse = 'Python para Emprendedores';
-let selectedPrice  = '$399';
+let selectedCourse = '';
+let selectedPrice  = '';
 
 window.goStep = function(n) {
   [1,2,3,4].forEach(i=>{
@@ -944,8 +929,7 @@ window.goStep = function(n) {
 window.selectCourse = function(el, name, price) {
   document.querySelectorAll('[id^="cs"]').forEach(e=>e.classList.remove('selected'));
   el.classList.add('selected');
-  selectedCourse = name;
-  selectedPrice  = price;
+  selectedCourse = name; selectedPrice = price;
   document.getElementById('selectedCourseName').textContent = name+' — '+price;
 };
 
@@ -960,6 +944,9 @@ window.submitRegistration = function() {
   if(!name||!email){ alert('Por favor completa nombre y correo.'); goStep(1); return; }
   goStep(4);
 };
+
+// ── INIT ──
+loadCourses();
 </script>
 </body>
 </html>
