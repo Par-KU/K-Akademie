@@ -675,7 +675,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
             <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:600;color:#fff">Cursos publicados</div>
             <div style="font-size:12px;color:var(--muted);margin-top:2px">Gestiona el contenido que ven los estudiantes</div>
           </div>
-          <button class="btn-save" onclick="openCourseModal()">+ Nuevo curso</button>
+          <button class="btn-save" onclick="window.location.href='course-editor.html'">+ Nuevo curso</button>
         </div>
 
         <!-- courses list -->
@@ -1362,30 +1362,8 @@ window.openCourseModal = function(id) {
   document.getElementById('courseModal').classList.add('show');
 };
 
-window.editCourse = async function(id) {
-  try {
-    const snap = await getDoc(doc(db, 'courses', id));
-    if (!snap.exists()) return;
-    const c = snap.data();
-    _editingCourseId = id;
-    document.getElementById('courseModalTitle').textContent = 'Editar curso';
-    document.getElementById('c_title').value       = c.title || '';
-    document.getElementById('c_desc').value        = c.desc || '';
-    document.getElementById('c_cat').value         = c.category || '';
-    document.getElementById('c_emoji').value       = c.emoji || '';
-    document.getElementById('c_instructor').value  = c.instructor || '';
-    document.getElementById('c_duration').value    = c.duration || '';
-    document.getElementById('c_priceOld').value    = c.priceOld || '';
-    document.getElementById('c_price').value       = c.price || '';
-    document.getElementById('c_rating').value      = c.rating || '';
-    document.getElementById('c_students').value    = c.students || '';
-    document.getElementById('c_videoId').value     = c.videoId || '';
-    document.getElementById('c_badge').value       = c.badge || '';
-    document.getElementById('c_status').value      = c.status || 'published';
-    document.getElementById('c_lessons').value     = (c.lessons||[]).map(l=>`${l.title} | ${l.videoId}`).join('\n');
-    document.getElementById('c_pdfs').value        = (c.pdfs||[]).map(p=>`${p.name} | ${p.url}`).join('\n');
-    document.getElementById('courseModal').classList.add('show');
-  } catch(e) { showToast('Error cargando curso', '#e05555'); }
+window.editCourse = function(id) {
+  window.location.href = `course-editor.html?id=${id}`;
 };
 
 window.closeCourseModal = function() {
