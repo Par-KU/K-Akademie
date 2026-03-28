@@ -431,6 +431,14 @@ async function loadCourse() {
     renderUnits(courseData.units||[]);
     renderPdfs(courseData.pdfs||[]);
 
+    // Pre-load exams into _exams
+    if (courseData.exams) {
+      _units.forEach((u,i) => {
+        const exam = courseData.exams[u._id] || courseData.exams[i] || courseData.exams[String(i)];
+        if (exam) _exams[u._id] = exam;
+      });
+    }
+
   } catch(e) {
     showToast('Error cargando curso: '+e.message,'#e05555');
   }
@@ -452,8 +460,8 @@ window.goStep = function(n) {
   window.scrollTo(0,0);
 };
 
-window.saveAndNext = function(current) {
-  showToast('Guardando paso '+(current)+'...','#f0b942');
+window.saveAndNext = async function(current) {
+  await saveAll(false);
   document.getElementById('ws'+current).classList.add('done');
   goStep(current+1);
 };
@@ -480,7 +488,11 @@ window.updateCoverFromUrl = function(url) {
 let _units = [];
 
 function renderUnits(units) {
-  _units = units.map((u,i) => ({...u, _id: u._id||Date.now()+i}));
+  _units = units.map((u,i) => ({
+    ...u,
+    _id: u._id || (Date.now() + i),
+    lessons: (u.lessons||[]).map(l=>({...l}))
+  }));
   const list = document.getElementById('unitsList');
   list.innerHTML = _units.map((u,i) => buildUnitHTML(u,i)).join('');
 }
@@ -744,22 +756,22 @@ function buildReview() {
 }
 
 // ── SAVE ALL ──
-window.saveAll = async function() {
+window.saveAll = async function(showMsg=true) {
   const title = document.getElementById('f_title').value.trim();
   if (!title) { showToast('El título del curso es obligatorio','#e05555'); goStep(1); return; }
 
   const cleanUnits = _units.map(u => ({
+    _id: u._id,
     name: u.name||'',
     lessons: (u.lessons||[]).map(l => ({
       title: l.title||'', videoId: l.videoId||'', duration: l.duration||''
     }))
   }));
 
-  // Build exams object keyed by unit index
   const examsObj = {};
   _units.forEach((u,i) => {
     if (_exams[u._id]?.questions?.length) {
-      examsObj[i] = {
+      examsObj[String(i)] = {
         questions: _exams[u._id].questions.map(q => ({
           text: q.text||'', options: q.options||[], correct: q.correct||0
         }))
@@ -788,16 +800,18 @@ window.saveAll = async function() {
   };
 
   try {
-    if (courseId) {
-      await setDoc(doc(db,'courses',courseId), data, {merge:true});
+    const currentId = new URLSearchParams(window.location.search).get('id');
+    if (currentId) {
+      await setDoc(doc(db,'courses',currentId), data, {merge:true});
+      courseData = {...courseData, ...data};
     } else {
       data.createdAt = new Date().toISOString();
       const ref = await addDoc(collection(db,'courses'), data);
       window.history.replaceState(null,'',`?id=${ref.id}`);
+      courseData = data;
     }
-    // Mark all steps done
     [1,2,3,4,5].forEach(n => document.getElementById('ws'+n).classList.add('done'));
-    showToast('✓ Curso guardado exitosamente en Firebase','#4caf82');
+    if (showMsg) showToast('✓ Curso guardado en Firebase','#4caf82');
   } catch(e) {
     showToast('Error: '+e.message,'#e05555');
   }
