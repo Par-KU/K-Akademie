@@ -818,15 +818,19 @@ window.previewImageUrl = function(i, url) {
   box.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=color:var(--muted2);font-size:12px>No se pudo cargar la imagen</span>'">`;
   window._slides[i].imageUrl = url;
 };
+
+window.previewImage = function(i, input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    const thumb = document.getElementById('imgThumb-'+i);
-    thumb.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:4px">`;
-    document.getElementById('imgName-'+i).textContent = file.name;
+    const box = document.getElementById('imgPreviewBox-'+i);
+    if(box) box.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    const urlField = document.getElementById('imgUrl-'+i);
+    if(urlField) urlField.value = file.name;
     window._slides[i]._imageFile = file;
     window._slides[i]._imagePreview = e.target.result;
+    window._slides[i].imageUrl = e.target.result;
   };
   reader.readAsDataURL(file);
 };
