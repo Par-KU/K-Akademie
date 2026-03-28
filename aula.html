@@ -259,15 +259,15 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 
   <!-- ══ TOPBAR ══ -->
   <div class="topbar">
-    <a class="tb-logo" href="index.html">
+    <a class="tb-logo" href="dashboard.html">
       <div class="tb-icon"></div>
       <span class="tb-brand">KÜ <em>Akademie</em></span>
     </a>
     <div class="tb-sep"></div>
-    <div class="tb-course"><strong>Python para Emprendedores</strong> — Clase 4 de 48</div>
+    <div class="tb-course" id="tbCourse">Cargando curso...</div>
 
     <div class="tb-progress">
-      <div class="tb-prog-bar"><div class="tb-prog-fill" id="topProgFill" style="width:18%"></div></div>
+      <div class="tb-prog-bar"><div class="tb-prog-fill" id="topProgFill" style="width:0%"></div></div>
       <span class="tb-prog-pct" id="topProgPct">18%</span>
     </div>
 
@@ -343,141 +343,17 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 
       <!-- DESCRIPTION -->
       <div class="tab-panel active" id="tab-desc">
-        <div class="desc-section">
-          <p class="desc-text">En esta lección aprenderás a declarar variables en Python, entender los tipos de datos básicos (strings, integers, floats y booleans) y cómo usarlos en situaciones reales de negocios como calcular precios, almacenar nombres de clientes y controlar inventario.</p>
-        </div>
-        <div class="desc-section">
-          <h4>Lo que aprenderás en esta lección</h4>
-          <div class="learn-grid">
-            <div class="learn-item"><span class="lcheck">✦</span>Qué son las variables y para qué sirven</div>
-            <div class="learn-item"><span class="lcheck">✦</span>Tipos de datos: string, int, float, bool</div>
-            <div class="learn-item"><span class="lcheck">✦</span>Cómo nombrar variables correctamente</div>
-            <div class="learn-item"><span class="lcheck">✦</span>Aplicación en un programa de inventario</div>
-            <div class="learn-item"><span class="lcheck">✦</span>Operaciones básicas con variables</div>
-            <div class="learn-item"><span class="lcheck">✦</span>Errores comunes y cómo evitarlos</div>
-          </div>
-        </div>
-        <div class="desc-section">
-          <h4>Recursos adicionales</h4>
-          <p class="desc-text" style="font-size:13px">Descarga el PDF de esta lección en la pestaña "Material PDF" para seguir el código junto con el video. También encontrarás ejercicios prácticos para reforzar lo aprendido.</p>
-        </div>
+        <div style="padding:16px 0;color:var(--muted);font-size:13px">Cargando descripción...</div>
       </div>
 
       <!-- PDFS -->
       <div class="tab-panel" id="tab-pdfs">
-        <div class="pdfs-list">
-          <div class="pdf-item">
-            <div class="pdf-icon">📄</div>
-            <div class="pdf-info">
-              <div class="pdf-name">Lección 4 — Variables y tipos de datos.pdf</div>
-              <div class="pdf-size">845 KB · Material de apoyo</div>
-            </div>
-            <button class="pdf-dl" onclick="downloadPDF('leccion-4-variables.pdf')">⬇ Descargar</button>
-          </div>
-          <div class="pdf-item">
-            <div class="pdf-icon">📋</div>
-            <div class="pdf-info">
-              <div class="pdf-name">Ejercicios prácticos — Unidad 1.pdf</div>
-              <div class="pdf-size">1.2 MB · Ejercicios</div>
-            </div>
-            <button class="pdf-dl" onclick="downloadPDF('ejercicios-unidad1.pdf')">⬇ Descargar</button>
-          </div>
-          <div class="pdf-item">
-            <div class="pdf-icon">📊</div>
-            <div class="pdf-info">
-              <div class="pdf-name">Cheat Sheet — Python para Negocios.pdf</div>
-              <div class="pdf-size">560 KB · Referencia rápida</div>
-            </div>
-            <button class="pdf-dl" onclick="downloadPDF('cheatsheet-python.pdf')">⬇ Descargar</button>
-          </div>
-          <div class="pdf-item" style="opacity:.5;pointer-events:none">
-            <div class="pdf-icon" style="background:var(--surface3);border-color:var(--border)">🔒</div>
-            <div class="pdf-info">
-              <div class="pdf-name">Proyecto Final — Plantilla de Negocio.pdf</div>
-              <div class="pdf-size">Disponible al completar la Unidad 3</div>
-            </div>
-            <button class="pdf-dl" disabled>Bloqueado</button>
-          </div>
-        </div>
+        <div style="padding:16px 0;color:var(--muted);font-size:13px">Cargando material...</div>
       </div>
 
       <!-- EXAM -->
       <div class="tab-panel" id="tab-exam">
-        <div class="exam-container" id="examContainer">
-          <div class="exam-header">
-            <div class="exam-title">Examen — Unidad 1: Introducción a Python</div>
-            <div class="exam-sub">5 preguntas · Necesitas 70% para aprobar · Puedes repetirlo las veces que quieras</div>
-            <div class="exam-progress-row">
-              <div class="exam-prog-bar"><div class="exam-prog-fill" id="examProgFill" style="width:0%"></div></div>
-              <span class="exam-prog-lbl" id="examProgLbl">0/5</span>
-            </div>
-          </div>
-
-          <div class="question-card" id="q1">
-            <div class="q-num">Pregunta 1 de 5</div>
-            <div class="q-text">¿Qué es una variable en Python?</div>
-            <div class="q-options">
-              <div class="q-option" onclick="selectOpt(this,1,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>Un tipo de archivo de Python</div>
-              <div class="q-option" onclick="selectOpt(this,1,true)"><div class="q-radio"><div class="q-radio-dot"></div></div>Un espacio en memoria para almacenar datos</div>
-              <div class="q-option" onclick="selectOpt(this,1,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>Una función matemática predefinida</div>
-              <div class="q-option" onclick="selectOpt(this,1,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>El nombre del programa ejecutable</div>
-            </div>
-          </div>
-
-          <div class="question-card" id="q2">
-            <div class="q-num">Pregunta 2 de 5</div>
-            <div class="q-text">¿Cuál de los siguientes es un tipo de dato string en Python?</div>
-            <div class="q-options">
-              <div class="q-option" onclick="selectOpt(this,2,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>42</div>
-              <div class="q-option" onclick="selectOpt(this,2,true)"><div class="q-radio"><div class="q-radio-dot"></div></div>"Hola mundo"</div>
-              <div class="q-option" onclick="selectOpt(this,2,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>True</div>
-              <div class="q-option" onclick="selectOpt(this,2,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>3.14</div>
-            </div>
-          </div>
-
-          <div class="question-card" id="q3">
-            <div class="q-num">Pregunta 3 de 5</div>
-            <div class="q-text">Si quieres guardar el precio de un producto como $99.99 ¿qué tipo de dato usarías?</div>
-            <div class="q-options">
-              <div class="q-option" onclick="selectOpt(this,3,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>string</div>
-              <div class="q-option" onclick="selectOpt(this,3,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>boolean</div>
-              <div class="q-option" onclick="selectOpt(this,3,true)"><div class="q-radio"><div class="q-radio-dot"></div></div>float</div>
-              <div class="q-option" onclick="selectOpt(this,3,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>list</div>
-            </div>
-          </div>
-
-          <div class="question-card" id="q4">
-            <div class="q-num">Pregunta 4 de 5</div>
-            <div class="q-text">¿Cuál nombre de variable es válido en Python?</div>
-            <div class="q-options">
-              <div class="q-option" onclick="selectOpt(this,4,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>2precio</div>
-              <div class="q-option" onclick="selectOpt(this,4,true)"><div class="q-radio"><div class="q-radio-dot"></div></div>precio_producto</div>
-              <div class="q-option" onclick="selectOpt(this,4,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>precio-producto</div>
-              <div class="q-option" onclick="selectOpt(this,4,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>for</div>
-            </div>
-          </div>
-
-          <div class="question-card" id="q5">
-            <div class="q-num">Pregunta 5 de 5</div>
-            <div class="q-text">¿Qué imprime este código? <br><code style="background:var(--surface3);padding:4px 8px;border-radius:4px;font-size:12px;color:var(--teal)">nombre = "Kü Akademie"; print(nombre)</code></div>
-            <div class="q-options">
-              <div class="q-option" onclick="selectOpt(this,5,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>nombre</div>
-              <div class="q-option" onclick="selectOpt(this,5,true)"><div class="q-radio"><div class="q-radio-dot"></div></div>Kü Akademie</div>
-              <div class="q-option" onclick="selectOpt(this,5,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>"Kü Akademie"</div>
-              <div class="q-option" onclick="selectOpt(this,5,false)"><div class="q-radio"><div class="q-radio-dot"></div></div>Error de sintaxis</div>
-            </div>
-          </div>
-
-          <button class="exam-submit-btn" id="examSubmitBtn" onclick="submitExam()" disabled>
-            Enviar examen
-          </button>
-
-          <div class="exam-result" id="examResult">
-            <div class="result-score" id="resultScore"></div>
-            <div class="result-msg" id="resultMsg"></div>
-            <button class="result-retry" onclick="resetExam()">↺ Intentar de nuevo</button>
-          </div>
-        </div>
+        <div style="padding:16px 0;color:var(--muted);font-size:13px">Cargando examen...</div>
       </div>
 
     </div><!-- /tab-content -->
@@ -486,118 +362,19 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
   <!-- ══ SIDEBAR ══ -->
   <div class="sidebar">
     <div class="sb-head">
-      <div class="sb-course-title">Python para Emprendedores</div>
+      <div class="sb-course-title" id="sbCourseTitle">Cargando...</div>
       <div class="sb-prog-row">
-        <div class="sb-prog-bar"><div class="sb-prog-fill" id="sbProgFill" style="width:18%"></div></div>
-        <span class="sb-prog-txt" id="sbProgTxt">18%</span>
+        <div class="sb-prog-bar"><div class="sb-prog-fill" id="sbProgFill" style="width:0%"></div></div>
+        <span class="sb-prog-txt" id="sbProgTxt">0%</span>
       </div>
     </div>
-
     <div class="sb-units" id="sbUnits">
-
-      <!-- UNIDAD 1 -->
-      <div class="unit-section">
-        <div class="unit-header">
-          <span class="unit-title">Unidad 1 · Introducción</span>
-          <span class="unit-count">5/6 completadas</span>
-        </div>
-        <div class="unit-lessons">
-          <div class="lesson-item" onclick="loadLesson(0)" data-idx="0">
-            <div class="li-status done">✓</div>
-            <div class="li-info"><div class="li-title">1. ¿Qué es Python y por qué usarlo?</div><div class="li-dur">12 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="loadLesson(1)" data-idx="1">
-            <div class="li-status done">✓</div>
-            <div class="li-info"><div class="li-title">2. Instalación y configuración</div><div class="li-dur">8 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="loadLesson(2)" data-idx="2">
-            <div class="li-status done">✓</div>
-            <div class="li-info"><div class="li-title">3. Tu primer programa: "Hola Negocio"</div><div class="li-dur">10 min</div></div>
-          </div>
-          <div class="lesson-item active" onclick="loadLesson(3)" data-idx="3">
-            <div class="li-status active">▶</div>
-            <div class="li-info"><div class="li-title">4. Variables y tipos de datos</div><div class="li-dur">15 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="loadLesson(4)" data-idx="4">
-            <div class="li-status locked">○</div>
-            <div class="li-info"><div class="li-title">5. Operadores y expresiones</div><div class="li-dur">14 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="switchTab('exam',document.querySelector('.tab:nth-child(3)'));loadLesson(99)" data-idx="99">
-            <div class="li-status exam">★</div>
-            <div class="li-info"><div class="li-title">Examen Unidad 1</div><div class="li-dur">5 preguntas</div></div>
-            <span class="li-exam-badge">EXAM</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- UNIDAD 2 -->
-      <div class="unit-section">
-        <div class="unit-header">
-          <span class="unit-title">Unidad 2 · Estructuras</span>
-          <span class="unit-count">0/7 completadas</span>
-        </div>
-        <div class="unit-lessons">
-          <div class="lesson-item" onclick="loadLesson(10)" data-idx="10">
-            <div class="li-status locked">○</div>
-            <div class="li-info"><div class="li-title">6. Listas y diccionarios</div><div class="li-dur">18 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="loadLesson(11)" data-idx="11">
-            <div class="li-status locked">○</div>
-            <div class="li-info"><div class="li-title">7. Condicionales if/else</div><div class="li-dur">16 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="loadLesson(12)" data-idx="12">
-            <div class="li-status locked">○</div>
-            <div class="li-info"><div class="li-title">8. Ciclos for y while</div><div class="li-dur">20 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="loadLesson(13)" data-idx="13">
-            <div class="li-status locked">○</div>
-            <div class="li-info"><div class="li-title">9. Funciones propias</div><div class="li-dur">22 min</div></div>
-          </div>
-          <div class="lesson-item" onclick="loadLesson(14)" data-idx="14">
-            <div class="li-status locked">○</div>
-            <div class="li-info"><div class="li-title">10. Manejo de errores</div><div class="li-dur">15 min</div></div>
-          </div>
-          <div class="lesson-item" style="opacity:.5">
-            <div class="li-status locked">○</div>
-            <div class="li-info"><div class="li-title">11. Módulos y librerías</div><div class="li-dur">18 min</div></div>
-          </div>
-          <div class="lesson-item" style="opacity:.5">
-            <div class="li-status exam">★</div>
-            <div class="li-info"><div class="li-title">Examen Unidad 2</div><div class="li-dur">8 preguntas</div></div>
-            <span class="li-exam-badge">EXAM</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- UNIDAD 3 -->
-      <div class="unit-section">
-        <div class="unit-header">
-          <span class="unit-title">Unidad 3 · Aplicaciones</span>
-          <span class="unit-count">0/8 completadas</span>
-        </div>
-        <div class="unit-lessons">
-          <div class="lesson-item" style="opacity:.4;pointer-events:none">
-            <div class="li-status locked">🔒</div>
-            <div class="li-info"><div class="li-title">12. Sistema de ventas básico</div><div class="li-dur">25 min</div></div>
-          </div>
-          <div class="lesson-item" style="opacity:.4;pointer-events:none">
-            <div class="li-status locked">🔒</div>
-            <div class="li-info"><div class="li-title">13. Control de inventario</div><div class="li-dur">28 min</div></div>
-          </div>
-          <div class="lesson-item" style="opacity:.4;pointer-events:none">
-            <div class="li-status locked">🔒</div>
-            <div class="li-info"><div class="li-title">14. Reportes automáticos en Excel</div><div class="li-dur">32 min</div></div>
-          </div>
-          <div class="lesson-item" style="opacity:.4;pointer-events:none">
-            <div class="li-status locked">🔒</div>
-            <div class="li-info"><div class="li-title">+ 5 lecciones más...</div><div class="li-dur"></div></div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /sb-units -->
+      <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Cargando lecciones...</div>
+    </div>
   </div><!-- /sidebar -->
 </div><!-- /body-row -->
+
+
 
 </div><!-- /aula -->
 
@@ -618,8 +395,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
       <div class="cert-preview">
         <div class="cert-logo">KÜ <em>Akademie</em></div>
         <div class="cert-certifies">Certifica que</div>
-        <div class="cert-name">Juan Pariona</div>
-        <div class="cert-course">completó Python para Emprendedores</div>
+        <div class="cert-name" id="certStudentName">Estudiante</div>
+        <div class="cert-course" id="certCourseName">completó el curso</div>
         <div class="cert-seal">🏆</div>
       </div>
       <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6">
@@ -634,14 +411,385 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 </div>
 
 <script type="module">
-// ── STATE ──
-const lessons = [
-  {unit:'Unidad 1 · Introducción',title:'¿Qué es Python y por qué usarlo?',dur:'12 min',done:true},
-  {unit:'Unidad 1 · Introducción',title:'Instalación y configuración',dur:'8 min',done:true},
-  {unit:'Unidad 1 · Introducción',title:'Tu primer programa: "Hola Negocio"',dur:'10 min',done:true},
-  {unit:'Unidad 1 · Introducción',title:'Variables y tipos de datos',dur:'15 min',done:false,current:true},
-  {unit:'Unidad 1 · Introducción',title:'Operadores y expresiones',dur:'14 min',done:false},
-];
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBEXEQArv1biBw-ZTQUt9QOsP4BalV8BIY",
+  authDomain: "nexora-914f6.firebaseapp.com",
+  projectId: "nexora-914f6",
+  storageBucket: "nexora-914f6.firebasestorage.app",
+  messagingSenderId: "1042987858149",
+  appId: "1:1042987858149:web:f647c9e9caa0d8dee93c0c"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
+
+let currentUser = null;
+let courseData  = null;
+let currentUnitIdx = 0;
+let currentLessonIdx = 0;
+let completedLessons = [];
+let totalLessons = 0;
+
+// ── AUTH ──
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentUser = user;
+
+  // Get course from sessionStorage
+  const stored = sessionStorage.getItem('nx_currentCourse');
+  if (!stored) { window.location.href = 'dashboard.html'; return; }
+  const { id } = JSON.parse(stored);
+
+  // Load progress
+  try {
+    const progSnap = await getDoc(doc(db, 'progress', user.uid));
+    if (progSnap.exists()) {
+      const p = progSnap.data();
+      completedLessons = p[id]?.lessons || [];
+      currentUnitIdx   = p[id]?.lastUnit  || 0;
+      currentLessonIdx = p[id]?.lastLesson || 0;
+    }
+  } catch(e) {}
+
+  // Load course
+  try {
+    const snap = await getDoc(doc(db, 'courses', id));
+    if (!snap.exists()) { window.location.href = 'dashboard.html'; return; }
+    courseData = { id, ...snap.data() };
+    initAula();
+  } catch(e) {
+    console.error('Error cargando curso:', e);
+    window.location.href = 'dashboard.html';
+  }
+});
+
+function initAula() {
+  const units = courseData.units || [];
+  totalLessons = units.reduce((s,u) => s+(u.lessons||[]).length, 0);
+
+  // Update topbar
+  document.getElementById('tbCourse').textContent = courseData.title || 'Curso';
+  document.getElementById('sbCourseTitle').textContent = courseData.title || 'Curso';
+  document.getElementById('certStudentName').textContent = currentUser.email?.split('@')[0] || '';
+  document.getElementById('certCourseName').textContent  = courseData.title || '';
+
+  updateProgress();
+  renderSidebar(units);
+
+  // Load first lesson or last visited
+  loadLesson(currentUnitIdx, currentLessonIdx);
+}
+
+function getProgress() {
+  if (!totalLessons) return 0;
+  return Math.round((completedLessons.length / totalLessons) * 100);
+}
+
+function updateProgress() {
+  const pct = getProgress();
+  document.getElementById('topProgFill').style.width = pct+'%';
+  document.getElementById('topProgPct').textContent  = pct+'%';
+  document.getElementById('sbProgFill').style.width  = pct+'%';
+  document.getElementById('sbProgTxt').textContent   = pct+'%';
+}
+
+// ── SIDEBAR ──
+function renderSidebar(units) {
+  const sb = document.getElementById('sbUnits');
+  let globalIdx = 0;
+  sb.innerHTML = units.map((unit, ui) => {
+    const lessonItems = (unit.lessons||[]).map((lesson, li) => {
+      const gIdx = globalIdx++;
+      const key  = `${ui}-${li}`;
+      const done = completedLessons.includes(key);
+      const active = ui===currentUnitIdx && li===currentLessonIdx;
+      return `
+        <div class="lesson-item ${active?'active':''}" onclick="loadLesson(${ui},${li})" data-ui="${ui}" data-li="${li}">
+          <div class="li-status ${done?'done':active?'active':'locked'}">${done?'✓':active?'▶':'○'}</div>
+          <div class="li-info">
+            <div class="li-title">${lesson.title||'Lección '+(li+1)}</div>
+            <div class="li-dur">${lesson.duration||''}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Add exam if exists
+    const hasExam = courseData.exams?.[String(ui)]?.questions?.length > 0;
+    const examItem = hasExam ? `
+      <div class="lesson-item" onclick="loadExam(${ui})" data-ui="${ui}" data-exam="1">
+        <div class="li-status exam">★</div>
+        <div class="li-info"><div class="li-title">Examen Unidad ${ui+1}</div><div class="li-dur">${courseData.exams[String(ui)].questions.length} preguntas</div></div>
+        <span class="li-exam-badge">EXAM</span>
+      </div>` : '';
+
+    const doneCount = (unit.lessons||[]).filter((_,li)=>completedLessons.includes(`${ui}-${li}`)).length;
+    return `
+      <div class="unit-section">
+        <div class="unit-header">
+          <span class="unit-title">Unidad ${ui+1} · ${unit.name||''}</span>
+          <span class="unit-count">${doneCount}/${(unit.lessons||[]).length} completadas</span>
+        </div>
+        <div class="unit-lessons">${lessonItems}${examItem}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── LOAD LESSON ──
+window.loadLesson = function(ui, li) {
+  currentUnitIdx   = ui;
+  currentLessonIdx = li;
+  const units  = courseData.units||[];
+  const unit   = units[ui];
+  const lesson = unit?.lessons?.[li];
+  if (!lesson) return;
+
+  // Update topbar
+  document.getElementById('tbCourse').innerHTML = `<strong>${courseData.title}</strong> — ${lesson.title||'Clase'}`;
+
+  // Update lesson info
+  document.getElementById('lessonUnit').textContent  = `Unidad ${ui+1} · ${unit.name||''}`;
+  document.getElementById('lessonTitle').textContent = lesson.title||'';
+  document.getElementById('lessonStatusBadge').style.color = completedLessons.includes(`${ui}-${li}`) ? 'var(--green)' : 'var(--muted)';
+  document.getElementById('lessonStatusBadge').textContent = completedLessons.includes(`${ui}-${li}`) ? '✓ Completada' : '○ Pendiente';
+
+  // Update video
+  if (lesson.videoId) {
+    document.getElementById('mainVideo').src = `https://www.youtube.com/embed/${lesson.videoId}?rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1`;
+  } else {
+    document.getElementById('mainVideo').src = '';
+  }
+
+  // Update sidebar active state
+  document.querySelectorAll('.lesson-item').forEach(el => {
+    const eui = parseInt(el.dataset.ui);
+    const eli = parseInt(el.dataset.li);
+    const isActive = eui===ui && eli===li && !el.dataset.exam;
+    el.classList.toggle('active', isActive);
+    const status = el.querySelector('.li-status');
+    if (isActive && status && !status.classList.contains('done')) {
+      status.classList.remove('locked'); status.classList.add('active'); status.textContent='▶';
+    }
+  });
+
+  // Load PDFs and description
+  renderDescription(lesson, unit);
+  renderPDFs();
+  renderExamTab(ui);
+
+  // Switch to description tab
+  switchTab('desc', document.querySelector('.tab'));
+};
+
+// ── LOAD EXAM ──
+window.loadExam = function(ui) {
+  renderExamTab(ui);
+  switchTab('exam', document.querySelectorAll('.tab')[2]);
+};
+
+function renderDescription(lesson, unit) {
+  const desc = document.getElementById('tab-desc');
+  desc.innerHTML = `
+    <div class="desc-section">
+      <p class="desc-text">${courseData.desc||''}</p>
+    </div>
+    <div class="desc-section">
+      <h4>Sobre esta lección</h4>
+      <p class="desc-text">${lesson.title||''} — ${unit.name||''}</p>
+    </div>`;
+}
+
+function renderPDFs() {
+  const pdfs = courseData.pdfs||[];
+  const container = document.getElementById('tab-pdfs');
+  if (!pdfs.length) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:16px 0">No hay material PDF para este curso.</p>';
+    return;
+  }
+  container.innerHTML = `<div class="pdfs-list">${pdfs.map(p=>`
+    <div class="pdf-item">
+      <div class="pdf-icon">📄</div>
+      <div class="pdf-info">
+        <div class="pdf-name">${p.name||'Archivo'}</div>
+        <div class="pdf-size">Material de apoyo</div>
+      </div>
+      <button class="pdf-dl" onclick="window.open('${p.url}','_blank')">⬇ Descargar</button>
+    </div>`).join('')}</div>`;
+}
+
+function renderExamTab(ui) {
+  const exam = courseData.exams?.[String(ui)];
+  const container = document.getElementById('tab-exam');
+  if (!exam?.questions?.length) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:16px 0">No hay examen para esta unidad.</p>';
+    return;
+  }
+  const qs = exam.questions;
+  container.innerHTML = `
+    <div class="exam-container">
+      <div class="exam-header">
+        <div class="exam-title">Examen — Unidad ${ui+1}</div>
+        <div class="exam-sub">${qs.length} preguntas · Necesitas 70% para aprobar</div>
+        <div class="exam-progress-row">
+          <div class="exam-prog-bar"><div class="exam-prog-fill" id="examProgFill" style="width:0%"></div></div>
+          <span class="exam-prog-lbl" id="examProgLbl">0/${qs.length}</span>
+        </div>
+      </div>
+      ${qs.map((q,qi)=>`
+        <div class="question-card">
+          <div class="q-num">Pregunta ${qi+1} de ${qs.length}</div>
+          <div class="q-text">${q.text||''}</div>
+          <div class="q-options">
+            ${(q.options||[]).map((opt,oi)=>`
+              <div class="q-option" onclick="selectOpt(this,${qi},${oi===q.correct})">
+                <div class="q-radio"><div class="q-radio-dot"></div></div>${opt}
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+      <button class="exam-submit-btn" id="examSubmitBtn" onclick="submitExam(${ui},${qs.length},${JSON.stringify(qs.map(q=>q.correct))})" disabled>
+        Enviar examen
+      </button>
+      <div class="exam-result" id="examResult">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-msg" id="resultMsg"></div>
+        <button class="result-retry" onclick="renderExamTab(${ui});switchTab('exam',document.querySelectorAll('.tab')[2])">↺ Intentar de nuevo</button>
+      </div>
+    </div>`;
+  window._examAnswers = {};
+  window._examTotal   = qs.length;
+}
+
+// ── EXAM LOGIC ──
+const examAnswers = {};
+window.selectOpt = function(el, qi, isCorrect) {
+  el.closest('.q-options').querySelectorAll('.q-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  examAnswers[qi] = isCorrect;
+  const answered = Object.keys(examAnswers).length;
+  const total = window._examTotal || 5;
+  const fill = document.getElementById('examProgFill');
+  const lbl  = document.getElementById('examProgLbl');
+  if (fill) fill.style.width = (answered/total*100)+'%';
+  if (lbl)  lbl.textContent  = answered+'/'+total;
+  const btn = document.getElementById('examSubmitBtn');
+  if (btn) btn.disabled = answered < total;
+};
+
+window.submitExam = function(ui, total, correctAnswers) {
+  let score = 0;
+  document.querySelectorAll('.q-options').forEach((opts,qi) => {
+    opts.querySelectorAll('.q-option').forEach((opt,oi) => {
+      if (opt.classList.contains('selected')) {
+        const isCorrect = examAnswers[qi];
+        opt.classList.remove('selected');
+        opt.classList.add(isCorrect ? 'correct' : 'wrong');
+        if (isCorrect) score++;
+      }
+    });
+  });
+  document.querySelectorAll('.q-option').forEach(o=>{o.style.pointerEvents='none'});
+  const pct = Math.round(score/total*100);
+  const passed = pct >= 70;
+  const result = document.getElementById('examResult');
+  document.getElementById('resultScore').textContent = pct+'%';
+  document.getElementById('resultScore').style.color = passed?'var(--green)':'var(--red)';
+  document.getElementById('resultMsg').innerHTML = passed
+    ? `✓ Aprobaste con ${score}/${total} respuestas. ¡Excelente!`
+    : `✗ Obtuviste ${score}/${total}. Necesitas 70% para aprobar.`;
+  result.classList.add('show');
+  document.getElementById('examSubmitBtn').style.display='none';
+  if (passed) showToast('🎉 Examen aprobado');
+};
+
+// ── MARK DONE & NEXT ──
+window.markDoneAndNext = async function() {
+  const key = `${currentUnitIdx}-${currentLessonIdx}`;
+  if (!completedLessons.includes(key)) {
+    completedLessons.push(key);
+    updateProgress();
+    renderSidebar(courseData.units||[]);
+    showToast(`¡Lección completada! ${getProgress()}% del curso`);
+
+    // Save to Firebase
+    if (currentUser && courseData) {
+      try {
+        const progRef = doc(db,'progress',currentUser.uid);
+        const snap = await getDoc(progRef);
+        const existing = snap.exists() ? snap.data() : {};
+        await setDoc(progRef, {
+          ...existing,
+          [courseData.id]: {
+            lessons: completedLessons,
+            lastUnit: currentUnitIdx,
+            lastLesson: currentLessonIdx,
+            percent: getProgress(),
+            completed: completedLessons.length,
+            updatedAt: new Date().toISOString()
+          }
+        });
+      } catch(e) {}
+    }
+  }
+
+  // Go to next lesson
+  const units = courseData.units||[];
+  const unit  = units[currentUnitIdx];
+  if (currentLessonIdx < (unit?.lessons||[]).length - 1) {
+    loadLesson(currentUnitIdx, currentLessonIdx+1);
+  } else if (currentUnitIdx < units.length - 1) {
+    loadLesson(currentUnitIdx+1, 0);
+  }
+};
+
+window.prevLesson = function() {
+  if (currentLessonIdx > 0) loadLesson(currentUnitIdx, currentLessonIdx-1);
+  else if (currentUnitIdx > 0) {
+    const prevUnit = (courseData.units||[])[currentUnitIdx-1];
+    loadLesson(currentUnitIdx-1, Math.max(0,(prevUnit?.lessons||[]).length-1));
+  }
+};
+
+// ── TABS ──
+window.switchTab = function(id, el) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id)?.classList.add('active');
+  if (el) el.classList.add('active');
+};
+
+// ── CERT ──
+window.openCert = function() { document.getElementById('certModal').classList.add('show'); };
+window.closeCert = function() { document.getElementById('certModal').classList.remove('show'); };
+document.getElementById('certModal').addEventListener('click',function(e){ if(e.target===this) closeCert(); });
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('progressToast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ── LOGOUT ──
+document.querySelector('.tb-btn:last-of-type')?.addEventListener('click', async () => {
+  await signOut(auth);
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+});
+
+// ── RIGHT CLICK PROTECTION ──
+document.addEventListener('contextmenu', e => {
+  if (e.target.tagName==='IFRAME' || e.target.closest?.('.video-container')) e.preventDefault();
+});
+</script>
+</body>
+</html>
 let currentIdx = 3;
 let completedCount = 3;
 const totalLessons = 48;
