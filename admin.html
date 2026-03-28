@@ -777,15 +777,21 @@ function renderSlideEditor(slides) {
           <div class="field"><label>Emoji del curso</label><input type="text" id="sf-emoji-${i}" value="${s.emoji||'📚'}" maxlength="2"></div>
           <div class="field"><label>Color de fondo</label><input type="color" id="sf-bg-${i}" value="${s.bgColor||'#1a1040'}" style="height:38px;padding:2px 6px;cursor:pointer"></div>
         </div>
-        <div class="img-upload" onclick="document.getElementById('imgInput-${i}').click()">
-          <div class="img-thumb" id="imgThumb-${i}">${s.imageUrl?`<img src="${s.imageUrl}" onerror="this.style.display='none'">`:s.emoji||'🖼'}</div>
-          <div class="img-info">
-            <div class="img-name" id="imgName-${i}">${s.imageUrl||'Sin imagen (se usa el fondo de color)'}</div>
-            <div class="img-hint">Sube imagen para el fondo del slide</div>
+        <div class="field">
+          <label>URL de imagen <span style="color:var(--muted2);font-weight:400;text-transform:none;letter-spacing:0">(pega una URL o ruta como assets/img/slide.jpg)</span></label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="imgUrl-${i}" placeholder="assets/img/slide-1.jpg  o  https://..." value="${s.imageUrl||''}"
+              style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none"
+              oninput="previewImageUrl(${i}, this.value)">
+            <button class="img-btn" onclick="document.getElementById('imgInput-${i}').click()" style="white-space:nowrap;padding:9px 14px">📁 Desde PC</button>
           </div>
-          <div class="img-btn">Seleccionar</div>
+          <input type="file" id="imgInput-${i}" accept="image/*" style="display:none" onchange="previewImage(${i}, this)">
+          <div style="margin-top:8px;height:60px;border-radius:8px;overflow:hidden;background:var(--surface3);display:flex;align-items:center;justify-content:center" id="imgPreviewBox-${i}">
+            ${s.imageUrl 
+              ? `<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=color:var(--muted2);font-size:12px>Sin vista previa</span>'">`
+              : `<span style="color:var(--muted2);font-size:12px">Sin imagen — se usa color de fondo</span>`}
+          </div>
         </div>
-        <input type="file" id="imgInput-${i}" accept="image/*" style="display:none" onchange="previewImage(${i}, this)">
         <div style="display:flex;gap:8px;margin-top:4px">
           <button class="btn-save" onclick="saveSlide(${i})">💾 Guardar slide</button>
         </div>
@@ -802,7 +808,16 @@ window.toggleSlide = function(i) {
   tog.nextElementSibling.textContent = window._slides[i].active ? 'Activo' : 'Oculto';
 };
 
-window.previewImage = function(i, input) {
+window.previewImageUrl = function(i, url) {
+  const box = document.getElementById('imgPreviewBox-'+i);
+  if (!url) {
+    box.innerHTML = '<span style="color:var(--muted2);font-size:12px">Sin imagen — se usa color de fondo</span>';
+    window._slides[i].imageUrl = '';
+    return;
+  }
+  box.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=color:var(--muted2);font-size:12px>No se pudo cargar la imagen</span>'">`;
+  window._slides[i].imageUrl = url;
+};
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -829,6 +844,9 @@ window.saveSlide = async function(i) {
   s.emoji    = document.getElementById('sf-emoji-'+i).value;
   s.bgColor  = document.getElementById('sf-bg-'+i).value;
   if (s._imagePreview) s.imageUrl = s._imagePreview;
+  // También leer del campo de texto de URL
+  const urlField = document.getElementById('imgUrl-'+i);
+  if (urlField && urlField.value.trim()) s.imageUrl = urlField.value.trim();
 
   // Save clean copy
   const toSave = window._slides.map(sl => {
