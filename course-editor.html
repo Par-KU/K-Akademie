@@ -147,6 +147,29 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 /* NAV BTNS */
 .wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
 .nav-hint{font-size:12px;color:var(--muted2)}
+
+/* IMAGE CROPPER */
+.cropper-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.cropper-overlay.show{opacity:1;pointer-events:all}
+.cropper-modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:90%;max-width:640px;overflow:hidden}
+.cropper-head{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cropper-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:#fff}
+.cropper-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.cropper-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;transition:color .15s}
+.cropper-close:hover{color:#fff}
+.cropper-stage{position:relative;height:320px;background:#000;overflow:hidden;cursor:move;user-select:none}
+.cropper-img{position:absolute;transform-origin:center center}
+.cropper-frame{position:absolute;inset:0;border:2px dashed rgba(124,106,247,.6);pointer-events:none}
+.cropper-frame::before{content:'';position:absolute;inset:0;background:transparent;box-shadow:0 0 0 9999px rgba(0,0,0,.35)}
+.cropper-controls{padding:16px 24px;display:flex;align-items:center;gap:12px;border-top:1px solid var(--border)}
+.cropper-label{font-size:11px;color:var(--muted);min-width:40px}
+.cropper-slider{flex:1;accent-color:var(--purple);cursor:pointer}
+.cropper-hint{font-size:11px;color:var(--muted2);padding:0 24px 8px;text-align:center}
+.cropper-foot{padding:12px 24px 20px;display:flex;gap:10px;justify-content:flex-end}
+.btn-crop-apply{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-crop-apply:hover{background:var(--purple-dim)}
+.btn-crop-cancel{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s}
+.btn-crop-cancel:hover{border-color:var(--border2);color:var(--text)}
 </style>
 </head>
 <body>
@@ -235,6 +258,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
             <div class="img-overlay"><button class="img-overlay-btn">Cambiar imagen</button></div>
           </div>
           <input type="file" id="coverFileInput" accept="image/*" style="display:none" onchange="previewCover(this)">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button class="btn-secondary" style="flex:1" onclick="document.getElementById('coverFileInput').click()">📁 Subir desde PC</button>
+            <button class="btn-secondary" style="flex:1" id="btnCrop" onclick="openCropper()" disabled>✂ Ajustar imagen</button>
+          </div>
           <div class="field"><label>O pega una URL / ruta</label><input type="text" id="f_imageUrl" placeholder="assets/img/curso-portada.jpg" oninput="updateCoverFromUrl(this.value)"></div>
         </div>
       </div>
@@ -360,6 +387,33 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 
 </div><!-- /wizard -->
 
+<!-- IMAGE CROPPER MODAL -->
+<div class="cropper-overlay" id="cropperOverlay">
+  <div class="cropper-modal">
+    <div class="cropper-head">
+      <div>
+        <div class="cropper-title">Ajustar imagen de portada</div>
+        <div class="cropper-sub">Arrastra para mover · Usa el zoom para acercar o alejar</div>
+      </div>
+      <button class="cropper-close" onclick="closeCropper()">×</button>
+    </div>
+    <div class="cropper-stage" id="cropperStage">
+      <img class="cropper-img" id="cropperImg" src="" alt="">
+      <div class="cropper-frame"></div>
+    </div>
+    <div class="cropper-controls">
+      <span class="cropper-label">Zoom</span>
+      <input type="range" class="cropper-slider" id="cropZoom" min="50" max="200" value="100" oninput="updateZoom(this.value)">
+      <span style="font-size:11px;color:var(--purple);min-width:36px" id="zoomLabel">100%</span>
+    </div>
+    <div class="cropper-hint">El recuadro muestra exactamente cómo se verá en la card del curso (16:9)</div>
+    <div class="cropper-foot">
+      <button class="btn-crop-cancel" onclick="closeCropper()">Cancelar</button>
+      <button class="btn-crop-apply" onclick="applyCrop()">✓ Aplicar recorte</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">
   <div class="toast-dot" id="toastDot"></div>
@@ -471,7 +525,13 @@ window.previewCover = function(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => updateCoverFromUrl(e.target.result);
+  reader.onload = e => {
+    _cropSrc = e.target.result;
+    _cropX = 0; _cropY = 0; _cropScale = 1;
+    document.getElementById('cropperImg').src = e.target.result;
+    updateCoverFromUrl(e.target.result);
+    document.getElementById('btnCrop').disabled = false;
+  };
   reader.readAsDataURL(file);
 };
 
@@ -482,6 +542,13 @@ window.updateCoverFromUrl = function(url) {
   if (!img) { img = document.createElement('img'); wrap.appendChild(img); }
   img.src = url;
   wrap.querySelector('.img-preview-placeholder').style.display='none';
+  // Enable crop button if we have a URL
+  if (url) {
+    document.getElementById('cropperImg').src = url;
+    _cropSrc = url;
+    _cropX = 0; _cropY = 0; _cropScale = 1;
+    document.getElementById('btnCrop').disabled = false;
+  }
 };
 
 // ── UNITS ──
@@ -815,6 +882,108 @@ window.saveAll = async function(showMsg=true) {
   } catch(e) {
     showToast('Error: '+e.message,'#e05555');
   }
+};
+
+// ── IMAGE CROPPER ──
+let _cropSrc = '';
+let _cropX = 0, _cropY = 0, _cropScale = 1;
+let _dragging = false, _dragStartX = 0, _dragStartY = 0, _dragStartCropX = 0, _dragStartCropY = 0;
+
+window.openCropper = function() {
+  const src = document.getElementById('cropperImg').src || _cropSrc;
+  if (!src || src === window.location.href) { showToast('Primero carga una imagen','#f0b942'); return; }
+  document.getElementById('cropperOverlay').classList.add('show');
+  document.getElementById('cropZoom').value = Math.round(_cropScale * 100);
+  document.getElementById('zoomLabel').textContent = Math.round(_cropScale * 100) + '%';
+  applyCropTransform();
+};
+
+window.closeCropper = function() {
+  document.getElementById('cropperOverlay').classList.remove('show');
+};
+
+window.updateZoom = function(val) {
+  _cropScale = val / 100;
+  document.getElementById('zoomLabel').textContent = val + '%';
+  applyCropTransform();
+};
+
+function applyCropTransform() {
+  const img = document.getElementById('cropperImg');
+  img.style.transform = `translate(calc(-50% + ${_cropX}px), calc(-50% + ${_cropY}px)) scale(${_cropScale})`;
+  img.style.left = '50%';
+  img.style.top  = '50%';
+}
+
+// Drag to pan
+const stage = document.getElementById('cropperStage');
+stage.addEventListener('mousedown', e => {
+  _dragging = true;
+  _dragStartX = e.clientX; _dragStartY = e.clientY;
+  _dragStartCropX = _cropX; _dragStartCropY = _cropY;
+  stage.style.cursor = 'grabbing';
+});
+document.addEventListener('mousemove', e => {
+  if (!_dragging) return;
+  _cropX = _dragStartCropX + (e.clientX - _dragStartX);
+  _cropY = _dragStartCropY + (e.clientY - _dragStartY);
+  applyCropTransform();
+});
+document.addEventListener('mouseup', () => { _dragging = false; stage.style.cursor = 'move'; });
+
+// Touch support
+stage.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  _dragging = true;
+  _dragStartX = t.clientX; _dragStartY = t.clientY;
+  _dragStartCropX = _cropX; _dragStartCropY = _cropY;
+});
+stage.addEventListener('touchmove', e => {
+  if (!_dragging) return;
+  const t = e.touches[0];
+  _cropX = _dragStartCropX + (t.clientX - _dragStartX);
+  _cropY = _dragStartCropY + (t.clientY - _dragStartY);
+  applyCropTransform();
+  e.preventDefault();
+}, { passive: false });
+stage.addEventListener('touchend', () => { _dragging = false; });
+
+window.applyCrop = function() {
+  // Generate cropped canvas
+  const stage = document.getElementById('cropperStage');
+  const img   = document.getElementById('cropperImg');
+  const sw = stage.offsetWidth, sh = stage.offsetHeight;
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = sw * 2; // 2x for retina
+  canvas.height = sh * 2;
+  const ctx = canvas.getContext('2d');
+
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const displayW = iw * _cropScale;
+  const displayH = ih * _cropScale;
+  const cx = sw/2 + _cropX, cy = sh/2 + _cropY;
+
+  ctx.scale(2, 2);
+  ctx.drawImage(img,
+    cx - displayW/2, cy - displayH/2,
+    displayW, displayH
+  );
+
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+  // Apply to preview
+  const wrap = document.getElementById('coverPreview');
+  let previewImg = wrap.querySelector('img');
+  if (!previewImg) { previewImg = document.createElement('img'); wrap.appendChild(previewImg); }
+  previewImg.src = dataUrl;
+  wrap.querySelector('.img-preview-placeholder').style.display = 'none';
+
+  // Store as the image to save
+  _cropSrc = dataUrl;
+
+  closeCropper();
+  showToast('✓ Imagen ajustada correctamente', '#4caf82');
 };
 
 // ── TOAST ──
