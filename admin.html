@@ -834,6 +834,22 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
   </div>
 </div>
 
+<!-- RESET EXAM MODAL -->
+<div class="modal-overlay" id="resetExamModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title">Resetear examen</div>
+    <div class="modal-sub" id="resetExamSub">Selecciona el examen a resetear</div>
+    <div class="modal-fields">
+      <div id="resetExamList" style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto">
+        <div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">Cargando exámenes...</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeResetExamModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">
   <div class="toast-dot" id="toastDot"></div>
@@ -1130,18 +1146,72 @@ window.filterStudents = function() {
 };
 
 window.resetExams = async function(studentId, studentName) {
-  if (!confirm(`¿Resetear todos los exámenes de ${studentName}?\nEsto borrará su historial y podrá volver a realizarlos.`)) return;
+  document.getElementById('resetExamSub').textContent = `Estudiante: ${studentName}`;
+  const listEl = document.getElementById('resetExamList');
+  listEl.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">Cargando...</div>';
+  document.getElementById('resetExamModal').classList.add('show');
+
+  try {
+    // Cargar progreso del estudiante
+    const progSnap = await getDoc(doc(db, 'progress', studentId));
+    const exams = progSnap.exists() ? (progSnap.data().exams || {}) : {};
+
+    // Cargar cursos para mostrar nombres
+    const coursesSnap = await getDocs(collection(db, 'courses'));
+    const courses = {};
+    coursesSnap.docs.forEach(d => { courses[d.id] = d.data(); });
+
+    if (!Object.keys(exams).length) {
+      listEl.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">Este estudiante no tiene exámenes realizados.</div>';
+      return;
+    }
+
+    // Construir lista de exámenes
+    listEl.innerHTML = Object.entries(exams).map(([key, data]) => {
+      // key formato: courseId_exam_unitIndex
+      const parts = key.split('_exam_');
+      const courseId = parts[0];
+      const unitIdx  = parts[1];
+      const courseName = courses[courseId]?.title || courseId;
+      const unitName   = courses[courseId]?.units?.[parseInt(unitIdx)]?.name || `Unidad ${parseInt(unitIdx)+1}`;
+      const passed = data.passed;
+      const score  = data.score || 0;
+      const attempts = data.attempts || 0;
+
+      return `
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">${courseName}</div>
+            <div style="font-size:11px;color:var(--muted)">${unitName} · ${attempts} intento${attempts!==1?'s':''} · Mejor nota: <span style="color:${passed?'var(--green)':'var(--red)'};font-weight:600">${score}%</span></div>
+          </div>
+          <button class="btn-danger" onclick="confirmResetExam('${studentId}','${studentName}','${key}','${unitName}')">↺ Resetear</button>
+        </div>`;
+    }).join('');
+
+  } catch(e) {
+    listEl.innerHTML = `<div style="font-size:13px;color:var(--red);text-align:center;padding:20px">Error: ${e.message}</div>`;
+  }
+};
+
+window.confirmResetExam = async function(studentId, studentName, examKey, unitName) {
+  if (!confirm(`¿Resetear el examen "${unitName}" de ${studentName}?\nEl estudiante podrá volver a realizarlo desde cero.`)) return;
   try {
     const progRef = doc(db, 'progress', studentId);
-    const snap = await getDoc(progRef);
-    if (!snap.exists()) { showToast('Este estudiante no tiene progreso guardado', '#f0b942'); return; }
-    const existing = snap.data();
-    delete existing.exams;
-    await setDoc(progRef, existing);
-    showToast(`Exámenes de ${studentName} reseteados ✓`, '#4caf82');
+    const snap    = await getDoc(progRef);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (data.exams) delete data.exams[examKey];
+    await setDoc(progRef, data);
+    showToast(`Examen "${unitName}" reseteado ✓`, '#4caf82');
+    // Recargar la lista
+    window.resetExams(studentId, studentName);
   } catch(e) {
     showToast('Error: ' + e.message, '#e05555');
   }
+};
+
+window.closeResetExamModal = function() {
+  document.getElementById('resetExamModal').classList.remove('show');
 };
 
 window.deleteStudent = async function(id) {
