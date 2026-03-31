@@ -777,7 +777,7 @@
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, doc, getDoc, collection, query, where, getDocs }
+  import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const firebaseConfig = {
@@ -937,8 +937,13 @@
       const q = query(collection(db, 'students'), where('matricula', '==', mat));
       const snap = await getDocs(q);
       if (snap.empty) throw new Error('Matrícula no encontrada');
-      const studentData = snap.docs[0].data();
-      await signInWithEmailAndPassword(auth, studentData.email, pwd);
+      const studentDoc = snap.docs[0];
+      const studentData = studentDoc.data();
+      const userCred = await signInWithEmailAndPassword(auth, studentData.email, pwd);
+      // Guardar UID en el documento del estudiante si aún no lo tiene
+      if (!studentData.uid) {
+        await setDoc(doc(db, 'students', studentDoc.id), { uid: userCred.user.uid }, { merge: true });
+      }
       sessionStorage.setItem('nx_student', JSON.stringify({
         name: studentData.name, matricula: studentData.matricula,
         course: studentData.course, email: studentData.email
