@@ -824,7 +824,24 @@ function startTimer(seconds, ui, total) {
 
 // ── BUILD RESULT HTML ──
 function buildExamResultHTML(ui, result, attemptsLeft, maxAttempts, dotsList) {
-  const passed = result.score >= 70;
+  const bestScore  = result.score;
+  const bestPassed = bestScore >= 70;
+  const history    = result.history || [{ score: result.score, correct: result.correct, total: result.total, date: result.date, passed: result.passed }];
+
+  const historyHTML = `
+    <div style="margin-top:16px;text-align:left;border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Historial de intentos</div>
+      ${history.map((h,i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--muted)">Intento ${i+1} · ${h.date||''}</span>
+          <span style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:${h.score>=70?'var(--green)':'var(--red)'}">${h.score}%</span>
+        </div>`).join('')}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--purple-light);border:1px solid rgba(124,106,247,.3);border-radius:8px;margin-top:8px">
+        <span style="font-size:12px;color:var(--purple);font-weight:500">Calificación final (mejor intento)</span>
+        <span style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:${bestPassed?'var(--green)':'var(--red)'}">${bestScore}%</span>
+      </div>
+    </div>`;
+
   return `
     <div class="exam-container">
       <div class="exam-header">
@@ -832,12 +849,10 @@ function buildExamResultHTML(ui, result, attemptsLeft, maxAttempts, dotsList) {
         <div class="exam-attempts">${dotsList}<span style="margin-left:4px">${maxAttempts} de ${maxAttempts} intentos usados</span></div>
       </div>
       <div class="exam-result show" style="margin-top:0">
-        <div class="result-score" style="color:${passed?'var(--green)':'var(--red)'}">${result.score}%</div>
-        <div class="result-msg">${passed
-          ? `✓ Aprobaste con ${result.correct}/${result.total} respuestas. ¡Excelente!`
-          : `✗ Obtuviste ${result.correct}/${result.total}. Necesitas 70% para aprobar.`}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px">Realizado el ${result.date||''}</div>
-        ${attemptsLeft > 0 ? `<button class="result-retry" style="margin-top:12px" onclick="renderExamTab(${ui});switchTab('exam',document.querySelectorAll('.tab')[2])">↺ Intentar de nuevo (${attemptsLeft} restante${attemptsLeft!==1?'s':''})</button>` : '<div style="font-size:12px;color:var(--red);margin-top:12px">Sin intentos restantes</div>'}
+        <div class="result-score" style="color:${bestPassed?'var(--green)':'var(--red)'}">${bestScore}%</div>
+        <div class="result-msg">${bestPassed ? '✓ Aprobaste este examen' : '✗ No alcanzaste el 70% para aprobar'}</div>
+        ${historyHTML}
+        <div style="font-size:12px;color:var(--red);margin-top:12px">Sin intentos restantes</div>
       </div>
     </div>`;
 }
@@ -857,13 +872,32 @@ window.submitExam = async function(ui, total) {
   });
   document.querySelectorAll('.q-option').forEach(o=>{ o.style.pointerEvents='none'; });
 
-  const pct     = Math.round(score / total * 100);
-  const passed  = pct >= 70;
-  const attempts = (window._currentExamAttempts || 0) + 1;
+  const pct        = Math.round(score / total * 100);
+  const passed     = pct >= 70;
+  const attempts   = (window._currentExamAttempts || 0) + 1;
   const maxAttempts = window._currentExamMax || 3;
   const attemptsLeft = maxAttempts - attempts;
-  const now     = new Date().toLocaleString('es-MX');
-  const examKey = `${courseData.id}_exam_${ui}`;
+  const now        = new Date().toLocaleString('es-MX');
+  const examKey    = `${courseData.id}_exam_${ui}`;
+
+  // Construir historial de intentos
+  const prevData   = window._examResults?.[examKey] || {};
+  const history    = prevData.history || [];
+  history.push({ score: pct, correct: score, total, date: now, passed });
+
+  // Calificación más alta de todos los intentos
+  const bestScore  = Math.max(...history.map(h => h.score));
+  const bestPassed = bestScore >= 70;
+
+  const newData = {
+    score: bestScore,      // siempre guardamos la más alta
+    correct: score,
+    total,
+    attempts,
+    date: now,
+    passed: bestPassed,
+    history                // array con todos los intentos
+  };
 
   // Guardar en Firebase
   if (currentUser && courseData) {
@@ -872,30 +906,56 @@ window.submitExam = async function(ui, total) {
       const snap    = await getDoc(progRef);
       const existing = snap.exists() ? snap.data() : {};
       if (!window._examResults) window._examResults = {};
-      window._examResults[examKey] = { score: pct, correct: score, total, attempts, date: now, passed };
+      window._examResults[examKey] = newData;
       await setDoc(progRef, {
         ...existing,
-        exams: { ...(existing.exams||{}), [examKey]: { score: pct, correct: score, total, attempts, date: now, passed } }
+        exams: { ...(existing.exams||{}), [examKey]: newData }
       });
     } catch(e) {}
   }
 
-  // Mostrar resultado
+  // Mostrar resultado del intento actual
   const result = document.getElementById('examResult');
   document.getElementById('resultScore').textContent = pct+'%';
   document.getElementById('resultScore').style.color = passed ? 'var(--green)' : 'var(--red)';
   document.getElementById('resultMsg').innerHTML = passed
     ? `✓ Aprobaste con ${score}/${total} respuestas. ¡Excelente!`
     : `✗ Obtuviste ${score}/${total}. Necesitas 70% para aprobar.`;
+
+  // Historial de intentos
+  const historyHTML = history.length > 1 ? `
+    <div style="margin-top:16px;text-align:left;border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Historial de intentos</div>
+      ${history.map((h,i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:8px;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--muted)">Intento ${i+1} · ${h.date}</span>
+          <span style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:${h.score>=70?'var(--green)':'var(--red)'}">${h.score}%</span>
+        </div>`).join('')}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--purple-light);border:1px solid rgba(124,106,247,.3);border-radius:8px;margin-top:8px">
+        <span style="font-size:12px;color:var(--purple);font-weight:500">Calificación final (mejor intento)</span>
+        <span style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:${bestPassed?'var(--green)':'var(--red)'}">${bestScore}%</span>
+      </div>
+    </div>` : '';
+
+  result.innerHTML = `
+    <div class="result-score" style="color:${passed?'var(--green)':'var(--red)'}">${pct}%</div>
+    <div class="result-msg">${passed
+      ? `✓ Aprobaste con ${score}/${total} respuestas. ¡Excelente!`
+      : `✗ Obtuviste ${score}/${total}. Necesitas 70% para aprobar.`}</div>
+    ${historyHTML}
+    <button class="result-retry" id="retryBtn" style="display:none;margin-top:16px">↺ Intentar de nuevo</button>
+  `;
+
   result.classList.add('show');
   document.getElementById('examSubmitBtn').style.display = 'none';
 
-  // Mostrar botón de reintentar si le quedan intentos
+  // Botón de reintentar
   const retryBtn = document.getElementById('retryBtn');
   if (retryBtn) {
-    if (!passed && attemptsLeft > 0) {
+    if (!bestPassed && attemptsLeft > 0) {
       retryBtn.style.display = '';
       retryBtn.textContent = `↺ Intentar de nuevo (${attemptsLeft} restante${attemptsLeft!==1?'s':''})`;
+      retryBtn.onclick = () => { renderExamTab(ui); switchTab('exam', document.querySelectorAll('.tab')[2]); };
     } else if (attemptsLeft <= 0) {
       retryBtn.style.display = 'none';
       result.insertAdjacentHTML('beforeend','<div style="font-size:12px;color:var(--red);margin-top:8px">Sin intentos restantes</div>');
