@@ -1115,6 +1115,7 @@ function renderStudents(list) {
       <td><span class="badge ${s.active!==false?'badge-active':'badge-inactive'}">${s.active!==false?'Activo':'Inactivo'}</span></td>
       <td><div class="action-btns">
         <button class="action-btn" onclick="editStudent('${s.id}')">Editar</button>
+        <button class="action-btn" onclick="resetExams('${s.id}','${s.name||s.email}')" title="Resetear exámenes" style="color:var(--amber);border-color:rgba(240,185,66,.3)">↺ Exámenes</button>
         <button class="action-btn danger" onclick="deleteStudent('${s.id}')">Eliminar</button>
       </div></td>
     </tr>
@@ -1126,6 +1127,21 @@ window.filterStudents = function() {
   renderStudents(_allStudents.filter(s =>
     (s.name||'').toLowerCase().includes(q) || (s.matricula||'').toLowerCase().includes(q)
   ));
+};
+
+window.resetExams = async function(studentId, studentName) {
+  if (!confirm(`¿Resetear todos los exámenes de ${studentName}?\nEsto borrará su historial y podrá volver a realizarlos.`)) return;
+  try {
+    const progRef = doc(db, 'progress', studentId);
+    const snap = await getDoc(progRef);
+    if (!snap.exists()) { showToast('Este estudiante no tiene progreso guardado', '#f0b942'); return; }
+    const existing = snap.data();
+    delete existing.exams;
+    await setDoc(progRef, existing);
+    showToast(`Exámenes de ${studentName} reseteados ✓`, '#4caf82');
+  } catch(e) {
+    showToast('Error: ' + e.message, '#e05555');
+  }
 };
 
 window.deleteStudent = async function(id) {
