@@ -824,9 +824,9 @@ function startTimer(seconds, ui, total) {
 
 // ── BUILD RESULT HTML ──
 function buildExamResultHTML(ui, result, attemptsLeft, maxAttempts, dotsList) {
-  const bestScore  = result.score;
-  const bestPassed = bestScore >= 70;
   const history    = result.history || [{ score: result.score, correct: result.correct, total: result.total, date: result.date, passed: result.passed }];
+  const bestScore  = Math.max(...history.map(h => h.score));
+  const bestPassed = bestScore >= 70;
 
   const historyHTML = `
     <div style="margin-top:16px;text-align:left;border-top:1px solid var(--border);padding-top:16px">
