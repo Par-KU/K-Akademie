@@ -793,9 +793,18 @@
   const auth  = getAuth(fbApp);
   const db    = getFirestore(fbApp);
 
-  // Si ya hay sesión activa → ir directo al aula
-  onAuthStateChanged(auth, user => {
-    if (user) window.location.href = 'dashboard.html';
+  // Si ya hay sesión activa → actualizar UID y redirigir
+  onAuthStateChanged(auth, async user => {
+    if (user) {
+      try {
+        const q2 = query(collection(db, 'students'), where('email', '==', user.email));
+        const snap2 = await getDocs(q2);
+        if (!snap2.empty) {
+          await setDoc(doc(db, 'students', snap2.docs[0].id), { uid: user.uid }, { merge: true });
+        }
+      } catch(e) {}
+      window.location.href = 'dashboard.html';
+    }
   });
 
   // ── SLIDES ──
@@ -940,10 +949,8 @@
       const studentDoc = snap.docs[0];
       const studentData = studentDoc.data();
       const userCred = await signInWithEmailAndPassword(auth, studentData.email, pwd);
-      // Guardar UID en el documento del estudiante si aún no lo tiene
-      if (!studentData.uid) {
-        await setDoc(doc(db, 'students', studentDoc.id), { uid: userCred.user.uid }, { merge: true });
-      }
+      // Siempre guardar/actualizar el UID en el documento del estudiante
+      await setDoc(doc(db, 'students', studentDoc.id), { uid: userCred.user.uid }, { merge: true });
       sessionStorage.setItem('nx_student', JSON.stringify({
         name: studentData.name, matricula: studentData.matricula,
         course: studentData.course, email: studentData.email
