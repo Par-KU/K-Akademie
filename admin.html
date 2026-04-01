@@ -1146,14 +1146,35 @@ window.filterStudents = function() {
 };
 
 window.resetExams = async function(studentId, studentName) {
+  // Guardar en el modal para poder recargar después del reset
+  document.getElementById('resetExamModal').dataset.studentId = studentId;
+  document.getElementById('resetExamModal').dataset.studentName = studentName;
   document.getElementById('resetExamSub').textContent = `Estudiante: ${studentName}`;
   const listEl = document.getElementById('resetExamList');
   listEl.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">Cargando...</div>';
   document.getElementById('resetExamModal').classList.add('show');
 
   try {
-    // Cargar progreso del estudiante
-    const progSnap = await getDoc(doc(db, 'progress', studentId));
+    // Obtener el UID real del alumno (guardado al hacer login)
+    const studentSnap = await getDoc(doc(db, 'students', studentId));
+    if (!studentSnap.exists()) {
+      listEl.innerHTML = '<div style="font-size:13px;color:var(--red);text-align:center;padding:20px">No se encontró el documento del estudiante.</div>';
+      return;
+    }
+    const studentDocData = studentSnap.data();
+    const uid = studentDocData.uid;
+
+    if (!uid) {
+      listEl.innerHTML = `
+        <div style="background:rgba(240,185,66,.08);border:1px solid rgba(240,185,66,.25);border-radius:10px;padding:16px 18px;font-size:13px;color:var(--amber)">
+          <strong>⚠ Sin UID registrado</strong><br>
+          Este estudiante aún no ha iniciado sesión en la plataforma. El UID se registra automáticamente en su primer login.
+        </div>`;
+      return;
+    }
+
+    // Cargar progreso usando el UID real de Firebase Auth
+    const progSnap = await getDoc(doc(db, 'progress', uid));
     const exams = progSnap.exists() ? (progSnap.data().exams || {}) : {};
 
     // Cargar cursos para mostrar nombres
@@ -1162,7 +1183,7 @@ window.resetExams = async function(studentId, studentName) {
     coursesSnap.docs.forEach(d => { courses[d.id] = d.data(); });
 
     if (!Object.keys(exams).length) {
-      listEl.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">Este estudiante no tiene exámenes realizados.</div>';
+      listEl.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">Este estudiante no tiene exámenes realizados aún.</div>';
       return;
     }
 
@@ -1174,17 +1195,20 @@ window.resetExams = async function(studentId, studentName) {
       const unitIdx  = parts[1];
       const courseName = courses[courseId]?.title || courseId;
       const unitName   = courses[courseId]?.units?.[parseInt(unitIdx)]?.name || `Unidad ${parseInt(unitIdx)+1}`;
-      const passed = data.passed;
-      const score  = data.score || 0;
-      const attempts = data.attempts || 0;
+
+      // Calcular la mejor nota a partir del historial (igual que lo hace aula.html)
+      const history   = data.history || [{ score: data.score || 0, passed: data.passed }];
+      const bestScore = Math.max(...history.map(h => h.score || 0));
+      const bestPassed = bestScore >= 70;
+      const attempts  = data.attempts || 0;
 
       return `
         <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px">
           <div style="flex:1">
             <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">${courseName}</div>
-            <div style="font-size:11px;color:var(--muted)">${unitName} · ${attempts} intento${attempts!==1?'s':''} · Mejor nota: <span style="color:${passed?'var(--green)':'var(--red)'};font-weight:600">${score}%</span></div>
+            <div style="font-size:11px;color:var(--muted)">${unitName} · ${attempts} intento${attempts!==1?'s':''} · Mejor nota: <span style="color:${bestPassed?'var(--green)':'var(--red)'};font-weight:600">${bestScore}%</span></div>
           </div>
-          <button class="btn-danger" onclick="confirmResetExam('${studentId}','${studentName}','${key}','${unitName}')">↺ Resetear</button>
+          <button class="btn-danger" onclick="confirmResetExam('${uid}','${studentName}','${key}','${unitName}')">↺ Resetear</button>
         </div>`;
     }).join('');
 
@@ -1193,18 +1217,20 @@ window.resetExams = async function(studentId, studentName) {
   }
 };
 
-window.confirmResetExam = async function(studentId, studentName, examKey, unitName) {
+window.confirmResetExam = async function(uid, studentName, examKey, unitName) {
   if (!confirm(`¿Resetear el examen "${unitName}" de ${studentName}?\nEl estudiante podrá volver a realizarlo desde cero.`)) return;
   try {
-    const progRef = doc(db, 'progress', studentId);
+    // Usamos el UID para acceder a progress/{uid}
+    const progRef = doc(db, 'progress', uid);
     const snap    = await getDoc(progRef);
-    if (!snap.exists()) return;
+    if (!snap.exists()) { showToast('No se encontró el progreso del estudiante', '#e05555'); return; }
     const data = snap.data();
     if (data.exams) delete data.exams[examKey];
     await setDoc(progRef, data);
     showToast(`Examen "${unitName}" reseteado ✓`, '#4caf82');
-    // Recargar la lista
-    window.resetExams(studentId, studentName);
+    // Recargar la lista usando el studentId del doc (guardado en dataset)
+    const modal = document.getElementById('resetExamModal');
+    window.resetExams(modal.dataset.studentId, modal.dataset.studentName);
   } catch(e) {
     showToast('Error: ' + e.message, '#e05555');
   }
