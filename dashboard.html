@@ -333,6 +333,13 @@ async function loadCourses() {
   }
 }
 
+function renderPrice(price, priceOld) {
+  if (!price && !priceOld) return '';
+  const old = priceOld ? '<span class="price-old">' + priceOld + '</span>' : '';
+  const now = '<span class="price-now">' + (price || '') + '</span>';
+  return '<div class="course-price-row">' + old + now + '</div>';
+}
+
 function renderMyCourses(courses, progressData) {
   const grid = document.getElementById('myCoursesGrid');
   if (!courses.length) {
@@ -346,7 +353,7 @@ function renderMyCourses(courses, progressData) {
   grid.innerHTML = courses.map(c => {
     const prog = progressData[c.id]?.percent || 0;
     const lessons = progressData[c.id]?.completed || 0;
-    const total = (c.lessons||[]).length || 0;
+    const total = (c.units ? c.units.reduce((s,u)=>(u.lessons||[]).length+s,0) : (c.lessons||[]).length) || 0;
     const thumb = c.imageUrl
       ? `<img src="${c.imageUrl}" alt="${c.title}">`
       : `<div style="font-size:48px;display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#1a1040,#0d1a2e)">${c.emoji||'📚'}</div>`;
@@ -377,6 +384,7 @@ function renderMyCourses(courses, progressData) {
             <span class="course-pct">${prog}% completado</span>
             <span class="course-lessons">${lessons}/${total} lecciones</span>
           </div>
+          ${renderPrice(c.price, c.priceOld)}
           <button class="continue-btn">
             <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M3 2l8 5-8 5V2z" fill="#fff"/></svg>
             ${prog > 0 ? 'Continuar curso' : 'Comenzar curso'}
@@ -424,11 +432,8 @@ function renderExploreCourses(courses) {
         <div class="course-body">
           <div class="course-cat">${c.category||'Curso'}</div>
           <div class="course-title">${c.title}</div>
-          <div class="course-instructor">${c.instructor||'—'} · ${(c.lessons||[]).length||0} lecciones</div>
-          <div class="course-price-row">
-            ${c.priceOld ? `<span class="price-old">${c.priceOld}</span>` : ''}
-            <span class="price-now">${c.price || 'Consultar precio'}</span>
-          </div>
+          <div class="course-instructor">${c.instructor||'—'} · ${(c.units ? c.units.reduce((s,u)=>(u.lessons||[]).length+s,0) : (c.lessons||[]).length)||0} lecciones</div>
+          ${renderPrice(c.price, c.priceOld) || '<div class="course-price-row"><span class="price-now" style="font-size:13px;color:var(--muted)">Consultar precio</span></div>'}
           <button class="acquire-btn" onclick="requestCourse('${c.title}',event)">
             Adquirir curso
           </button>
