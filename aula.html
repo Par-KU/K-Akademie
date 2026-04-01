@@ -24,7 +24,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
   position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border);
   display:flex;align-items:center;padding:0 20px;gap:16px;height:52px;
 }
-.tb-logo{display:flex;align-items:center;gap:8px;text-decoration:none;margin-right:8px}
+.tb-logo{display:flex;align-items:center;gap:8px;margin-right:4px}
+.tb-back{display:flex;align-items:center;gap:5px;text-decoration:none;color:var(--muted);font-size:12px;font-weight:500;padding:5px 10px;border-radius:7px;border:1px solid var(--border);transition:all .15s;white-space:nowrap}
+.tb-back:hover{color:#fff;border-color:var(--purple);background:var(--purple-light)}
+.tb-back svg{flex-shrink:0;transition:transform .15s}
+.tb-back:hover svg{transform:translateX(-2px)}
 .tb-icon{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--purple);position:relative;flex-shrink:0}
 .tb-icon::before{content:'';position:absolute;width:12px;height:1.5px;background:var(--teal);border-radius:1px;transform:rotate(-35deg);top:7px;left:3px}
 .tb-icon::after{content:'';position:absolute;width:9px;height:1.5px;background:var(--purple);border-radius:1px;transform:rotate(-35deg);bottom:7px;right:2px}
@@ -57,24 +61,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 }
 .video-container iframe{width:100%;display:block;border:none;pointer-events:all;aspect-ratio:16/9}
 
-/* anti-download overlay — blocks right-click context on iframe area */
-.video-shield{
-  position:absolute;top:0;left:0;right:0;bottom:48px;
-  z-index:2;pointer-events:none;
-}
-/* custom controls bar */
-.video-controls{
-  position:absolute;bottom:0;left:0;right:0;height:48px;
-  background:linear-gradient(to top,rgba(10,11,16,.95),transparent);
-  display:flex;align-items:center;padding:0 16px;gap:12px;z-index:3;
-}
-.vc-btn{background:none;border:none;color:#fff;cursor:pointer;padding:6px;border-radius:6px;transition:background .15s;display:flex;align-items:center;justify-content:center}
-.vc-btn:hover{background:rgba(255,255,255,.1)}
-.vc-time{font-size:12px;color:rgba(255,255,255,.7);min-width:80px}
-.vc-progress{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;position:relative}
-.vc-progress-fill{height:100%;background:var(--purple);border-radius:2px;pointer-events:none;transition:width .5s}
-.vc-speed{font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;background:rgba(255,255,255,.08);border:none;border-radius:4px;padding:3px 7px;font-family:'DM Sans',sans-serif}
-.vc-speed:hover{background:rgba(255,255,255,.15);color:#fff}
+
 
 /* lesson info strip */
 .lesson-strip{
@@ -287,9 +274,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 
   <!-- ══ TOPBAR ══ -->
   <div class="topbar">
-    <a class="tb-logo" href="dashboard.html">
+    <div class="tb-logo">
       <div class="tb-icon"></div>
       <span class="tb-brand">KÜ <em>Akademie</em></span>
+    </div>
+    <a class="tb-back" href="dashboard.html">
+      <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Mis cursos
     </a>
     <div class="tb-sep"></div>
     <div class="tb-course" id="tbCourse">Cargando curso...</div>
@@ -312,34 +303,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 
     <!-- VIDEO -->
     <div class="video-container" id="videoContainer">
-      <!-- Shield prevents right-click download UI -->
-      <div class="video-shield" oncontextmenu="return false"></div>
       <iframe
         id="mainVideo"
-        src="https://www.youtube.com/embed/VIDEO_ID_AQUI?rel=0&modestbranding=1&iv_load_policy=3&disablekb=0&fs=1&controls=0&enablejsapi=1"
+        src="https://www.youtube.com/embed/VIDEO_ID_AQUI?rel=0&modestbranding=1&iv_load_policy=3&disablekb=0&fs=1&controls=1"
         allow="autoplay; encrypted-media; fullscreen"
         allowfullscreen
         style="width:100%;aspect-ratio:16/9;display:block"
       ></iframe>
-      <div class="video-controls">
-        <button class="vc-btn" onclick="togglePlay()" id="playBtn" title="Play/Pausa">
-          <svg id="playIcon" width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z" fill="#fff"/></svg>
-        </button>
-        <span class="vc-time" id="vcTime">0:00 / 15:30</span>
-        <div class="vc-progress" onclick="seekVideo(event)" title="Progreso">
-          <div class="vc-progress-fill" id="vcProgFill" style="width:0%"></div>
-        </div>
-        <select class="vc-speed" onchange="changeSpeed(this.value)" title="Velocidad">
-          <option value="0.75">0.75x</option>
-          <option value="1" selected>1x</option>
-          <option value="1.25">1.25x</option>
-          <option value="1.5">1.5x</option>
-          <option value="2">2x</option>
-        </select>
-        <button class="vc-btn" onclick="toggleFullscreen()" title="Pantalla completa">
-          <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>
-        </button>
-      </div>
     </div>
 
     <!-- LESSON INFO -->
