@@ -1358,11 +1358,16 @@ window.openAddUser = async function() {
   await loadCoursesIntoCheckboxes('coursesCheckboxList', []);
   document.getElementById('userModal').classList.add('show');
 };
-window.openAddAdmin = function() {
+window.openAddAdmin = function(role='admin') {
   window._addingAdmin = true;
-  document.getElementById('modalTitle').textContent = 'Agregar administrador';
-  document.getElementById('modalSub').textContent = 'El admin podrá acceder a este panel con email + contraseña de Firebase.';
+  window._adminRole = role;
+  const isDocente = role === 'docente';
+  document.getElementById('modalTitle').textContent = isDocente ? 'Agregar docente' : 'Agregar administrador';
+  document.getElementById('modalSub').textContent = isDocente
+    ? 'El docente podrá acceder al panel solo para crear y editar cursos.'
+    : 'El admin podrá acceder a este panel con email + contraseña de Firebase.';
   document.getElementById('coursesCheckboxList').innerHTML = '';
+  document.getElementById('btnSaveUser').textContent = isDocente ? 'Agregar docente' : 'Agregar administrador';
   document.getElementById('userModal').classList.add('show');
 };
 window.closeModal = function() {
