@@ -373,7 +373,6 @@
     border-color: var(--purple);
     background: rgba(124,106,247,0.05);
   }
-  .form-input:focus + .input-border { opacity: 1; }
   .form-input:focus ~ .input-icon { color: var(--purple); }
 
   .password-toggle {
@@ -559,13 +558,11 @@
   .btn-login.loading .spinner { display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* slide backgrounds using CSS gradients as placeholders */
   .bg-1 { background: linear-gradient(135deg, #0a0b10 0%, #1a1040 40%, #0d1a2e 100%); }
   .bg-2 { background: linear-gradient(135deg, #0a0b10 0%, #0d2a1a 40%, #0a1820 100%); }
   .bg-3 { background: linear-gradient(135deg, #0a0b10 0%, #2a1020 40%, #1a0a30 100%); }
   .bg-4 { background: linear-gradient(135deg, #0a0b10 0%, #1a2010 40%, #0a1010 100%); }
 
-  /* decorative grid lines on slide bg */
   .slide-grid {
     position: absolute;
     inset: 0;
@@ -576,7 +573,6 @@
     background-size: 48px 48px;
   }
 
-  /* course card preview */
   .course-preview {
     position: absolute;
     top: 50%;
@@ -655,6 +651,116 @@
     width: 8px; height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE — MOBILE & TABLET
+  ══════════════════════════════════════ */
+
+  /* Tablet: reducir panel derecho */
+  @media (max-width: 900px) {
+    .page {
+      grid-template-columns: 1fr 380px;
+    }
+    .login-panel {
+      padding: 36px 32px;
+    }
+    .stats-strip {
+      gap: 20px;
+      padding: 0 32px;
+    }
+  }
+
+  /* Mobile: una sola columna, banner arriba pequeño, form abajo */
+  @media (max-width: 640px) {
+    html, body { overflow: auto; }
+
+    .page {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      height: auto;
+      min-height: 100vh;
+    }
+
+    /* Banner compacto arriba */
+    .banner {
+      height: 200px;
+      flex-shrink: 0;
+    }
+
+    /* Ocultar contenido del slide en móvil, solo mostrar fondo */
+    .slide {
+      padding: 20px;
+      justify-content: flex-start;
+    }
+    .slide-tag,
+    .slide-desc,
+    .slide-meta { display: none; }
+
+    .slide-title {
+      font-size: 20px;
+      margin-bottom: 0;
+    }
+
+    /* Logo más pequeño */
+    .geo-accent {
+      top: 16px; left: 16px;
+    }
+    .geo-circle {
+      width: 36px; height: 36px;
+    }
+    .geo-wordmark { font-size: 16px; }
+
+    /* Dots abajo centrados */
+    .slide-dots {
+      bottom: 16px;
+      right: 50%;
+      transform: translateX(50%);
+    }
+
+    /* Panel login ocupa el resto */
+    .login-panel {
+      border-left: none;
+      border-top: 1px solid var(--border);
+      padding: 32px 24px 100px;
+      overflow: auto;
+      justify-content: flex-start;
+    }
+
+    .login-header { margin-bottom: 28px; }
+
+    .login-title { font-size: 22px; }
+
+    /* Stats strip al fondo fijo */
+    .stats-strip {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      gap: 0;
+      justify-content: space-around;
+      z-index: 100;
+    }
+
+    .stat-num { font-size: 14px; }
+    .stat-lbl { font-size: 10px; }
+    .stat-sep { display: none; }
+
+    /* Opciones del form en columna */
+    .form-options {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Support row en columna */
+    .support-row {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+    }
   }
 </style>
 </head>
@@ -793,7 +899,6 @@
   const auth  = getAuth(fbApp);
   const db    = getFirestore(fbApp);
 
-  // Si ya hay sesión activa → actualizar UID y redirigir
   onAuthStateChanged(auth, async user => {
     if (user) {
       try {
@@ -872,7 +977,6 @@
       `<div class="dot ${i===0?'active':''}" onclick="window.goTo(${i})"></div>`
     ).join('');
 
-    // Partículas solo en slides sin imagen
     const colors = ['#7c6af7','#4ecdc4','#ffffff'];
     data.forEach((s, i) => {
       if (s.imageUrl) return;
@@ -949,7 +1053,6 @@
       const studentDoc = snap.docs[0];
       const studentData = studentDoc.data();
       const userCred = await signInWithEmailAndPassword(auth, studentData.email, pwd);
-      // Siempre guardar/actualizar el UID en el documento del estudiante
       await setDoc(doc(db, 'students', studentDoc.id), { uid: userCred.user.uid }, { merge: true });
       sessionStorage.setItem('nx_student', JSON.stringify({
         name: studentData.name, matricula: studentData.matricula,
