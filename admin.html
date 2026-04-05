@@ -1337,7 +1337,7 @@ async function loadAdmins() {
           <div>${a.name||a.email}</div>
         </div></td>
         <td style="color:var(--muted)">${a.email||'—'}</td>
-        <td><span class="badge badge-admin">${a.role||'Admin'}</span></td>
+        <td><span class="badge ${a.role==='docente'?'badge-pending':'badge-admin'}">${a.role==='docente'?'Docente':'Admin'}</span></td>
         <td><span class="badge badge-active">Activo</span></td>
         <td><button class="action-btn danger" onclick="deleteAdmin('${a.id}')">Eliminar</button></td>
       </tr>
