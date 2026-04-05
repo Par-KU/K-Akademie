@@ -1383,10 +1383,15 @@ window.saveNewUser = async function() {
   if (!name||!email) { showToast('Nombre y correo son obligatorios','#e05555'); return; }
   try {
     if (window._addingAdmin) {
-      await addDoc(collection(db,'admins'), { name, email, role:'Admin', createdAt: new Date().toISOString() });
-      showToast('Admin registrado ✓ — Crea su acceso en Firebase Console → Auth','#4caf82');
-      loadAdmins();
-    } else {
+  const role = window._adminRole || 'admin';
+  await addDoc(collection(db,'admins'), {
+    name, email,
+    role: role === 'docente' ? 'docente' : 'admin',
+    createdAt: new Date().toISOString()
+  });
+  showToast(`${role === 'docente' ? 'Docente' : 'Admin'} registrado ✓ — Crea su acceso en Firebase Console → Auth`, '#4caf82');
+  loadAdmins();
+} else {
       if (!mat) { showToast('La matrícula es obligatoria','#e05555'); return; }
       if (!pass || pass.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres','#e05555'); return; }
       await addDoc(collection(db,'students'), {
