@@ -89,8 +89,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 .unit-actions{display:flex;gap:8px;margin-top:12px}
 
 /* LESSONS */
-.lessons-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.lesson-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.lessons-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.lesson-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.lesson-item-top{display:flex;align-items:center;gap:12px}
+.lesson-item-bottom{display:flex;align-items:center;gap:8px;padding-left:32px}
 .lesson-handle{color:var(--muted2);cursor:grab;font-size:14px;flex-shrink:0}
 .lesson-num{font-size:11px;color:var(--muted2);min-width:20px}
 .lesson-info{flex:1;min-width:0}
@@ -102,6 +104,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 .lesson-dur-input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);outline:none;width:70px}
 .lesson-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:2px 4px;transition:color .15s;flex-shrink:0}
 .lesson-del:hover{color:var(--red)}
+
+/* ATTRIBUTION */
+.attribution-row{display:flex;align-items:center;gap:8px;flex:1}
+.attr-icon{font-size:11px;color:var(--teal);flex-shrink:0;white-space:nowrap}
+.lesson-attr-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);outline:none;transition:border-color .2s}
+.lesson-attr-input:focus{border-color:var(--teal)}
+.lesson-attr-input::placeholder{color:var(--muted2)}
 
 /* EXAMS */
 .exam-builder{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
@@ -323,7 +332,16 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
   <div class="panel" id="panel2">
     <div class="card">
       <div class="card-title">Unidades y lecciones</div>
-      <div class="card-sub">Organiza el curso en unidades. Cada unidad contiene lecciones con su video de YouTube.</div>
+      <div class="card-sub">Organiza el curso en unidades. Cada lección tiene su video de YouTube y campo de atribución para reconocer la autoría.</div>
+
+      <!-- Nota de atribución -->
+      <div style="background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px">
+        <span style="font-size:16px;flex-shrink:0">©</span>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--teal);margin-bottom:3px">Campo de atribución</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5">Usa el campo <strong style="color:var(--text)">Fuente / Atribución</strong> para registrar la autoría de cada video. Ejemplo: <em style="color:var(--teal)">Video recuperado de: Canal Juan Pérez · Fuente: YouTube</em>. Esta información se mostrará debajo del video en el aula.</div>
+        </div>
+      </div>
 
       <div class="units-list" id="unitsList"></div>
       <button class="add-btn" onclick="addUnit()">+ Agregar unidad</button>
@@ -439,7 +457,6 @@ const fbApp = initializeApp(firebaseConfig);
 const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 
-// Get course ID from URL
 const params = new URLSearchParams(window.location.search);
 const courseId = params.get('id');
 let courseData = {};
@@ -466,7 +483,6 @@ async function loadCourse() {
     document.getElementById('topbarTitle').textContent = courseData.title || 'Editor de curso';
     document.getElementById('topbarSub').textContent = `ID: ${courseId}`;
 
-    // Fill panel 1
     document.getElementById('f_title').value      = courseData.title||'';
     document.getElementById('f_category').value   = courseData.category||'';
     document.getElementById('f_desc').value        = courseData.desc||'';
@@ -485,7 +501,6 @@ async function loadCourse() {
     renderUnits(courseData.units||[]);
     renderPdfs(courseData.pdfs||[]);
 
-    // Pre-load exams into _exams
     if (courseData.exams) {
       _units.forEach((u,i) => {
         const exam = courseData.exams[u._id] || courseData.exams[i] || courseData.exams[String(i)];
@@ -542,7 +557,6 @@ window.updateCoverFromUrl = function(url) {
   if (!img) { img = document.createElement('img'); wrap.appendChild(img); }
   img.src = url;
   wrap.querySelector('.img-preview-placeholder').style.display='none';
-  // Enable crop button if we have a URL
   if (url) {
     document.getElementById('cropperImg').src = url;
     _cropSrc = url;
@@ -565,17 +579,7 @@ function renderUnits(units) {
 }
 
 function buildUnitHTML(u, i) {
-  const lessons = (u.lessons||[]).map((l,li) => `
-    <div class="lesson-item" data-uid="${u._id}" data-li="${li}">
-      <span class="lesson-handle">⠿</span>
-      <span class="lesson-num">${li+1}</span>
-      <div class="lesson-info">
-        <input class="lesson-title-input" type="text" placeholder="Título de la lección" value="${l.title||''}" onchange="updateLesson(${u._id},${li},'title',this.value)">
-      </div>
-      <input class="lesson-video-input" type="text" placeholder="ID de YouTube" value="${l.videoId||''}" onchange="updateLesson(${u._id},${li},'videoId',this.value)">
-      <input class="lesson-dur-input" type="text" placeholder="15 min" value="${l.duration||''}" onchange="updateLesson(${u._id},${li},'duration',this.value)">
-      <button class="lesson-del" onclick="deleteLesson(${u._id},${li})" title="Eliminar lección">×</button>
-    </div>`).join('');
+  const lessons = (u.lessons||[]).map((l,li) => buildLessonHTML(u._id, li, l)).join('');
 
   return `
     <div class="unit-item" id="unit-${u._id}">
@@ -593,6 +597,32 @@ function buildUnitHTML(u, i) {
         <div class="unit-actions">
           <button class="add-btn" style="flex:1" onclick="addLesson(${u._id})">+ Agregar lección</button>
           <button class="btn-secondary" style="color:var(--red);border-color:rgba(224,85,85,.3)" onclick="deleteUnit(${u._id})">Eliminar unidad</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── NUEVA FUNCIÓN: buildLessonHTML con campo de atribución ──
+function buildLessonHTML(uid, li, l) {
+  return `
+    <div class="lesson-item" data-uid="${uid}" data-li="${li}">
+      <div class="lesson-item-top">
+        <span class="lesson-handle">⠿</span>
+        <span class="lesson-num">${li+1}</span>
+        <div class="lesson-info">
+          <input class="lesson-title-input" type="text" placeholder="Título de la lección" value="${l.title||''}" onchange="updateLesson(${uid},${li},'title',this.value)">
+        </div>
+        <input class="lesson-video-input" type="text" placeholder="ID de YouTube" value="${l.videoId||''}" onchange="updateLesson(${uid},${li},'videoId',this.value)">
+        <input class="lesson-dur-input" type="text" placeholder="15 min" value="${l.duration||''}" onchange="updateLesson(${uid},${li},'duration',this.value)">
+        <button class="lesson-del" onclick="deleteLesson(${uid},${li})" title="Eliminar lección">×</button>
+      </div>
+      <div class="lesson-item-bottom">
+        <div class="attribution-row">
+          <span class="attr-icon">© Fuente:</span>
+          <input class="lesson-attr-input" type="text"
+            placeholder="Ej: Video recuperado de: Canal Juan Pérez · Fuente: YouTube"
+            value="${l.attribution||''}"
+            onchange="updateLesson(${uid},${li},'attribution',this.value)">
         </div>
       </div>
     </div>`;
@@ -627,20 +657,9 @@ window.addLesson = function(uid) {
   if (!u) return;
   if (!u.lessons) u.lessons = [];
   const li = u.lessons.length;
-  u.lessons.push({ title:'', videoId:'', duration:'' });
+  u.lessons.push({ title:'', videoId:'', duration:'', attribution:'' });
   const container = document.getElementById('lessons-'+uid);
-  container.insertAdjacentHTML('beforeend', `
-    <div class="lesson-item" data-uid="${uid}" data-li="${li}">
-      <span class="lesson-handle">⠿</span>
-      <span class="lesson-num">${li+1}</span>
-      <div class="lesson-info">
-        <input class="lesson-title-input" type="text" placeholder="Título de la lección" onchange="updateLesson(${uid},${li},'title',this.value)">
-      </div>
-      <input class="lesson-video-input" type="text" placeholder="ID de YouTube" onchange="updateLesson(${uid},${li},'videoId',this.value)">
-      <input class="lesson-dur-input" type="text" placeholder="15 min" onchange="updateLesson(${uid},${li},'duration',this.value)">
-      <button class="lesson-del" onclick="deleteLesson(${uid},${li})" title="Eliminar">×</button>
-    </div>`);
-  // update count
+  container.insertAdjacentHTML('beforeend', buildLessonHTML(uid, li, { title:'', videoId:'', duration:'', attribution:'' }));
   const countEl = document.querySelector(`#unit-${uid} .unit-count`);
   if (countEl) countEl.textContent = u.lessons.length + ' lecciones';
 };
@@ -654,19 +673,8 @@ window.deleteLesson = function(uid, li) {
   const u = _units.find(u=>u._id===uid);
   if (!u) return;
   u.lessons.splice(li, 1);
-  // Re-render lessons for this unit
   const container = document.getElementById('lessons-'+uid);
-  container.innerHTML = u.lessons.map((l,i) => `
-    <div class="lesson-item">
-      <span class="lesson-handle">⠿</span>
-      <span class="lesson-num">${i+1}</span>
-      <div class="lesson-info">
-        <input class="lesson-title-input" type="text" placeholder="Título de la lección" value="${l.title||''}" onchange="updateLesson(${uid},${i},'title',this.value)">
-      </div>
-      <input class="lesson-video-input" type="text" placeholder="ID de YouTube" value="${l.videoId||''}" onchange="updateLesson(${uid},${i},'videoId',this.value)">
-      <input class="lesson-dur-input" type="text" placeholder="15 min" value="${l.duration||''}" onchange="updateLesson(${uid},${i},'duration',this.value)">
-      <button class="lesson-del" onclick="deleteLesson(${uid},${i})">×</button>
-    </div>`).join('');
+  container.innerHTML = u.lessons.map((l,i) => buildLessonHTML(uid, i, l)).join('');
 };
 
 // ── EXAMS ──
@@ -742,7 +750,6 @@ window.deleteQuestion = function(uid, qi) {
 window.updateQuestion = function(uid, qi, field, val) {
   if (_exams[uid]?.questions[qi]) _exams[uid].questions[qi][field] = val;
   if (field==='correct') {
-    // update correct labels
     document.querySelectorAll(`#q-${uid}-${qi} .correct-label`).forEach((el,i)=>{
       el.textContent = i===parseInt(val)?'✓ Correcta':'';
     });
@@ -796,6 +803,7 @@ function buildReview() {
   const lessons = _units.reduce((sum,u)=>sum+(u.lessons||[]).length,0);
   const exams = Object.values(_exams).filter(e=>(e.questions||[]).length>0).length;
   const pdfs = _pdfs.filter(p=>p.name).length;
+  const withAttribution = _units.reduce((sum,u)=>(u.lessons||[]).filter(l=>l.attribution).length+sum, 0);
 
   document.getElementById('reviewContent').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -812,12 +820,13 @@ function buildReview() {
           <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Lecciones</span><span style="color:#fff;font-weight:500">${lessons}</span></div>
           <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Exámenes</span><span style="color:#fff;font-weight:500">${exams}</span></div>
           <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">PDFs</span><span style="color:#fff;font-weight:500">${pdfs}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--teal)">© Con atribución</span><span style="color:var(--teal);font-weight:500">${withAttribution}/${lessons}</span></div>
         </div>
       </div>
     </div>
     <div style="background:${title&&units&&lessons?'var(--green-light)':'rgba(240,185,66,.08)'};border:1px solid ${title&&units&&lessons?'rgba(76,175,130,.3)':'rgba(240,185,66,.25)'};border-radius:10px;padding:16px;font-size:13px;color:${title&&units&&lessons?'var(--green)':'var(--amber)'}">
       ${title&&units&&lessons
-        ? '✓ Todo listo para publicar. El curso aparecerá en la landing y en el dashboard de los estudiantes asignados.'
+        ? '✓ Todo listo para publicar.'
         : '⚠ Faltan datos: '+((!title)?'título, ':'')+(!units?'unidades, ':'')+(!lessons?'lecciones ':'')+'. Revisa los pasos anteriores.'}
     </div>`;
 }
@@ -831,7 +840,10 @@ window.saveAll = async function(showMsg=true) {
     _id: u._id,
     name: u.name||'',
     lessons: (u.lessons||[]).map(l => ({
-      title: l.title||'', videoId: l.videoId||'', duration: l.duration||''
+      title: l.title||'',
+      videoId: l.videoId||'',
+      duration: l.duration||'',
+      attribution: l.attribution||''   // ← Campo de atribución guardado
     }))
   }));
 
@@ -915,7 +927,6 @@ function applyCropTransform() {
   img.style.top  = '50%';
 }
 
-// Drag to pan
 const stage = document.getElementById('cropperStage');
 stage.addEventListener('mousedown', e => {
   _dragging = true;
@@ -931,7 +942,6 @@ document.addEventListener('mousemove', e => {
 });
 document.addEventListener('mouseup', () => { _dragging = false; stage.style.cursor = 'move'; });
 
-// Touch support
 stage.addEventListener('touchstart', e => {
   const t = e.touches[0];
   _dragging = true;
@@ -949,13 +959,12 @@ stage.addEventListener('touchmove', e => {
 stage.addEventListener('touchend', () => { _dragging = false; });
 
 window.applyCrop = function() {
-  // Generate cropped canvas
   const stage = document.getElementById('cropperStage');
   const img   = document.getElementById('cropperImg');
   const sw = stage.offsetWidth, sh = stage.offsetHeight;
 
   const canvas = document.createElement('canvas');
-  canvas.width  = sw * 2; // 2x for retina
+  canvas.width  = sw * 2;
   canvas.height = sh * 2;
   const ctx = canvas.getContext('2d');
 
@@ -965,23 +974,17 @@ window.applyCrop = function() {
   const cx = sw/2 + _cropX, cy = sh/2 + _cropY;
 
   ctx.scale(2, 2);
-  ctx.drawImage(img,
-    cx - displayW/2, cy - displayH/2,
-    displayW, displayH
-  );
+  ctx.drawImage(img, cx - displayW/2, cy - displayH/2, displayW, displayH);
 
   const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-  // Apply to preview
   const wrap = document.getElementById('coverPreview');
   let previewImg = wrap.querySelector('img');
   if (!previewImg) { previewImg = document.createElement('img'); wrap.appendChild(previewImg); }
   previewImg.src = dataUrl;
   wrap.querySelector('.img-preview-placeholder').style.display = 'none';
 
-  // Store as the image to save
   _cropSrc = dataUrl;
-
   closeCropper();
   showToast('✓ Imagen ajustada correctamente', '#4caf82');
 };
