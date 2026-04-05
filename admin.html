@@ -1441,6 +1441,8 @@ window.saveNewUser = async function() {
       document.getElementById('authReminderPass').textContent = pass;
       loadStudents();
     }
+    document.getElementById('btnSaveUser').textContent = 'Crear estudiante';
+    window._adminRole = 'admin';
     closeModal();
     ['newName','newMatricula','newEmail','newPassword'].forEach(id=>document.getElementById(id).value='');
   } catch(e) {
