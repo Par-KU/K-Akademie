@@ -749,7 +749,7 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
-      <button class="btn-save" onclick="saveNewUser()">Crear estudiante</button>
+      <button class="btn-save" id="btnSaveUser" onclick="saveNewUser()">Crear estudiante</button>
     </div>
   </div>
 </div>
@@ -1402,7 +1402,8 @@ window.openAddAdmin = function(role='admin') {
     ? 'El docente podrá acceder al panel solo para crear y editar cursos.'
     : 'El admin podrá acceder a este panel con email + contraseña de Firebase.';
   document.getElementById('coursesCheckboxList').innerHTML = '';
-  document.getElementById('btnSaveUser').textContent = isDocente ? 'Agregar docente' : 'Agregar administrador';
+  const btnSave = document.getElementById('btnSaveUser');
+if (btnSave) btnSave.textContent = isDocente ? 'Agregar docente' : 'Agregar administrador';
   document.getElementById('userModal').classList.add('show');
 };
 window.closeModal = function() {
