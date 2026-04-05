@@ -1017,5 +1017,112 @@ document.addEventListener('contextmenu', e => {
   if (e.target.tagName==='IFRAME' || e.target.closest?.('.video-container')) e.preventDefault();
 });
 </script>
+<!-- RESPONSIVE CSS + JS — insertar antes de </body> en aula.html -->
+<style>
+  /* ══ RESPONSIVE AULA ══ */
+
+  /* Botón de menú sidebar (solo mobile) */
+  .tb-menu-btn {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+    align-items: center;
+    gap: 5px;
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 199;
+  }
+  .sidebar-overlay.show { display: block; }
+
+  @media (max-width: 1024px) {
+    .sidebar { width: 280px; min-width: 280px; }
+    .tb-course { max-width: 200px; }
+    .tb-progress { max-width: 180px; }
+  }
+
+  @media (max-width: 768px) {
+    .body-row { flex-direction: column; }
+    .sidebar {
+      width: 100%; min-width: 0;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      max-height: 55vh;
+      z-index: 200;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      transform: translateY(100%);
+      transition: transform .3s ease;
+    }
+    .sidebar.open { transform: translateY(0); }
+    .tb-menu-btn { display: flex; }
+    .topbar { padding: 0 12px; gap: 8px; height: 48px; }
+    .tb-brand { display: none; }
+    .tb-sep { display: none; }
+    .tb-course { font-size: 11px; max-width: 130px; }
+    .tb-progress { max-width: 120px; }
+    .cert-btn { display: none; }
+    .lesson-strip { padding: 12px 16px; flex-direction: column; gap: 10px; }
+    .ls-actions { width: 100%; justify-content: space-between; }
+    .ls-btn { flex: 1; justify-content: center; }
+    .ls-title { font-size: 15px; }
+    .ls-meta { flex-wrap: wrap; gap: 8px; }
+    .tabs-bar { padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tab { font-size: 12px; padding: 8px 12px; white-space: nowrap; }
+    .tab-content { padding: 16px; }
+    .learn-grid { grid-template-columns: 1fr; }
+    .progress-toast { width: calc(100% - 32px); }
+    .modal { max-width: calc(100% - 32px); }
+  }
+
+  @media (max-width: 480px) {
+    .topbar { padding: 0 10px; }
+    .tb-avatar { display: none; }
+    .ls-title { font-size: 14px; }
+    .exam-result { padding: 20px 16px; }
+    .result-score { font-size: 36px; }
+  }
+</style>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<script>
+  // Sidebar toggle para mobile
+  const sidebarEl = document.querySelector('.sidebar');
+  const overlayEl = document.getElementById('sidebarOverlay');
+
+  // Insertar botón en topbar
+  const tbRight = document.querySelector('.tb-right');
+  if (tbRight) {
+    const menuBtn = document.createElement('button');
+    menuBtn.className = 'tb-menu-btn';
+    menuBtn.innerHTML = '☰ Lecciones';
+    menuBtn.onclick = toggleSidebar;
+    tbRight.prepend(menuBtn);
+  }
+
+  function toggleSidebar() {
+    sidebarEl.classList.toggle('open');
+    overlayEl.classList.toggle('show');
+  }
+  function closeSidebar() {
+    sidebarEl.classList.remove('open');
+    overlayEl.classList.remove('show');
+  }
+
+  // Cerrar sidebar al seleccionar lección en mobile
+  document.addEventListener('click', function(e) {
+    if (window.innerWidth <= 768 && e.target.closest('.lesson-item')) {
+      setTimeout(closeSidebar, 300);
+    }
+  });
+</script>  
 </body>
 </html>
