@@ -913,7 +913,7 @@ function setupAuthListener() {
   });
 }
 
-function showApp(user) {
+async function showApp(user) {
   document.getElementById('authScreen').classList.add('hidden');
   document.getElementById('mainApp').style.display = 'grid';
   const email = user.email || '';
@@ -921,11 +921,45 @@ function showApp(user) {
   document.getElementById('sbAvatarTxt').textContent = initials;
   document.getElementById('sbAdminEmail').textContent = email;
   document.getElementById('sbAdminName').textContent = email.split('@')[0];
-  loadSlides();
-  loadStudents();
-  loadAdmins();
-  loadCourses();
-  loadLandingData();
+
+  // Verificar rol en Firestore
+  let userRole = 'admin'; // default
+  try {
+    const snap = await getDocs(collection(db, 'admins'));
+    const adminDoc = snap.docs.find(d => d.data().email === email);
+    if (adminDoc) userRole = adminDoc.data().role || 'admin';
+  } catch(e) {}
+
+  window._currentRole = userRole;
+
+  // Aplicar restricciones de rol
+  if (userRole === 'docente') {
+    // Docente: solo ve cursos
+    document.getElementById('sbAdminEmail').textContent = email + ' · Docente';
+    document.querySelector('.sb-admin-badge').textContent = 'Docente';
+    document.querySelector('.sb-admin-badge').style.background = 'rgba(78,205,196,0.12)';
+    document.querySelector('.sb-admin-badge').style.color = 'var(--teal)';
+
+    // Ocultar secciones que no corresponden al docente
+    const hideSections = ['dashboard','banner','students','admins','landing','config'];
+    hideSections.forEach(s => {
+      const item = document.querySelector(`.sb-item[onclick="setSection('${s}')"]`);
+      if (item) item.style.display = 'none';
+    });
+    const hideTitles = document.querySelectorAll('.sb-section');
+    hideTitles.forEach(t => t.style.display = 'none');
+
+    // Ir directo a cursos
+    setSection('courses');
+    loadCourses();
+  } else {
+    // Admin: acceso completo
+    loadSlides();
+    loadStudents();
+    loadAdmins();
+    loadCourses();
+    loadLandingData();
+  }
 }
 
 // AUTH
