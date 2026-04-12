@@ -65,7 +65,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 }
 .course-card.unlocked{cursor:pointer}
 .course-card.unlocked:hover{transform:translateY(-4px);border-color:var(--border2)}
+/* CAMBIO 1: locked-card muestra imagen, no opacidad */
 .course-card.locked{opacity:.6;cursor:not-allowed}
+.course-card.locked-card{opacity:1;cursor:default}
+.course-card.locked-card:hover{transform:none;border-color:var(--border)}
 
 .course-thumb{
   height:160px;position:relative;overflow:hidden;
@@ -80,6 +83,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 }
 .course-progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--teal));transition:width .5s}
 
+/* Lock overlay original (para .locked) */
 .lock-overlay{
   position:absolute;inset:0;background:rgba(10,11,16,.6);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
@@ -89,11 +93,27 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 .lock-text{font-size:12px;color:rgba(255,255,255,.6);font-weight:500}
 .lock-btn{background:var(--purple);border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;cursor:pointer;transition:background .2s}
 .lock-btn:hover{background:var(--purple-dim)}
+
+/* NUEVO: lock overlay con 2 botones para locked-card */
+.lock-overlay-new{
+  position:absolute;inset:0;background:rgba(10,11,16,.52);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding:14px;gap:8px;backdrop-filter:blur(2px);
+}
+.lock-overlay-btns{display:flex;gap:8px;width:100%}
+.lock-btn-detail{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.lock-btn-detail:hover{background:rgba(255,255,255,.18)}
+.lock-btn-acquire{flex:1;background:var(--purple);border:none;border-radius:8px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;font-weight:500;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.lock-btn-acquire:hover{background:var(--purple-dim)}
+.lock-badge-txt{font-size:10px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:.5px}
+
 .course-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;margin-top:8px}
 .price-old{font-size:12px;color:var(--muted2);text-decoration:line-through}
 .price-now{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:#fff}
-.acquire-btn{width:100%;background:var(--purple);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:background .2s;text-align:center}
+.acquire-btn{width:100%;background:var(--purple);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px}
 .acquire-btn:hover{background:var(--purple-dim)}
+.btn-detail-link{width:100%;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px}
+.btn-detail-link:hover{border-color:var(--border2);color:var(--text)}
 
 .course-badge{
   position:absolute;top:12px;left:12px;z-index:2;
@@ -143,6 +163,36 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 .loading-spinner{width:36px;height:36px;border:3px solid var(--surface3);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:13px;color:var(--muted)}
+
+/* MODAL DETALLE CURSO */
+.course-detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.course-detail-overlay.show{opacity:1;pointer-events:all}
+.course-detail-modal{background:var(--surface);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;transform:scale(.96);transition:transform .2s;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.course-detail-modal::-webkit-scrollbar{width:4px}
+.course-detail-modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.course-detail-overlay.show .course-detail-modal{transform:scale(1)}
+.cdm-thumb{height:200px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1040,#0d1a2e);display:flex;align-items:center;justify-content:center;border-radius:20px 20px 0 0}
+.cdm-thumb img{width:100%;height:100%;object-fit:cover}
+.cdm-thumb-emoji{font-size:64px}
+.cdm-thumb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(10,11,16,.7))}
+.cdm-close{position:absolute;top:14px;right:14px;z-index:2;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.cdm-close:hover{background:rgba(0,0,0,.75)}
+.cdm-body{padding:22px 24px 28px}
+.cdm-cat{font-size:11px;color:var(--purple);text-transform:uppercase;letter-spacing:.8px;font-weight:500;margin-bottom:6px}
+.cdm-title{font-family:'Sora',sans-serif;font-size:19px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.3}
+.cdm-meta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.cdm-meta span{font-size:12px;color:var(--muted)}
+.cdm-desc{font-size:13px;color:rgba(232,232,240,.75);line-height:1.8;margin-bottom:20px}
+.cdm-section-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:#fff;margin-bottom:10px}
+.cdm-units{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.cdm-unit{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.cdm-unit-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.cdm-unit-count{font-size:11px;color:var(--muted2)}
+.cdm-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+.cdm-price-old{font-size:14px;color:var(--muted2);text-decoration:line-through}
+.cdm-price-now{font-family:'Sora',sans-serif;font-size:28px;font-weight:700;color:#fff}
+.cdm-acquire-btn{width:100%;background:var(--purple);border:none;border-radius:12px;padding:14px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.cdm-acquire-btn:hover{background:var(--purple-dim)}
 </style>
 </head>
 <body>
@@ -230,6 +280,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 <div class="toast" id="toast">
   <div class="toast-dot" id="toastDot"></div>
   <span id="toastMsg">Mensaje</span>
+</div>
+
+<!-- MODAL DETALLE CURSO (NUEVO) -->
+<div class="course-detail-overlay" id="courseDetailModal" onclick="if(event.target===this)closeCourseDetail()">
+  <div class="course-detail-modal" id="cdmContent"></div>
 </div>
 
 <script type="module">
@@ -394,22 +449,25 @@ function renderMyCourses(courses, progressData) {
   }).join('');
 }
 
+// CAMBIO 2: renderExploreCourses con imagen visible + 2 botones + modal
 function renderExploreCourses(courses) {
   const grid = document.getElementById('exploreCoursesGrid');
   if (!courses.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted)">No hay más cursos disponibles por el momento.</div>`;
     return;
   }
+  window._exploreCoursesData = courses;
   grid.innerHTML = courses.map(c => {
     const thumb = c.imageUrl
       ? `<img src="${c.imageUrl}" alt="${c.title}">`
       : `<div style="font-size:48px;display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#1a1040,#0d1a2e)">${c.emoji||'📚'}</div>`;
+    const totalLessons = (c.units ? c.units.reduce((s,u)=>(u.lessons||[]).length+s,0) : (c.lessons||[]).length)||0;
     return `
-      <div class="course-card locked">
+      <div class="course-card locked-card">
         <div class="course-thumb">
           ${thumb}
           <div class="course-thumb-overlay"></div>
-          <div class="course-badge badge-locked">Bloqueado</div>
+          <div class="course-badge badge-locked">🔒 Bloqueado</div>
           ${c.badge ? `<div class="course-badge2 ${
             c.badge==='popular' ? 'badge-popular' :
             c.badge==='hot'     ? 'badge-hot' :
@@ -421,22 +479,22 @@ function renderExploreCourses(courses) {
                c.badge==='new'     ? '✨ Nuevo' :
                c.badge }
           </div>` : ''}
-          <div class="lock-overlay">
-            <div class="lock-icon">
-              <svg width="18" height="18" fill="none" viewBox="0 0 18 18"><rect x="3" y="8" width="12" height="9" rx="2" stroke="rgba(255,255,255,.6)" stroke-width="1.3"/><path d="M6 8V6a3 3 0 016 0v2" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <div class="lock-overlay-new">
+            <div class="lock-badge-txt">ACCESO BLOQUEADO</div>
+            <div class="lock-overlay-btns">
+              <button class="lock-btn-detail" onclick="openCourseDetail('${c.id}',event)">👁 Ver detalles</button>
+              <button class="lock-btn-acquire" onclick="goToPago('${c.id}',event)">🛒 Adquirir</button>
             </div>
-            <div class="lock-text">Curso bloqueado</div>
-            <button class="lock-btn" onclick="requestCourse('${c.title}',event)">Adquirir curso</button>
           </div>
         </div>
         <div class="course-body">
           <div class="course-cat">${c.category||'Curso'}</div>
           <div class="course-title">${c.title}</div>
-          <div class="course-instructor">${c.instructor||'—'} · ${(c.units ? c.units.reduce((s,u)=>(u.lessons||[]).length+s,0) : (c.lessons||[]).length)||0} lecciones</div>
+          <div class="course-instructor">${c.instructor||'—'} · ${totalLessons} lecciones</div>
+          ${c.desc ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${c.desc}</div>` : ''}
           ${renderPrice(c.price, c.priceOld) || '<div class="course-price-row"><span class="price-now" style="font-size:13px;color:var(--muted)">Consultar precio</span></div>'}
-          <button class="acquire-btn" onclick="requestCourse('${c.title}',event)">
-            Adquirir curso
-          </button>
+          <button class="acquire-btn" onclick="goToPago('${c.id}',event)">🛒 Adquirir curso</button>
+          <button class="btn-detail-link" onclick="openCourseDetail('${c.id}',event)">👁 Ver detalles del curso</button>
         </div>
       </div>`;
   }).join('');
@@ -447,9 +505,60 @@ window.enterCourse = function(courseId, courseTitle) {
   window.location.href = 'aula.html';
 };
 
-window.requestCourse = function(title, e) {
-  e.stopPropagation();
-  showToast(`Contacta a soporte para adquirir "${title}"`, '#f0b942');
+window.goToPago = function(courseId, e) {
+  if (e) e.stopPropagation();
+  window.location.href = `pago.html?id=${courseId}`;
+};
+
+window.openCourseDetail = function(courseId, e) {
+  if (e) e.stopPropagation();
+  const courses = window._exploreCoursesData || [];
+  const c = courses.find(x => x.id === courseId);
+  if (!c) return;
+  const totalLessons = c.units ? c.units.reduce((s,u)=>s+(u.lessons||[]).length,0) : (c.lessons||[]).length;
+  const thumbHTML = c.imageUrl
+    ? `<img src="${c.imageUrl}" alt="${c.title}">`
+    : `<div class="cdm-thumb-emoji">${c.emoji||'📚'}</div>`;
+  let temarioHTML = '';
+  if (c.units && c.units.length) {
+    temarioHTML = `<div class="cdm-section-title">📚 Contenido del curso</div><div class="cdm-units">
+      ${c.units.map((u,i)=>`<div class="cdm-unit"><div class="cdm-unit-name">Unidad ${i+1}: ${u.name||'Sin nombre'}</div><div class="cdm-unit-count">${(u.lessons||[]).length} lección${(u.lessons||[]).length!==1?'es':''}</div></div>`).join('')}
+    </div>`;
+  } else if (c.lessons && c.lessons.length) {
+    temarioHTML = `<div class="cdm-section-title">📚 Lecciones incluidas</div><div class="cdm-units">
+      ${c.lessons.slice(0,6).map((l,i)=>`<div class="cdm-unit"><div class="cdm-unit-name">${i+1}. ${l.title||'Lección '+(i+1)}</div></div>`).join('')}
+      ${c.lessons.length>6?`<div style="font-size:12px;color:var(--muted);padding:6px 14px">+${c.lessons.length-6} lecciones más...</div>`:''}
+    </div>`;
+  }
+  document.getElementById('cdmContent').innerHTML = `
+    <div class="cdm-thumb">
+      ${thumbHTML}
+      <div class="cdm-thumb-overlay"></div>
+      <button class="cdm-close" onclick="closeCourseDetail()">✕</button>
+    </div>
+    <div class="cdm-body">
+      <div class="cdm-cat">${c.category||'Curso'}</div>
+      <div class="cdm-title">${c.title}</div>
+      <div class="cdm-meta">
+        ${c.instructor?`<span>👤 ${c.instructor}</span>`:''}
+        ${totalLessons?`<span>📹 ${totalLessons} lecciones</span>`:''}
+        ${c.duration?`<span>⏱ ${c.duration}</span>`:''}
+        ${c.rating?`<span>⭐ ${c.rating}</span>`:''}
+        ${c.students?`<span>👥 ${c.students} estudiantes</span>`:''}
+      </div>
+      ${c.desc?`<div class="cdm-desc">${c.desc}</div>`:''}
+      ${temarioHTML}
+      <div class="cdm-price-row">
+        ${c.priceOld?`<span class="cdm-price-old">${c.priceOld}</span>`:''}
+        <span class="cdm-price-now">${c.price||'Consultar'}</span>
+      </div>
+      <button class="cdm-acquire-btn" onclick="goToPago('${c.id}')">🛒 Adquirir este curso</button>
+    </div>`;
+  document.getElementById('courseDetailModal').classList.add('show');
+};
+
+window.closeCourseDetail = function() {
+  document.getElementById('courseDetailModal').classList.remove('show');
 };
 
 // LOGOUT
@@ -467,14 +576,9 @@ function showToast(msg, color='#4caf82') {
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 </script>
-  <!-- ══════════════════════════════════════════
-     BURBUJA DE SOPORTE WHATSAPP
-     Pegar antes de </body> en dashboard.html y aula.html
-     Número: 5523202164
-══════════════════════════════════════════ -->
 
+<!-- ══ BURBUJA DE SOPORTE WHATSAPP ══ -->
 <style>
-/* ── BURBUJA SOPORTE ── */
 .support-bubble {
   position: fixed;
   bottom: 24px;
@@ -485,7 +589,6 @@ function showToast(msg, color='#4caf82') {
   align-items: flex-end;
   gap: 12px;
 }
-
 .support-btn {
   width: 56px;
   height: 56px;
@@ -506,8 +609,6 @@ function showToast(msg, color='#4caf82') {
   box-shadow: 0 6px 28px rgba(37,211,102,0.5);
 }
 .support-btn svg { width: 28px; height: 28px; }
-
-/* Pulso animado */
 .support-btn::before {
   content: '';
   position: absolute;
@@ -520,8 +621,6 @@ function showToast(msg, color='#4caf82') {
   0% { transform: scale(1); opacity: 1; }
   100% { transform: scale(1.5); opacity: 0; }
 }
-
-/* Badge de notificación */
 .support-badge {
   position: absolute;
   top: -2px;
@@ -538,8 +637,6 @@ function showToast(msg, color='#4caf82') {
   justify-content: center;
   border: 2px solid var(--bg, #0a0b10);
 }
-
-/* ── PANEL DEL MENÚ ── */
 .support-panel {
   background: var(--surface, #11121a);
   border: 1px solid var(--border2, #252640);
@@ -557,8 +654,6 @@ function showToast(msg, color='#4caf82') {
   from { opacity: 0; transform: scale(.9) translateY(8px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
-
-/* Header del panel */
 .sp-header {
   background: linear-gradient(135deg, #25D366, #128C7E);
   padding: 16px 18px;
@@ -591,14 +686,10 @@ function showToast(msg, color='#4caf82') {
   line-height: 1;
 }
 .sp-close:hover { color: #fff; }
-
-/* Cuerpo del panel */
 .sp-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; }
 .sp-body::-webkit-scrollbar { width: 4px; }
 .sp-body::-webkit-scrollbar-track { background: transparent; }
 .sp-body::-webkit-scrollbar-thumb { background: var(--border2, #252640); border-radius: 2px; }
-
-/* Burbuja de mensaje */
 .sp-bubble {
   background: var(--surface2, #181926);
   border: 1px solid var(--border, #1e2035);
@@ -609,8 +700,6 @@ function showToast(msg, color='#4caf82') {
   line-height: 1.5;
   margin-bottom: 4px;
 }
-
-/* Título de sección */
 .sp-section-label {
   font-size: 10px;
   color: var(--muted, #6b6d8a);
@@ -619,8 +708,6 @@ function showToast(msg, color='#4caf82') {
   font-weight: 500;
   padding: 4px 0 2px;
 }
-
-/* Opciones del menú */
 .sp-options { display: flex; flex-direction: column; gap: 6px; }
 .sp-option {
   background: var(--surface2, #181926);
@@ -645,8 +732,6 @@ function showToast(msg, color='#4caf82') {
 .sp-option-icon { font-size: 16px; flex-shrink: 0; }
 .sp-option-text { flex: 1; }
 .sp-option-arrow { color: var(--muted, #6b6d8a); font-size: 12px; }
-
-/* Botón volver */
 .sp-back {
   background: none;
   border: none;
@@ -662,8 +747,6 @@ function showToast(msg, color='#4caf82') {
   margin-bottom: 4px;
 }
 .sp-back:hover { color: var(--text, #e8e8f0); }
-
-/* Botón de WhatsApp final */
 .sp-wa-btn {
   background: linear-gradient(135deg, #25D366, #128C7E);
   border: none;
@@ -683,8 +766,6 @@ function showToast(msg, color='#4caf82') {
   margin-top: 4px;
 }
 .sp-wa-btn:hover { opacity: .9; }
-
-/* Tooltip inicial */
 .support-tooltip {
   background: var(--surface, #11121a);
   border: 1px solid var(--border2, #252640);
@@ -701,24 +782,15 @@ function showToast(msg, color='#4caf82') {
   to   { opacity: 1; transform: translateX(0); }
 }
 .support-tooltip.hidden { display: none; }
-
-/* Responsive */
 @media (max-width: 480px) {
   .support-bubble { bottom: 16px; right: 16px; }
   .support-panel { width: 280px; }
 }
 </style>
 
-<!-- ESTRUCTURA HTML DE LA BURBUJA -->
 <div class="support-bubble" id="supportBubble">
-
-  <!-- Tooltip inicial -->
   <div class="support-tooltip" id="supportTooltip">💬 ¿Necesitas ayuda?</div>
-
-  <!-- Panel del menú -->
   <div class="support-panel" id="supportPanel">
-
-    <!-- Header -->
     <div class="sp-header">
       <div class="sp-avatar">🎓</div>
       <div class="sp-header-info">
@@ -727,15 +799,8 @@ function showToast(msg, color='#4caf82') {
       </div>
       <button class="sp-close" onclick="closeSupportPanel()">×</button>
     </div>
-
-    <!-- Cuerpo dinámico -->
-    <div class="sp-body" id="spBody">
-      <!-- Se renderiza por JS -->
-    </div>
-
+    <div class="sp-body" id="spBody"></div>
   </div>
-
-  <!-- Botón principal WhatsApp -->
   <button class="support-btn" onclick="toggleSupportPanel()" id="supportMainBtn">
     <div class="support-badge">1</div>
     <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -749,9 +814,7 @@ function showToast(msg, color='#4caf82') {
 <script>
 (function() {
   const WA_NUMBER = '5523202164';
-  let currentMenu = 'main';
 
-  // Ocultar tooltip al hacer click
   setTimeout(() => {
     const t = document.getElementById('supportTooltip');
     if (t) t.classList.add('hidden');
@@ -775,25 +838,14 @@ function showToast(msg, color='#4caf82') {
     document.getElementById('supportPanel').classList.remove('open');
   };
 
-  // ── ÁRBOL DE MENÚS ──
+  // CAMBIO 3: Solo 3 opciones, "Quiero pagar" → pago.html directo
   const menus = {
     main: {
       msg: '¡Hola! 👋 ¿En qué te podemos ayudar hoy?',
       options: [
-        { icon: '📚', text: 'Quiero comprar un curso', next: 'comprar' },
+        { icon: '💳', text: 'Quiero pagar un curso', action: 'go_pago' },
         { icon: '🆘', text: 'Tengo un problema técnico', next: 'tecnico' },
-        { icon: '❓', text: 'Información general', next: 'info' },
         { icon: '💬', text: 'Hablar con un asesor', next: 'asesor' },
-      ]
-    },
-    comprar: {
-      parent: 'main',
-      msg: '¡Excelente! ¿Qué necesitas saber sobre nuestros cursos?',
-      options: [
-        { icon: '🗂', text: 'Ver catálogo de cursos', msg: 'Hola, me gustaría ver el catálogo completo de cursos disponibles en KÜ Akademie.' },
-        { icon: '💰', text: 'Precios y planes', msg: 'Hola, quisiera conocer los precios y planes disponibles en KÜ Akademie.' },
-        { icon: '💳', text: 'Formas de pago', msg: 'Hola, ¿cuáles son las formas de pago disponibles para adquirir un curso en KÜ Akademie?' },
-        { icon: '🔑', text: 'Ya pagué, ¿cómo accedo?', msg: 'Hola, ya realicé mi pago pero aún no tengo acceso a mi curso en KÜ Akademie. ¿Me pueden ayudar?' },
       ]
     },
     tecnico: {
@@ -806,16 +858,6 @@ function showToast(msg, color='#4caf82') {
         { icon: '🔧', text: 'Otro problema técnico', msg: 'Hola, tengo un problema técnico en KÜ Akademie y necesito asistencia.' },
       ]
     },
-    info: {
-      parent: 'main',
-      msg: '📋 ¿Qué información necesitas?',
-      options: [
-        { icon: '📦', text: '¿Qué incluye el curso?', msg: 'Hola, ¿me pueden indicar qué incluye un curso de KÜ Akademie? (videos, PDFs, exámenes, etc.)' },
-        { icon: '⏳', text: '¿Cuánto dura el acceso?', msg: 'Hola, ¿cuánto tiempo dura el acceso a un curso una vez que lo adquiero en KÜ Akademie?' },
-        { icon: '🏆', text: '¿Hay certificado?', msg: 'Hola, ¿KÜ Akademie otorga certificados al completar los cursos?' },
-        { icon: '📱', text: '¿Puedo verlo desde el celular?', msg: 'Hola, ¿puedo tomar los cursos de KÜ Akademie desde mi teléfono móvil?' },
-      ]
-    },
     asesor: {
       parent: 'main',
       msg: '👤 Te conectamos con un asesor ahora mismo.',
@@ -824,22 +866,14 @@ function showToast(msg, color='#4caf82') {
   };
 
   window.renderMenu = function(menuKey) {
-    currentMenu = menuKey;
     const menu = menus[menuKey];
     const body = document.getElementById('spBody');
     if (!body || !menu) return;
-
     let html = '';
-
-    // Botón volver
     if (menu.parent) {
       html += `<button class="sp-back" onclick="renderMenu('${menu.parent}')">← Volver</button>`;
     }
-
-    // Burbuja de mensaje
     html += `<div class="sp-bubble">${menu.msg}</div>`;
-
-    // Si es menú directo (asesor)
     if (menu.direct) {
       html += `
         <button class="sp-wa-btn" onclick="sendWA('${menu.direct}')">
@@ -849,20 +883,23 @@ function showToast(msg, color='#4caf82') {
       body.innerHTML = html;
       return;
     }
-
-    // Opciones del menú
     html += `<div class="sp-section-label">Selecciona una opción</div><div class="sp-options">`;
     menu.options.forEach(opt => {
       if (opt.next) {
-        // Submenú
         html += `
           <button class="sp-option" onclick="renderMenu('${opt.next}')">
             <span class="sp-option-icon">${opt.icon}</span>
             <span class="sp-option-text">${opt.text}</span>
             <span class="sp-option-arrow">›</span>
           </button>`;
+      } else if (opt.action === 'go_pago') {
+        html += `
+          <button class="sp-option" onclick="closeSupportPanel();window.location.href='pago.html'">
+            <span class="sp-option-icon">${opt.icon}</span>
+            <span class="sp-option-text">${opt.text}</span>
+            <span style="font-size:14px">→</span>
+          </button>`;
       } else {
-        // Directo a WhatsApp
         const safeMsg = opt.msg.replace(/'/g, "\\'");
         html += `
           <button class="sp-option" onclick="sendWA('${safeMsg}')">
@@ -873,7 +910,6 @@ function showToast(msg, color='#4caf82') {
       }
     });
     html += `</div>`;
-
     body.innerHTML = html;
   };
 
@@ -883,39 +919,26 @@ function showToast(msg, color='#4caf82') {
     closeSupportPanel();
   };
 
-  // Render inicial
   renderMenu('main');
 })();
 </script>
 
-<!-- ══════════════════════════════════════════
-     RESPONSIVE DASHBOARD
-     Agregar también antes de </body> en dashboard.html
-══════════════════════════════════════════ -->
+<!-- RESPONSIVE DASHBOARD (original sin cambios) -->
 <style>
-/* ── RESPONSIVE DASHBOARD ── */
 @media (max-width: 1024px) {
   .main { padding: 32px 20px; }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
   .courses-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 }
-
 @media (max-width: 640px) {
-  /* Topbar */
   .topbar { padding: 0 16px; height: 52px; }
   .tb-brand { font-size: 14px; }
   .tb-name { display: none; }
   .tb-btn { padding: 5px 10px; font-size: 11px; }
-
-  /* Main */
   .main { padding: 24px 16px 80px; }
-
-  /* Welcome */
   .welcome { margin-bottom: 28px; }
   .welcome-title { font-size: 22px; }
   .welcome-sub { font-size: 13px; }
-
-  /* Stats */
   .stats-row {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -924,25 +947,19 @@ function showToast(msg, color='#4caf82') {
   .stat-card { padding: 14px; }
   .stat-value { font-size: 20px; }
   .stat-label { font-size: 10px; }
-
-  /* Courses grid */
   .courses-grid {
     grid-template-columns: 1fr;
     gap: 14px;
     margin-bottom: 32px;
   }
-
-  /* Course card */
   .course-thumb { height: 140px; }
   .course-body { padding: 14px; }
   .course-title { font-size: 13px; }
-
-  /* Section header */
   .section-header { margin-bottom: 14px; }
   .section-title { font-size: 14px; }
-
-  /* Burbuja más abajo en mobile para no tapar contenido */
   .support-bubble { bottom: 16px; right: 16px; }
+  .course-detail-modal { max-height: 95vh; }
+  .cdm-thumb { height: 160px; }
 }
 </style>
 </body>
