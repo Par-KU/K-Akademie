@@ -62,20 +62,20 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 .support-note{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
 
 /* CÓDIGO DE DESCUENTO */
-.discount-section{margin-top:28px;padding-top:24px;border-top:1px solid var(--border)}
-.discount-row{display:flex;gap:10px;align-items:flex-start;margin-top:12px}
-.discount-input{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;font-family:'Sora',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px}
+.discount-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.discount-row{display:flex;gap:10px;align-items:flex-start;margin-top:10px}
+.discount-input{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-family:'Sora',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:1px}
 .discount-input:focus{border-color:var(--purple)}
 .discount-input.valid{border-color:var(--green)}
 .discount-input.invalid{border-color:var(--red)}
-.discount-apply-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 18px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap}
+.discount-apply-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:10px 16px;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap}
 .discount-apply-btn:hover:not(:disabled){border-color:var(--purple);color:var(--purple)}
 .discount-apply-btn:disabled{opacity:.4;cursor:not-allowed}
 .discount-apply-btn.active{background:var(--green-light);border-color:var(--green);color:var(--green)}
-.discount-feedback{font-size:12px;margin-top:8px;min-height:18px}
+.discount-feedback{font-size:11px;margin-top:6px;min-height:16px}
 .discount-feedback.ok{color:var(--green)}
 .discount-feedback.err{color:var(--red)}
-.discount-badge{background:var(--green-light);border:1px solid rgba(76,175,130,.3);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--green);font-weight:600;display:none;margin-top:10px}
+.discount-badge{background:var(--green-light);border:1px solid rgba(76,175,130,.3);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--green);font-weight:600;display:none;margin-top:8px}
 .discount-badge.show{display:block}
 
 @media (max-width: 850px) {
@@ -93,19 +93,18 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 </div>
 
 <div class="pay-container">
+
+  <!-- ══ LADO IZQUIERDO: Carrito + Datos bancarios ══ -->
   <div class="pay-main">
     <div class="pay-main-card">
       <div class="section-title">
         <span>🛒 Tu Carrito</span>
       </div>
-      
-      <div id="cartList" class="cart-list">
-        </div>
+      <div id="cartList" class="cart-list"></div>
 
       <div class="section-title" style="margin-top:40px">
         <span>🏦 Información de Pago</span>
       </div>
-      
       <div class="bank-grid" id="bankInfo">
         <div class="bank-field full">
           <div class="bank-label">Banco</div>
@@ -121,7 +120,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
           <div class="bank-value" id="bankAccount">—</div>
           <button class="copy-btn" onclick="copyVal('bankAccount')">Copiar</button>
         </div>
-        <div class="bank-field full" style="border-color: var(--purple-dim); background: var(--purple-light);">
+        <div class="bank-field full" style="border-color:var(--purple-dim);background:var(--purple-light)">
           <div class="bank-label" style="color:var(--purple)">CLABE Interbancaria</div>
           <div class="bank-value" id="bankClabe" style="font-family:monospace;letter-spacing:.5px">—</div>
           <button class="copy-btn" onclick="copyVal('bankClabe')">Copiar</button>
@@ -131,18 +130,32 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
           <div class="bank-value" id="bankConcept">Servicio educativo</div>
           <button class="copy-btn" onclick="copyVal('bankConcept')">Copiar</button>
         </div>
-        <div class="bank-field" style="border-color: var(--purple-dim); background: var(--purple-light);">
+        <div class="bank-field" style="border-color:var(--purple-dim);background:var(--purple-light)">
           <div class="bank-label" style="color:var(--purple)">Nombre del alumno</div>
           <div class="bank-value" id="userNameLabel">Cargando...</div>
         </div>
-        <div class="bank-field" style="border-color: var(--purple-dim); background: var(--purple-light);">
+        <div class="bank-field" style="border-color:var(--purple-dim);background:var(--purple-light)">
           <div class="bank-label" style="color:var(--purple)">Matrícula</div>
           <div class="bank-value" id="userMatriculaLabel">—</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ LADO DERECHO: Resumen + Descuento + Botón ══ -->
+  <div class="summary-side">
+    <div class="summary-card">
+      <div class="section-title" style="font-size:16px">Resumen</div>
+      <div id="summaryItems"></div>
+
+      <div class="summary-total">
+        <span class="total-label">Total</span>
+        <span class="total-amount" id="totalAmount">$0</span>
+      </div>
+
       <!-- CÓDIGO DE DESCUENTO -->
       <div class="discount-section">
-        <div class="section-title" style="font-size:16px;margin-bottom:8px">🏷️ ¿Tienes un código de descuento?</div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:4px">Ingresa tu código y presiona Aplicar para ver el descuento.</p>
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">🏷️ ¿Tienes un código de descuento?</div>
         <div class="discount-row">
           <input type="text" class="discount-input" id="discountInput" placeholder="TU CÓDIGO AQUÍ" oninput="onDiscountInput()">
           <button class="discount-apply-btn" id="discountApplyBtn" onclick="applyDiscount()" disabled>Aplicar</button>
@@ -150,20 +163,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
         <div class="discount-feedback" id="discountFeedback"></div>
         <div class="discount-badge" id="discountBadge"></div>
       </div>
-    </div>
-  </div>
 
-  <div class="summary-side">
-    <div class="summary-card">
-      <div class="section-title" style="font-size:16px">Resumen</div>
-      <div id="summaryItems">
-        </div>
-      
-      <div class="summary-total">
-        <span class="total-label">Total</span>
-        <span class="total-amount" id="totalAmount">$0</span>
-      </div>
-
+      <!-- BOTÓN DE PAGO -->
       <button class="pay-btn" id="btnPagar" onclick="enviarWhatsApp()">
         <span>Realicé mi pago</span>
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.025 3.212l-.539 1.95 2.011-.528c.903.54 1.838.892 3.271.893 3.181 0 5.767-2.586 5.768-5.766 0-3.18-2.586-5.767-5.768-5.767zm3.434 8.161c-.146.415-.845.764-1.2.793-.354.03-.687.152-2.227-.457-1.972-.781-3.232-2.791-3.33-2.922-.099-.131-.806-1.072-.806-2.042s.5-.1.455-.658.118-.182.264-.476c.146-.294.073-.55-.036-.77-.11-.22-.988-2.382-1.353-3.264-.356-.862-.716-.745-1.04-.76l-.886-.011c-.306 0-.802.115-1.221.573-.419.458-1.599 1.564-1.599 3.811 0 2.247 1.636 4.419 1.861 4.721.225.303 3.219 4.915 7.797 6.887 1.089.469 1.94.749 2.603.959 1.094.348 2.09.299 2.877.181.878-.132 2.7-.104 3.083-3.104.383-3 1.011-2.454 1.221-2.783.21-.33.105-.513-.053-.697-.158-.184-1.053-.513-1.411-.733-.358-.22-.596-.33-.842-.036-.247.294-.949 1.173-1.163 1.43-.214.257-.429.294-.757.147-.327-.146-1.382-.509-2.633-1.626-1.251-1.117-1.611-1.656-1.858-2.06-.247-.404-.026-.624.192-.841l1.03-1.136c.192-.211.257-.354.385-.588.128-.235.064-.441-.032-.646-.096-.206-.856-2.064-1.171-2.822-.307-.738-.619-.638-.85-.649l-.721-.01c-.247 0-.649.093-.988.454z"/></svg>
@@ -173,11 +174,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
         Al hacer clic, se enviará el resumen por WhatsApp. No olvides adjuntar tu comprobante de transferencia.
       </div>
 
-      <div style="text-align:center; margin-top:20px;">
+      <div style="text-align:center;margin-top:20px">
         <a href="dashboard.html" class="btn-return">← Seguir comprando</a>
       </div>
     </div>
   </div>
+
 </div>
 
 <script type="module">
@@ -201,24 +203,21 @@ const db    = getFirestore(fbApp);
 let userData = null;
 let paymentConfig = null;
 let discountCodes = [];
-let appliedDiscount = null; // { code, pct }
+let appliedDiscount = null;
 let cart = JSON.parse(localStorage.getItem('ku_cart')) || [];
 
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
-  
-  // Obtener datos del alumno
+
   const q = query(collection(db,'students'), where('email','==', user.email));
   const snap = await getDocs(q);
   if (!snap.empty) {
     userData = snap.docs[0].data();
     document.getElementById('userNameLabel').textContent = userData.name || user.email;
-    // Mostrar matrícula si existe
     const matriculaEl = document.getElementById('userMatriculaLabel');
     if (matriculaEl) matriculaEl.textContent = userData.matricula || 'Sin matrícula';
   }
 
-  // Obtener configuración de pagos y descuentos
   const [pSnap, dSnap] = await Promise.all([
     getDoc(doc(db, 'config', 'payments')),
     getDoc(doc(db, 'config', 'discounts'))
@@ -235,8 +234,8 @@ onAuthStateChanged(auth, async user => {
 });
 
 function renderCart() {
-  const list = document.getElementById('cartList');
-  const summary = document.getElementById('summaryItems');
+  const list     = document.getElementById('cartList');
+  const summary  = document.getElementById('summaryItems');
   const btnPagar = document.getElementById('btnPagar');
 
   if (cart.length === 0) {
@@ -279,7 +278,6 @@ function calculateTotal() {
   if (appliedDiscount) {
     const discount = Math.round(subtotal * appliedDiscount.pct / 100);
     finalTotal = subtotal - discount;
-    // Agregar fila de descuento en resumen
     const discRow = document.getElementById('summaryDiscountRow');
     if (!discRow && summaryEl) {
       summaryEl.insertAdjacentHTML('beforeend', `
@@ -296,14 +294,11 @@ function calculateTotal() {
   document.getElementById('totalAmount').textContent = `$${finalTotal.toLocaleString()}`;
 }
 
-// ── LÓGICA DE DESCUENTO ──
 window.onDiscountInput = function() {
   const input = document.getElementById('discountInput');
   const btn   = document.getElementById('discountApplyBtn');
   const val   = input?.value.trim().toUpperCase();
-  // Habilitar botón solo si hay texto
   if (btn) btn.disabled = !val;
-  // Resetear estilos
   input?.classList.remove('valid','invalid');
   const fb = document.getElementById('discountFeedback');
   if (fb) { fb.textContent = ''; fb.className = 'discount-feedback'; }
@@ -368,10 +363,9 @@ window.copyVal = function(id) {
 };
 
 window.enviarWhatsApp = function() {
-  const wa = paymentConfig?.whatsapp || '5523202164';
+  const wa    = paymentConfig?.whatsapp || '5523202164';
   const total = document.getElementById('totalAmount').textContent;
   const fecha = new Date().toLocaleDateString();
-  
   let cursosStr = cart.map(c => `• ${c.title} — *${c.price}*`).join('\n');
 
   const ticket = `Hola, acabo de realizar mi pago para la academia:
@@ -401,9 +395,6 @@ Concepto usado: ${paymentConfig?.concept || 'Servicio educativo'}
 
   const url = `https://wa.me/${wa}?text=${encodeURIComponent(ticket)}`;
   window.open(url, '_blank');
-  
-  // Opcional: Limpiar carrito después de pagar
-  // localStorage.removeItem('ku_cart');
 };
 </script>
 </body>
