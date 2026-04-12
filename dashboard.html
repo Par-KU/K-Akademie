@@ -65,7 +65,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 }
 .course-card.unlocked{cursor:pointer}
 .course-card.unlocked:hover{transform:translateY(-4px);border-color:var(--border2)}
-/* CAMBIO 1: locked-card muestra imagen, no opacidad */
 .course-card.locked{opacity:.6;cursor:not-allowed}
 .course-card.locked-card{opacity:1;cursor:default}
 .course-card.locked-card:hover{transform:none;border-color:var(--border)}
@@ -94,17 +93,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 .lock-btn{background:var(--purple);border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;cursor:pointer;transition:background .2s}
 .lock-btn:hover{background:var(--purple-dim)}
 
-/* NUEVO: lock overlay con 2 botones para locked-card */
+/* NUEVO: lock overlay para locked-card */
 .lock-overlay-new{
   position:absolute;inset:0;background:rgba(10,11,16,.52);
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  display:flex;flex-direction:column;align-items:center;justify-content:center; /* Centrado para el texto de bloqueo */
   padding:14px;gap:8px;backdrop-filter:blur(2px);
 }
-.lock-overlay-btns{display:flex;gap:8px;width:100%}
-.lock-btn-detail{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
-.lock-btn-detail:hover{background:rgba(255,255,255,.18)}
-.lock-btn-acquire{flex:1;background:var(--purple);border:none;border-radius:8px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:#fff;font-weight:500;cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:5px}
-.lock-btn-acquire:hover{background:var(--purple-dim)}
 .lock-badge-txt{font-size:10px;font-weight:600;color:rgba(255,255,255,.55);letter-spacing:.5px}
 
 .course-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;margin-top:8px}
@@ -197,7 +191,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-screen" id="loadingScreen">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
     <div class="tb-icon"></div>
@@ -207,7 +200,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
   <div class="loading-text">Cargando tus cursos...</div>
 </div>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <a class="tb-logo" href="dashboard.html">
     <div class="tb-icon"></div>
@@ -220,7 +212,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
   <div class="welcome">
@@ -252,7 +243,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
     </div>
   </div>
 
-  <!-- MIS CURSOS -->
   <div class="section-header">
     <div>
       <div class="section-title">Mis cursos</div>
@@ -263,7 +253,6 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
     <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">Cargando...</div>
   </div>
 
-  <!-- EXPLORAR -->
   <div class="section-header">
     <div>
       <div class="section-title">Explorar más cursos</div>
@@ -276,13 +265,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast">
   <div class="toast-dot" id="toastDot"></div>
   <span id="toastMsg">Mensaje</span>
 </div>
 
-<!-- MODAL DETALLE CURSO (NUEVO) -->
 <div class="course-detail-overlay" id="courseDetailModal" onclick="if(event.target===this)closeCourseDetail()">
   <div class="course-detail-modal" id="cdmContent"></div>
 </div>
@@ -314,11 +301,9 @@ onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
   currentUser = user;
 
-  // Cargar datos del estudiante
   const stored = sessionStorage.getItem('nx_student');
   if (stored) studentData = JSON.parse(stored);
 
-  // Buscar en Firestore por email
   try {
     const q = query(collection(db,'students'), where('email','==', user.email));
     const snap = await getDocs(q);
@@ -342,25 +327,20 @@ onAuthStateChanged(auth, async user => {
 
 async function loadCourses() {
   try {
-    // Obtener todos los cursos publicados
     const snap = await getDocs(query(collection(db,'courses'), where('status','==','published')));
     const allCourses = snap.docs.map(d => ({id:d.id, ...d.data()}));
 
-    // Cursos asignados al estudiante
     const assignedCourses = studentData?.courses || [];
-    // También verificar campo legacy 'course' (singular)
     if (studentData?.course && !assignedCourses.includes(studentData.course)) {
       assignedCourses.push(studentData.course);
     }
 
-    // Cargar progreso
     let progressData = {};
     try {
       const progSnap = await getDoc(doc(db,'progress', currentUser.uid));
       if (progSnap.exists()) progressData = progSnap.data();
     } catch(e) {}
 
-    // Separar en mis cursos y explorar
     const myCourses = allCourses.filter(c =>
       assignedCourses.some(ac => ac === c.title || ac === c.id)
     );
@@ -368,7 +348,6 @@ async function loadCourses() {
       !assignedCourses.some(ac => ac === c.title || ac === c.id)
     );
 
-    // Stats
     document.getElementById('statActive').textContent = myCourses.length;
     const totalProgress = myCourses.length > 0
       ? Math.round(myCourses.reduce((sum, c) => {
@@ -449,7 +428,7 @@ function renderMyCourses(courses, progressData) {
   }).join('');
 }
 
-// CAMBIO 2: renderExploreCourses con imagen visible + 2 botones + modal
+// CORRECCIÓN: Se eliminaron los botones lock-btn-detail y lock-btn-acquire del lock-overlay-new
 function renderExploreCourses(courses) {
   const grid = document.getElementById('exploreCoursesGrid');
   if (!courses.length) {
@@ -481,10 +460,6 @@ function renderExploreCourses(courses) {
           </div>` : ''}
           <div class="lock-overlay-new">
             <div class="lock-badge-txt">ACCESO BLOQUEADO</div>
-            <div class="lock-overlay-btns">
-              <button class="lock-btn-detail" onclick="openCourseDetail('${c.id}',event)">👁 Ver detalles</button>
-              <button class="lock-btn-acquire" onclick="goToPago('${c.id}',event)">🛒 Adquirir</button>
-            </div>
           </div>
         </div>
         <div class="course-body">
@@ -561,7 +536,6 @@ window.closeCourseDetail = function() {
   document.getElementById('courseDetailModal').classList.remove('show');
 };
 
-// LOGOUT
 document.getElementById('btnLogout').addEventListener('click', async () => {
   await signOut(auth);
   sessionStorage.clear();
@@ -577,215 +551,42 @@ function showToast(msg, color='#4caf82') {
 }
 </script>
 
-<!-- ══ BURBUJA DE SOPORTE WHATSAPP ══ -->
 <style>
-.support-bubble {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9000;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-}
-.support-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #25D366, #128C7E);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(37,211,102,0.4);
-  transition: transform .2s, box-shadow .2s;
-  position: relative;
-  flex-shrink: 0;
-}
-.support-btn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 28px rgba(37,211,102,0.5);
-}
+.support-bubble { position: fixed; bottom: 24px; right: 24px; z-index: 9000; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.support-btn { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #25D366, #128C7E); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(37,211,102,0.4); transition: transform .2s, box-shadow .2s; position: relative; flex-shrink: 0; }
+.support-btn:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(37,211,102,0.5); }
 .support-btn svg { width: 28px; height: 28px; }
-.support-btn::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2px solid rgba(37,211,102,0.4);
-  animation: wa-pulse 2s ease-out infinite;
-}
-@keyframes wa-pulse {
-  0% { transform: scale(1); opacity: 1; }
-  100% { transform: scale(1.5); opacity: 0; }
-}
-.support-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--red, #e05555);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--bg, #0a0b10);
-}
-.support-panel {
-  background: var(--surface, #11121a);
-  border: 1px solid var(--border2, #252640);
-  border-radius: 16px;
-  width: 300px;
-  overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
-  display: none;
-  flex-direction: column;
-  transform-origin: bottom right;
-  animation: panel-in .2s ease;
-}
+.support-btn::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(37,211,102,0.4); animation: wa-pulse 2s ease-out infinite; }
+@keyframes wa-pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+.support-badge { position: absolute; top: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%; background: var(--red, #e05555); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg, #0a0b10); }
+.support-panel { background: var(--surface, #11121a); border: 1px solid var(--border2, #252640); border-radius: 16px; width: 300px; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.6); display: none; flex-direction: column; transform-origin: bottom right; animation: panel-in .2s ease; }
 .support-panel.open { display: flex; }
-@keyframes panel-in {
-  from { opacity: 0; transform: scale(.9) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-.sp-header {
-  background: linear-gradient(135deg, #25D366, #128C7E);
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.sp-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
+@keyframes panel-in { from { opacity: 0; transform: scale(.9) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.sp-header { background: linear-gradient(135deg, #25D366, #128C7E); padding: 16px 18px; display: flex; align-items: center; gap: 10px; }
+.sp-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .sp-header-info { flex: 1; }
 .sp-name { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; color: #fff; }
 .sp-status { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
 .sp-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
-.sp-close {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.8);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px;
-  line-height: 1;
-}
+.sp-close { background: none; border: none; color: rgba(255,255,255,0.8); font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; }
 .sp-close:hover { color: #fff; }
 .sp-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; }
-.sp-body::-webkit-scrollbar { width: 4px; }
-.sp-body::-webkit-scrollbar-track { background: transparent; }
-.sp-body::-webkit-scrollbar-thumb { background: var(--border2, #252640); border-radius: 2px; }
-.sp-bubble {
-  background: var(--surface2, #181926);
-  border: 1px solid var(--border, #1e2035);
-  border-radius: 12px 12px 12px 2px;
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--text, #e8e8f0);
-  line-height: 1.5;
-  margin-bottom: 4px;
-}
-.sp-section-label {
-  font-size: 10px;
-  color: var(--muted, #6b6d8a);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 500;
-  padding: 4px 0 2px;
-}
+.sp-bubble { background: var(--surface2, #181926); border: 1px solid var(--border, #1e2035); border-radius: 12px 12px 12px 2px; padding: 10px 14px; font-size: 13px; color: var(--text, #e8e8f0); line-height: 1.5; margin-bottom: 4px; }
+.sp-section-label { font-size: 10px; color: var(--muted, #6b6d8a); text-transform: uppercase; letter-spacing: 1px; font-weight: 500; padding: 4px 0 2px; }
 .sp-options { display: flex; flex-direction: column; gap: 6px; }
-.sp-option {
-  background: var(--surface2, #181926);
-  border: 1px solid var(--border, #1e2035);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--text, #e8e8f0);
-  cursor: pointer;
-  text-align: left;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: 'DM Sans', sans-serif;
-}
-.sp-option:hover {
-  border-color: #25D366;
-  background: rgba(37,211,102,0.08);
-  color: #fff;
-}
+.sp-option { background: var(--surface2, #181926); border: 1px solid var(--border, #1e2035); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--text, #e8e8f0); cursor: pointer; text-align: left; transition: all .15s; display: flex; align-items: center; gap: 10px; font-family: 'DM Sans', sans-serif; }
+.sp-option:hover { border-color: #25D366; background: rgba(37,211,102,0.08); color: #fff; }
 .sp-option-icon { font-size: 16px; flex-shrink: 0; }
 .sp-option-text { flex: 1; }
 .sp-option-arrow { color: var(--muted, #6b6d8a); font-size: 12px; }
-.sp-back {
-  background: none;
-  border: none;
-  color: var(--muted, #6b6d8a);
-  font-size: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 0;
-  font-family: 'DM Sans', sans-serif;
-  transition: color .15s;
-  margin-bottom: 4px;
-}
+.sp-back { background: none; border: none; color: var(--muted, #6b6d8a); font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 0; font-family: 'DM Sans', sans-serif; transition: color .15s; margin-bottom: 4px; }
 .sp-back:hover { color: var(--text, #e8e8f0); }
-.sp-wa-btn {
-  background: linear-gradient(135deg, #25D366, #128C7E);
-  border: none;
-  border-radius: 10px;
-  padding: 12px 16px;
-  color: #fff;
-  font-family: 'Sora', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: opacity .2s;
-  margin-top: 4px;
-}
+.sp-wa-btn { background: linear-gradient(135deg, #25D366, #128C7E); border: none; border-radius: 10px; padding: 12px 16px; color: #fff; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity .2s; margin-top: 4px; }
 .sp-wa-btn:hover { opacity: .9; }
-.support-tooltip {
-  background: var(--surface, #11121a);
-  border: 1px solid var(--border2, #252640);
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 12px;
-  color: var(--text, #e8e8f0);
-  white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0,0,0,.4);
-  animation: tooltip-in .3s ease .8s both;
-}
-@keyframes tooltip-in {
-  from { opacity: 0; transform: translateX(8px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
+.support-tooltip { background: var(--surface, #11121a); border: 1px solid var(--border2, #252640); border-radius: 10px; padding: 8px 14px; font-size: 12px; color: var(--text, #e8e8f0); white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.4); animation: tooltip-in .3s ease .8s both; }
+@keyframes tooltip-in { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
 .support-tooltip.hidden { display: none; }
-@media (max-width: 480px) {
-  .support-bubble { bottom: 16px; right: 16px; }
-  .support-panel { width: 280px; }
-}
+@media (max-width: 480px) { .support-bubble { bottom: 16px; right: 16px; } .support-panel { width: 280px; } }
 </style>
 
 <div class="support-bubble" id="supportBubble">
@@ -814,31 +615,15 @@ function showToast(msg, color='#4caf82') {
 <script>
 (function() {
   const WA_NUMBER = '5523202164';
-
-  setTimeout(() => {
-    const t = document.getElementById('supportTooltip');
-    if (t) t.classList.add('hidden');
-  }, 5000);
-
+  setTimeout(() => { const t = document.getElementById('supportTooltip'); if (t) t.classList.add('hidden'); }, 5000);
   window.toggleSupportPanel = function() {
     const panel = document.getElementById('supportPanel');
     const tooltip = document.getElementById('supportTooltip');
     const badge = document.querySelector('.support-badge');
-    if (panel.classList.contains('open')) {
-      panel.classList.remove('open');
-    } else {
-      panel.classList.add('open');
-      if (tooltip) tooltip.classList.add('hidden');
-      if (badge) badge.style.display = 'none';
-      renderMenu('main');
-    }
+    if (panel.classList.contains('open')) { panel.classList.remove('open'); }
+    else { panel.classList.add('open'); if (tooltip) tooltip.classList.add('hidden'); if (badge) badge.style.display = 'none'; renderMenu('main'); }
   };
-
-  window.closeSupportPanel = function() {
-    document.getElementById('supportPanel').classList.remove('open');
-  };
-
-  // CAMBIO 3: Solo 3 opciones, "Quiero pagar" → pago.html directo
+  window.closeSupportPanel = function() { document.getElementById('supportPanel').classList.remove('open'); };
   const menus = {
     main: {
       msg: '¡Hola! 👋 ¿En qué te podemos ayudar hoy?',
@@ -864,103 +649,35 @@ function showToast(msg, color='#4caf82') {
       direct: 'Hola, me gustaría hablar con un asesor de KÜ Akademie para recibir orientación personalizada.'
     }
   };
-
   window.renderMenu = function(menuKey) {
     const menu = menus[menuKey];
     const body = document.getElementById('spBody');
     if (!body || !menu) return;
     let html = '';
-    if (menu.parent) {
-      html += `<button class="sp-back" onclick="renderMenu('${menu.parent}')">← Volver</button>`;
-    }
+    if (menu.parent) { html += `<button class="sp-back" onclick="renderMenu('${menu.parent}')">← Volver</button>`; }
     html += `<div class="sp-bubble">${menu.msg}</div>`;
     if (menu.direct) {
-      html += `
-        <button class="sp-wa-btn" onclick="sendWA('${menu.direct}')">
-          <svg width="16" height="16" viewBox="0 0 32 32" fill="none"><path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.668 4.61 1.824 6.51L4 29l7.698-1.804A12.93 12.93 0 0016 28c6.627 0 12-5.373 12-12S22.627 3 16 3z" fill="white" fill-opacity="0.3"/><path d="M11.5 11.5c.2-.5.8-1 1.4-1h.6c.4 0 .8.3 1 .7l.8 2c.2.4.1.9-.2 1.2l-.5.5c.6 1.1 1.5 2 2.6 2.6l.5-.5c.3-.3.8-.4 1.2-.2l2 .8c.4.2.7.6.7 1v.6c0 .6-.5 1.2-1 1.4-2.5.8-6.5-1-8.2-5.3-.4-1-.5-2.1-.4-3.1l.5-.7z" fill="white"/></svg>
-          Abrir WhatsApp
-        </button>`;
+      html += `<button class="sp-wa-btn" onclick="sendWA('${menu.direct}')">Abrir WhatsApp</button>`;
       body.innerHTML = html;
       return;
     }
     html += `<div class="sp-section-label">Selecciona una opción</div><div class="sp-options">`;
     menu.options.forEach(opt => {
-      if (opt.next) {
-        html += `
-          <button class="sp-option" onclick="renderMenu('${opt.next}')">
-            <span class="sp-option-icon">${opt.icon}</span>
-            <span class="sp-option-text">${opt.text}</span>
-            <span class="sp-option-arrow">›</span>
-          </button>`;
-      } else if (opt.action === 'go_pago') {
-        html += `
-          <button class="sp-option" onclick="closeSupportPanel();window.location.href='pago.html'">
-            <span class="sp-option-icon">${opt.icon}</span>
-            <span class="sp-option-text">${opt.text}</span>
-            <span style="font-size:14px">→</span>
-          </button>`;
-      } else {
-        const safeMsg = opt.msg.replace(/'/g, "\\'");
-        html += `
-          <button class="sp-option" onclick="sendWA('${safeMsg}')">
-            <span class="sp-option-icon">${opt.icon}</span>
-            <span class="sp-option-text">${opt.text}</span>
-            <span style="font-size:14px">💬</span>
-          </button>`;
-      }
+      if (opt.next) { html += `<button class="sp-option" onclick="renderMenu('${opt.next}')"><span class="sp-option-icon">${opt.icon}</span><span class="sp-option-text">${opt.text}</span><span class="sp-option-arrow">›</span></button>`; }
+      else if (opt.action === 'go_pago') { html += `<button class="sp-option" onclick="closeSupportPanel();window.location.href='pago.html'"><span class="sp-option-icon">${opt.icon}</span><span class="sp-option-text">${opt.text}</span><span>→</span></button>`; }
+      else { const safeMsg = opt.msg.replace(/'/g, "\\'"); html += `<button class="sp-option" onclick="sendWA('${safeMsg}')"><span class="sp-option-icon">${opt.icon}</span><span class="sp-option-text">${opt.text}</span><span>💬</span></button>`; }
     });
     html += `</div>`;
     body.innerHTML = html;
   };
-
-  window.sendWA = function(msg) {
-    const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
-    closeSupportPanel();
-  };
-
+  window.sendWA = function(msg) { const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`; window.open(url, '_blank'); closeSupportPanel(); };
   renderMenu('main');
 })();
 </script>
 
-<!-- RESPONSIVE DASHBOARD (original sin cambios) -->
 <style>
-@media (max-width: 1024px) {
-  .main { padding: 32px 20px; }
-  .stats-row { grid-template-columns: repeat(2, 1fr); }
-  .courses-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
-}
-@media (max-width: 640px) {
-  .topbar { padding: 0 16px; height: 52px; }
-  .tb-brand { font-size: 14px; }
-  .tb-name { display: none; }
-  .tb-btn { padding: 5px 10px; font-size: 11px; }
-  .main { padding: 24px 16px 80px; }
-  .welcome { margin-bottom: 28px; }
-  .welcome-title { font-size: 22px; }
-  .welcome-sub { font-size: 13px; }
-  .stats-row {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 32px;
-  }
-  .stat-card { padding: 14px; }
-  .stat-value { font-size: 20px; }
-  .stat-label { font-size: 10px; }
-  .courses-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-    margin-bottom: 32px;
-  }
-  .course-thumb { height: 140px; }
-  .course-body { padding: 14px; }
-  .course-title { font-size: 13px; }
-  .section-header { margin-bottom: 14px; }
-  .section-title { font-size: 14px; }
-  .support-bubble { bottom: 16px; right: 16px; }
-  .course-detail-modal { max-height: 95vh; }
-  .cdm-thumb { height: 160px; }
-}
+@media (max-width: 1024px) { .main { padding: 32px 20px; } .stats-row { grid-template-columns: repeat(2, 1fr); } .courses-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); } }
+@media (max-width: 640px) { .topbar { padding: 0 16px; height: 52px; } .tb-brand { font-size: 14px; } .tb-name { display: none; } .tb-btn { padding: 5px 10px; font-size: 11px; } .main { padding: 24px 16px 80px; } .welcome-title { font-size: 22px; } .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 32px; } .courses-grid { grid-template-columns: 1fr; gap: 14px; margin-bottom: 32px; } .course-thumb { height: 140px; } .course-body { padding: 14px; } .course-detail-modal { max-height: 95vh; } .cdm-thumb { height: 160px; } }
 </style>
 </body>
 </html>
