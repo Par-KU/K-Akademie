@@ -633,7 +633,8 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
                 <tr>
                   <th>Estudiante</th>
                   <th>Matrícula</th>
-                  <th>Curso suscrito</th>
+                  <th>Paquete</th>
+                  <th>Vencimiento</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -808,6 +809,24 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
         <div id="editCoursesCheckboxList" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;max-height:160px;overflow-y:auto">
           <div style="font-size:12px;color:var(--muted2)">Cargando cursos...</div>
         </div>
+      </div>
+      <div class="field">
+        <label>Tipo de paquete</label>
+        <select id="editPackage" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:100%;cursor:pointer">
+          <option value="">Sin definir</option>
+          <option value="individual">📖 Individual (1 curso)</option>
+          <option value="total">🎓 Acceso Total (todos los cursos)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fecha de vencimiento</label>
+        <input type="date" id="editExpiry" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:100%">
+        <span style="font-size:11px;color:var(--muted);margin-top:4px;display:block">Se pintará de colores según la proximidad al vencimiento</span>
+      </div>
+      <div class="field" id="assignAllField" style="display:none">
+        <button type="button" onclick="assignAllCourses()" style="background:var(--teal-light);border:1px solid rgba(78,205,196,.3);border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--teal);cursor:pointer;width:100%">
+          ✅ Asignar todos los cursos automáticamente
+        </button>
       </div>
       <div class="field">
         <label style="display:flex;align-items:center;gap:8px">
@@ -1191,28 +1210,45 @@ async function loadStudents() {
   }
 }
 
+function getExpiryInfo(expiryDate) {
+  if (!expiryDate) return { label: '—', color: 'var(--muted)', bg: 'transparent', border: 'var(--border)' };
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp   = new Date(expiryDate); exp.setHours(0,0,0,0);
+  const days  = Math.round((exp - today) / (1000*60*60*24));
+  const fmt   = exp.toLocaleDateString('es-MX', {day:'2-digit', month:'short', year:'numeric'});
+  if (days < 0)   return { label: `Vencido (${fmt})`,  color:'var(--red)',   bg:'rgba(224,85,85,.1)',   border:'rgba(224,85,85,.3)' };
+  if (days <= 5)  return { label: `${fmt} (${days}d)`, color:'var(--red)',   bg:'rgba(224,85,85,.1)',   border:'rgba(224,85,85,.3)' };
+  if (days <= 15) return { label: `${fmt} (${days}d)`, color:'#f97316',      bg:'rgba(249,115,22,.1)',  border:'rgba(249,115,22,.3)' };
+  if (days <= 30) return { label: `${fmt} (${days}d)`, color:'var(--amber)', bg:'rgba(240,185,66,.1)',  border:'rgba(240,185,66,.3)' };
+  return                  { label: fmt,                 color:'var(--green)', bg:'rgba(76,175,130,.08)', border:'rgba(76,175,130,.25)' };
+}
+
 function renderStudents(list) {
   const body = document.getElementById('studentsBody');
   if (!list.length) {
-    body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Sin estudiantes registrados aún.</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Sin estudiantes registrados aún.</td></tr>';
     return;
   }
-  body.innerHTML = list.map(s => `
+  body.innerHTML = list.map(s => {
+    const exp = getExpiryInfo(s.expiryDate);
+    const pkg = s.package === 'total' ? '🎓 Acceso Total' : s.package === 'individual' ? '📖 Individual' : '—';
+    return `
     <tr>
       <td><div class="user-cell">
         <div class="user-av">${(s.name||'??').slice(0,2).toUpperCase()}</div>
         <div><div style="font-weight:500">${s.name||'—'}</div><div style="font-size:11px;color:var(--muted)">${s.email||'—'}</div></div>
       </div></td>
       <td style="font-family:monospace;color:var(--purple)">${s.matricula||'—'}</td>
-      <td style="color:var(--muted)">${s.course||'Sin asignar'}</td>
+      <td style="font-size:12px;color:var(--text)">${pkg}</td>
+      <td>${s.expiryDate ? `<span style="font-size:11px;font-weight:600;color:${exp.color};background:${exp.bg};border:1px solid ${exp.border};border-radius:6px;padding:3px 8px;white-space:nowrap">${exp.label}</span>` : '<span style="color:var(--muted);font-size:12px">Sin fecha</span>'}</td>
       <td><span class="badge ${s.active!==false?'badge-active':'badge-inactive'}">${s.active!==false?'Activo':'Inactivo'}</span></td>
       <td><div class="action-btns">
         <button class="action-btn" onclick="editStudent('${s.id}')">Editar</button>
         <button class="action-btn" onclick="resetExams('${s.id}','${s.name||s.email}')" title="Resetear exámenes" style="color:var(--amber);border-color:rgba(240,185,66,.3)">↺ Exámenes</button>
         <button class="action-btn danger" onclick="deleteStudent('${s.id}')">Eliminar</button>
       </div></td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 window.filterStudents = function() {
@@ -1366,10 +1402,22 @@ window.editStudent = async function(id) {
     document.getElementById('editMatricula').value = s.matricula||'';
     document.getElementById('editEmail').value = s.email||'';
     document.getElementById('editActive').checked = s.active !== false;
-    // Load courses checkboxes
+    document.getElementById('editPackage').value = s.package || '';
+    document.getElementById('editExpiry').value  = s.expiryDate || '';
+    document.getElementById('assignAllField').style.display = s.package === 'total' ? 'block' : 'none';
+    document.getElementById('editPackage').onchange = function() {
+      document.getElementById('assignAllField').style.display = this.value === 'total' ? 'block' : 'none';
+    };
     await loadCoursesIntoCheckboxes('editCoursesCheckboxList', s.courses||[s.course].filter(Boolean));
     document.getElementById('editStudentModal').classList.add('show');
   } catch(e) { showToast('Error cargando estudiante','#e05555'); }
+};
+
+window.assignAllCourses = async function() {
+  const container = document.getElementById('editCoursesCheckboxList');
+  if (!container) return;
+  container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = true);
+  showToast('Todos los cursos asignados ✓', '#4ecdc4');
 };
 
 window.closeEditModal = function() {
@@ -1382,13 +1430,18 @@ window.saveEditStudent = async function() {
   const name = document.getElementById('editName').value.trim();
   const mat  = document.getElementById('editMatricula').value.trim();
   const email= document.getElementById('editEmail').value.trim();
-  const active = document.getElementById('editActive').checked;
-  const courses = getSelectedCourses('editCoursesCheckboxList');
+  const active     = document.getElementById('editActive').checked;
+  const pkg        = document.getElementById('editPackage').value;
+  const expiryDate = document.getElementById('editExpiry').value;
+  const courses    = getSelectedCourses('editCoursesCheckboxList');
   if (!name||!email) { showToast('Nombre y correo son obligatorios','#e05555'); return; }
   try {
     await setDoc(doc(db,'students',_editingStudentId), {
       name, matricula:mat, email, active, courses,
-      course: courses[0]||'', updatedAt: new Date().toISOString()
+      course: courses[0]||'',
+      package: pkg,
+      expiryDate: expiryDate || '',
+      updatedAt: new Date().toISOString()
     }, {merge:true});
     showToast('Estudiante actualizado ✓','#4caf82');
     closeEditModal();
