@@ -100,12 +100,22 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
           <button class="copy-btn" onclick="copyVal('bankHolder')">Copiar</button>
         </div>
         <div class="bank-field">
-          <div class="bank-label">Clave / Cuenta</div>
+          <div class="bank-label">Número de cuenta</div>
           <div class="bank-value" id="bankAccount">—</div>
           <button class="copy-btn" onclick="copyVal('bankAccount')">Copiar</button>
         </div>
         <div class="bank-field full" style="border-color: var(--purple-dim); background: var(--purple-light);">
-          <div class="bank-label" style="color:var(--purple)">Concepto de pago (Tu Nombre)</div>
+          <div class="bank-label" style="color:var(--purple)">CLABE Interbancaria</div>
+          <div class="bank-value" id="bankClabe" style="font-family:monospace;letter-spacing:.5px">—</div>
+          <button class="copy-btn" onclick="copyVal('bankClabe')">Copiar</button>
+        </div>
+        <div class="bank-field full">
+          <div class="bank-label">Concepto / Referencia</div>
+          <div class="bank-value" id="bankConcept">Servicio educativo</div>
+          <button class="copy-btn" onclick="copyVal('bankConcept')">Copiar</button>
+        </div>
+        <div class="bank-field full" style="border-color: var(--purple-dim); background: var(--purple-light);">
+          <div class="bank-label" style="color:var(--purple)">Concepto de pago — escribe tu nombre al transferir</div>
           <div class="bank-value" id="userNameLabel">Cargando...</div>
         </div>
       </div>
@@ -231,15 +241,28 @@ window.removeItem = function(index) {
 };
 
 function renderBankInfo(p) {
-  document.getElementById('bankName').textContent = p.bank || '—';
-  document.getElementById('bankHolder').textContent = p.holder || '—';
+  document.getElementById('bankName').textContent    = p.bank    || '—';
+  document.getElementById('bankHolder').textContent  = p.holder  || '—';
   document.getElementById('bankAccount').textContent = p.account || '—';
+  document.getElementById('bankClabe').textContent   = p.clabe   || '—';
+  document.getElementById('bankConcept').textContent = p.concept || 'Servicio educativo';
 }
 
 window.copyVal = function(id) {
-  const val = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(val);
-  // Pequeño feedback visual podría ir aquí
+  const val = document.getElementById(id)?.textContent?.trim();
+  if (!val || val === '—') return;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copiado';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  });
 };
 
 window.enviarWhatsApp = function() {
@@ -262,7 +285,11 @@ ${cursosStr}
 
 💰 *TOTAL A PAGAR:* *${total}*
 ----------------------------------
-🏦 *MÉTODO:* Transferencia Bancaria
+🏦 *DATOS DE LA TRANSFERENCIA:*
+Banco: ${paymentConfig?.bank || '—'}
+Titular: ${paymentConfig?.holder || '—'}
+CLABE: ${paymentConfig?.clabe || '—'}
+Concepto usado: ${paymentConfig?.concept || 'Servicio educativo'}
 📌 *ESTADO:* Comprobante adjunto abajo
 
 *Por favor, agradecería que validen mi pago para comenzar con mis lecciones. ¡Gracias!*`;
