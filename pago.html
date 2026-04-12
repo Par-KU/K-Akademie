@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KÜ AKADEMIE — Pagar curso</title>
+<title>KÜ AKADEMIE — Finalizar Pago</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -13,131 +13,136 @@
   --border:#1e2035;--border2:#252640;--text:#e8e8f0;--muted:#6b6d8a;--muted2:#3a3d58;
   --green:#4caf82;--green-light:rgba(76,175,130,0.12);--amber:#f0b942;--red:#e05555;
 }
-html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;height:52px}
-.tb-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
-.tb-icon{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--purple);position:relative;flex-shrink:0}
-.tb-icon::before{content:'';position:absolute;width:12px;height:1.5px;background:var(--teal);border-radius:1px;transform:rotate(-35deg);top:7px;left:3px}
-.tb-icon::after{content:'';position:absolute;width:9px;height:1.5px;background:var(--purple);border-radius:1px;transform:rotate(-35deg);bottom:7px;right:2px}
-.tb-brand{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;line-height:1.5}
+
+.topbar{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;height:60px}
+.tb-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.tb-brand{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:#fff}
 .tb-brand em{font-style:normal;color:var(--purple)}
-.tb-back{display:flex;align-items:center;gap:5px;text-decoration:none;color:var(--muted);font-size:12px;font-weight:500;padding:5px 10px;border-radius:7px;border:1px solid var(--border);transition:all .15s;margin-left:auto}
-.tb-back:hover{color:#fff;border-color:var(--purple);background:var(--purple-light)}
-.tb-back:hover svg{transform:translateX(-2px)}
-.tb-back svg{transition:transform .15s}
-.page{max-width:700px;margin:0 auto;padding:36px 20px 80px}
-.spinner-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px}
-.spinner{width:32px;height:32px;border:3px solid var(--surface3);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-/* STEPS */
-.steps{display:flex;align-items:center;margin-bottom:32px}
-.step-item{display:flex;align-items:center}
-.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;border:2px solid var(--border2);color:var(--muted);background:var(--surface);transition:all .3s;flex-shrink:0}
-.step-dot.active{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
-.step-dot.done{border-color:var(--green);color:var(--green);background:var(--green-light)}
-.step-lbl{font-size:11px;color:var(--muted);margin-left:7px;white-space:nowrap}
-.step-lbl.active{color:var(--text)}
-.step-line{flex:1;height:1px;background:var(--border);margin:0 10px;min-width:16px}
-/* CARD */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}
-.card-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
-.card-sub{font-size:12px;color:var(--muted);margin-bottom:18px}
-/* COURSE LIST */
-.course-list{display:flex;flex-direction:column;gap:10px}
-.course-option{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px}
-.course-option:hover{border-color:var(--border2);background:var(--surface3)}
-.course-option.selected{border-color:var(--purple);background:var(--purple-light)}
-.co-emoji{font-size:26px;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--surface3);border-radius:10px}
-.course-option.selected .co-emoji{background:rgba(124,106,247,.2)}
-.co-info{flex:1;min-width:0}
-.co-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;line-height:1.3}
-.co-meta{font-size:11px;color:var(--muted)}
-.co-price{text-align:right;flex-shrink:0}
-.co-price-old{font-size:11px;color:var(--muted2);text-decoration:line-through}
-.co-price-now{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff}
-.course-option.selected .co-price-now{color:var(--purple)}
-.co-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.course-option.selected .co-radio{border-color:var(--purple);background:var(--purple)}
-.co-radio-dot{width:8px;height:8px;border-radius:50%;background:#fff;display:none}
-.course-option.selected .co-radio-dot{display:block}
-.continue-btn{width:100%;background:var(--purple);border:none;border-radius:12px;padding:14px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;transition:background .2s,opacity .2s;margin-top:16px}
-.continue-btn:hover:not(:disabled){background:var(--purple-dim)}
-.continue-btn:disabled{opacity:.35;cursor:not-allowed}
-/* SELECTED SUMMARY */
-.selected-summary{background:var(--purple-light);border:1px solid rgba(124,106,247,.3);border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
-.ss-emoji{font-size:24px;flex-shrink:0}
-.ss-info{flex:1}
-.ss-title{font-size:13px;font-weight:500;color:#fff;margin-bottom:2px}
-.ss-price{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--purple)}
-.ss-change{font-size:11px;color:rgba(124,106,247,.8);cursor:pointer;text-decoration:underline;flex-shrink:0}
-/* BANK DATA */
-.bank-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.bank-field{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 15px}
-.bank-field.highlight{border-color:rgba(124,106,247,.4);background:var(--purple-light)}
-.bank-field.full{grid-column:1/-1}
-.bank-field.green{border-color:rgba(76,175,130,.4);background:var(--green-light)}
-.bank-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:500;margin-bottom:5px}
-.bank-field.highlight .bank-label{color:var(--purple)}
-.bank-field.green .bank-label{color:var(--green)}
-.bank-value{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;word-break:break-all}
-.bank-value.mono{font-family:monospace;font-size:13px;letter-spacing:.5px}
-.bank-field.green .bank-value{font-family:'Sora',sans-serif;font-size:20px;color:var(--green)}
-.copy-btn{background:var(--surface3);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.copy-btn:hover{border-color:var(--purple);color:var(--purple)}
-.copy-btn.copied{border-color:var(--green);color:var(--green)}
-/* INSTRUCTIONS */
-.instructions{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px}
-.instructions ol{padding-left:18px;display:flex;flex-direction:column;gap:8px}
-.instructions li{font-size:13px;color:rgba(232,232,240,.8);line-height:1.6}
-.instructions li strong{color:#fff}
-/* NOTICE 24 HRS */
-.notice-24{background:rgba(240,185,66,.06);border:1px solid rgba(240,185,66,.25);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px;margin-bottom:20px}
-.notice-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-.notice-text{font-size:13px;color:var(--amber);line-height:1.6}
-.notice-text strong{color:#f5c842}
-/* WA BTN */
-.wa-btn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E);border:none;border-radius:14px;padding:17px 20px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:opacity .2s,transform .1s;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 20px rgba(37,211,102,.25)}
-.wa-btn:hover{opacity:.92;transform:translateY(-1px)}
-.wa-btn:active{transform:translateY(0)}
-.wa-btn-sub{font-size:12px;font-weight:400;opacity:.85;display:block;margin-top:3px}
-.security-row{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:14px;flex-wrap:wrap}
-.sec-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
-.hidden{display:none!important}
-.error-state{text-align:center;padding:60px 20px}
-.btn-back-link{background:var(--purple);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
-@media(max-width:600px){
-  .page{padding:20px 14px 80px}
-  .bank-grid{grid-template-columns:1fr}
-  .bank-field.full{grid-column:1}
-  .step-lbl{display:none}
+
+.pay-container{max-width:900px;margin:40px auto;padding:0 20px;display:grid;grid-template-columns:1fr 380px;gap:32px}
+
+.pay-main-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:32px;overflow:hidden}
+.section-title{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:24px;display:flex;align-items:center;gap:12px}
+
+/* LISTA DE CURSOS EN EL CARRITO */
+.cart-list{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.cart-item{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:16px}
+.cart-item-img{width:50px;height:50px;border-radius:10px;object-fit:cover;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:20px}
+.cart-item-info{flex:1}
+.cart-item-name{font-weight:600;color:#fff;font-size:14px}
+.cart-item-price{color:var(--purple);font-weight:700;font-size:13px}
+.cart-item-remove{background:none;border:none;color:var(--muted);cursor:pointer;padding:8px;transition:color .2s}
+.cart-item-remove:hover{color:var(--red)}
+
+.empty-cart{text-align:center;padding:40px 0}
+.empty-cart p{color:var(--muted);margin-bottom:20px}
+.btn-return{display:inline-flex;align-items:center;gap:8px;color:var(--purple);text-decoration:none;font-weight:600;font-size:14px}
+
+/* DATOS BANCARIOS */
+.bank-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.bank-field{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative}
+.full{grid-column:span 2}
+.bank-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.bank-value{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:#fff}
+.copy-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--surface3);border:1px solid var(--border2);color:var(--muted);font-size:11px;padding:6px 10px;border-radius:8px;cursor:pointer;transition:all .2s}
+.copy-btn:hover{color:var(--text);border-color:var(--purple)}
+
+/* RESUMEN LATERAL */
+.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:28px;position:sticky;top:100px;height:fit-content}
+.summary-row{display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;color:var(--muted)}
+.summary-total{margin-top:20px;padding-top:20px;border-top:1px dashed var(--border);display:flex;justify-content:space-between;align-items:baseline}
+.total-label{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.total-amount{font-family:'Sora',sans-serif;font-size:28px;font-weight:700;color:var(--teal)}
+
+.pay-btn{width:100%;background:var(--purple);color:#fff;border:none;border-radius:16px;padding:18px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:24px;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px rgba(124,106,247,0.25)}
+.pay-btn:hover{background:var(--purple-dim);transform:translateY(-2px)}
+.pay-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+.support-note{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
+
+@media (max-width: 850px) {
+  .pay-container{grid-template-columns:1fr;margin:20px auto}
+  .summary-card{position:static}
 }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <a class="tb-logo" href="dashboard.html">
-    <div class="tb-icon"></div>
+  <a href="dashboard.html" class="tb-logo">
     <span class="tb-brand">KÜ <em>Akademie</em></span>
-  </a>
-  <a class="tb-back" href="dashboard.html">
-    <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Volver
   </a>
 </div>
 
-<div class="page" id="pageRoot">
-  <div class="spinner-wrap">
-    <div class="spinner"></div>
-    <div style="font-size:13px;color:var(--muted)">Cargando cursos disponibles...</div>
+<div class="pay-container">
+  <div class="pay-main">
+    <div class="pay-main-card">
+      <div class="section-title">
+        <span>🛒 Tu Carrito</span>
+      </div>
+      
+      <div id="cartList" class="cart-list">
+        </div>
+
+      <div class="section-title" style="margin-top:40px">
+        <span>🏦 Información de Pago</span>
+      </div>
+      
+      <div class="bank-grid" id="bankInfo">
+        <div class="bank-field full">
+          <div class="bank-label">Banco</div>
+          <div class="bank-value" id="bankName">—</div>
+        </div>
+        <div class="bank-field">
+          <div class="bank-label">Titular</div>
+          <div class="bank-value" id="bankHolder">—</div>
+          <button class="copy-btn" onclick="copyVal('bankHolder')">Copiar</button>
+        </div>
+        <div class="bank-field">
+          <div class="bank-label">Clave / Cuenta</div>
+          <div class="bank-value" id="bankAccount">—</div>
+          <button class="copy-btn" onclick="copyVal('bankAccount')">Copiar</button>
+        </div>
+        <div class="bank-field full" style="border-color: var(--purple-dim); background: var(--purple-light);">
+          <div class="bank-label" style="color:var(--purple)">Concepto de pago (Tu Nombre)</div>
+          <div class="bank-value" id="userNameLabel">Cargando...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-side">
+    <div class="summary-card">
+      <div class="section-title" style="font-size:16px">Resumen</div>
+      <div id="summaryItems">
+        </div>
+      
+      <div class="summary-total">
+        <span class="total-label">Total</span>
+        <span class="total-amount" id="totalAmount">$0</span>
+      </div>
+
+      <button class="pay-btn" id="btnPagar" onclick="enviarWhatsApp()">
+        <span>Realicé mi pago</span>
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.025 3.212l-.539 1.95 2.011-.528c.903.54 1.838.892 3.271.893 3.181 0 5.767-2.586 5.768-5.766 0-3.18-2.586-5.767-5.768-5.767zm3.434 8.161c-.146.415-.845.764-1.2.793-.354.03-.687.152-2.227-.457-1.972-.781-3.232-2.791-3.33-2.922-.099-.131-.806-1.072-.806-2.042s.5-.1.455-.658.118-.182.264-.476c.146-.294.073-.55-.036-.77-.11-.22-.988-2.382-1.353-3.264-.356-.862-.716-.745-1.04-.76l-.886-.011c-.306 0-.802.115-1.221.573-.419.458-1.599 1.564-1.599 3.811 0 2.247 1.636 4.419 1.861 4.721.225.303 3.219 4.915 7.797 6.887 1.089.469 1.94.749 2.603.959 1.094.348 2.09.299 2.877.181.878-.132 2.7-.104 3.083-3.104.383-3 1.011-2.454 1.221-2.783.21-.33.105-.513-.053-.697-.158-.184-1.053-.513-1.411-.733-.358-.22-.596-.33-.842-.036-.247.294-.949 1.173-1.163 1.43-.214.257-.429.294-.757.147-.327-.146-1.382-.509-2.633-1.626-1.251-1.117-1.611-1.656-1.858-2.06-.247-.404-.026-.624.192-.841l1.03-1.136c.192-.211.257-.354.385-.588.128-.235.064-.441-.032-.646-.096-.206-.856-2.064-1.171-2.822-.307-.738-.619-.638-.85-.649l-.721-.01c-.247 0-.649.093-.988.454z"/></svg>
+      </button>
+
+      <div class="support-note">
+        Al hacer clic, se enviará el resumen por WhatsApp. No olvides adjuntar tu comprobante de transferencia.
+      </div>
+
+      <div style="text-align:center; margin-top:20px;">
+        <a href="dashboard.html" class="btn-return">← Seguir comprando</a>
+      </div>
+    </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, collection, getDocs, query, where }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBEXEQArv1biBw-ZTQUt9QOsP4BalV8BIY",
@@ -148,284 +153,125 @@ const firebaseConfig = {
   appId: "1:1042987858149:web:f647c9e9caa0d8dee93c0c"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
 
-let currentUser    = null;
-let allCourses     = [];
-let paymentData    = {};
-let selectedCourse = null;
-
-const preselectedId = new URLSearchParams(window.location.search).get('id');
+let userData = null;
+let paymentConfig = null;
+let cart = JSON.parse(localStorage.getItem('ku_cart')) || [];
 
 onAuthStateChanged(auth, async user => {
   if (!user) { window.location.href = 'login.html'; return; }
-  currentUser = user;
-  try {
-    const [coursesSnap, paySnap] = await Promise.all([
-      getDocs(query(collection(db,'courses'), where('status','==','published'))),
-      getDoc(doc(db,'config','payment'))
-    ]);
-    allCourses  = coursesSnap.docs.map(d => ({id:d.id,...d.data()}));
-    paymentData = paySnap.exists() ? paySnap.data() : {};
-    if (preselectedId) {
-      selectedCourse = allCourses.find(c => c.id === preselectedId) || null;
-    }
-    renderPage();
-  } catch(e) {
-    document.getElementById('pageRoot').innerHTML = `
-      <div class="error-state">
-        <div style="font-size:48px;margin-bottom:14px">😕</div>
-        <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:600;color:#fff;margin-bottom:8px">Error de conexión</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:24px">No se pudo cargar la información. Intenta de nuevo.</div>
-        <a class="btn-back-link" href="dashboard.html">← Volver al dashboard</a>
-      </div>`;
+  
+  // Obtener datos del alumno
+  const q = query(collection(db,'students'), where('email','==', user.email));
+  const snap = await getDocs(q);
+  if (!snap.empty) {
+    userData = snap.docs[0].data();
+    document.getElementById('userNameLabel').textContent = userData.name || user.email;
   }
+
+  // Obtener configuración de pagos
+  const pSnap = await getDoc(doc(db, 'config', 'payments'));
+  if (pSnap.exists()) {
+    paymentConfig = pSnap.data();
+    renderBankInfo(paymentConfig);
+  }
+
+  renderCart();
 });
 
-function renderPage() {
-  const hasPago = !!selectedCourse;
-  document.getElementById('pageRoot').innerHTML = `
-    <!-- STEPS -->
-    <div class="steps">
-      <div class="step-item">
-        <div class="step-dot ${hasPago?'done':'active'}" id="sd1">${hasPago?'✓':'1'}</div>
-        <span class="step-lbl ${hasPago?'':'active'}" id="sl1">Elige tu curso</span>
-      </div>
-      <div class="step-line"></div>
-      <div class="step-item">
-        <div class="step-dot ${hasPago?'active':''}" id="sd2">2</div>
-        <span class="step-lbl ${hasPago?'active':''}" id="sl2">Realiza el pago</span>
-      </div>
-      <div class="step-line"></div>
-      <div class="step-item">
-        <div class="step-dot" id="sd3">3</div>
-        <span class="step-lbl" id="sl3">Envía comprobante</span>
-      </div>
-      <div class="step-line"></div>
-      <div class="step-item">
-        <div class="step-dot" id="sd4">4</div>
-        <span class="step-lbl" id="sl4">Accede al curso</span>
-      </div>
-    </div>
+function renderCart() {
+  const list = document.getElementById('cartList');
+  const summary = document.getElementById('summaryItems');
+  const btnPagar = document.getElementById('btnPagar');
 
-    <!-- PASO 1: SELECCIÓN -->
-    <div class="card" id="sectionCursos">
-      <div class="card-title">📚 Selecciona el curso que deseas adquirir</div>
-      <div class="card-sub">Elige uno de los cursos disponibles y continúa para ver los datos de pago</div>
-      <div class="course-list" id="courseList"></div>
-      <button class="continue-btn" id="btnContinue" ${hasPago?'':'disabled'} onclick="confirmarCurso()">
-        Continuar con el pago →
-      </button>
-    </div>
-
-    <!-- PASO 2: DATOS DE PAGO -->
-    <div id="sectionPago" class="${hasPago?'':'hidden'}">
-      <div class="selected-summary" id="selectedSummary"></div>
-
-      <div class="card">
-        <div class="card-title">🏦 Datos para tu transferencia</div>
-        <div class="card-sub">Usa exactamente estos datos para tu depósito o transferencia bancaria</div>
-        <div class="bank-grid" id="bankGrid"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📋 ¿Cómo completar tu compra?</div>
-        <div class="card-sub">Sigue estos 5 pasos</div>
-        <div class="instructions">
-          <ol>
-            <li><strong>Realiza la transferencia</strong> al banco y CLABE mostrados arriba por el monto exacto del curso.</li>
-            <li><strong>Toma una captura</strong> o descarga el comprobante de tu transferencia bancaria.</li>
-            <li><strong>Toca el botón de WhatsApp</strong> de abajo — se abrirá con un mensaje ya redactado con tus datos.</li>
-            <li><strong>Adjunta tu comprobante</strong> en el chat de WhatsApp y envíalo.</li>
-            <li><strong>Espera la confirmación</strong> — activaremos tu acceso al curso en máximo 24 horas.</li>
-          </ol>
-        </div>
-      </div>
-
-      <!-- AVISO 24 HRS -->
-      <div class="notice-24">
-        <div class="notice-icon">⏰</div>
-        <div class="notice-text">
-          <strong>Tu acceso se activa en máximo 24 horas.</strong><br>
-          Una vez que recibamos tu comprobante verificamos el pago y activamos tu cuenta. Si realizas el pago en horario nocturno, tu acceso quedará listo a primera hora del siguiente día hábil.
-        </div>
-      </div>
-
-      <!-- BOTÓN WHATSAPP -->
-      <button class="wa-btn" onclick="enviarComprobante()">
-        <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-          <path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.668 4.61 1.824 6.51L4 29l7.698-1.804A12.93 12.93 0 0016 28c6.627 0 12-5.373 12-12S22.627 3 16 3z" fill="white" fill-opacity="0.2" stroke="white" stroke-width="1.2"/>
-          <path d="M11.5 11.5c.2-.5.8-1 1.4-1h.6c.4 0 .8.3 1 .7l.8 2c.2.4.1.9-.2 1.2l-.5.5c.6 1.1 1.5 2 2.6 2.6l.5-.5c.3-.3.8-.4 1.2-.2l2 .8c.4.2.7.6.7 1v.6c0 .6-.5 1.2-1 1.4-2.5.8-6.5-1-8.2-5.3-.4-1-.5-2.1-.4-3.1l.5-.7z" fill="white"/>
-        </svg>
-        <div>
-          Ya realicé mi pago — envío mi comprobante
-          <span class="wa-btn-sub">Se abrirá WhatsApp con el mensaje listo para enviar</span>
-        </div>
-      </button>
-
-      <div class="security-row">
-        <div class="sec-badge">🔒 Pago verificado manualmente</div>
-        <div class="sec-badge">✓ Acceso en máximo 24 hrs</div>
-        <div class="sec-badge">🎓 Certificado incluido</div>
-      </div>
-    </div>
-  `;
-
-  renderCourseList();
-  if (hasPago) {
-    renderSelectedSummary();
-    renderBankData();
-  }
-}
-
-function renderCourseList() {
-  const list = document.getElementById('courseList');
-  if (!allCourses.length) {
-    list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">No hay cursos disponibles por el momento.</div>';
+  if (cart.length === 0) {
+    list.innerHTML = `<div class="empty-cart"><p>Tu carrito está vacío</p><a href="dashboard.html" class="btn-return">Ir a ver cursos</a></div>`;
+    btnPagar.disabled = true;
     return;
   }
-  const totalLessons = c => c.units
-    ? c.units.reduce((s,u) => s+(u.lessons||[]).length, 0)
-    : (c.lessons||[]).length;
 
-  list.innerHTML = allCourses.map(c => {
-    const sel = selectedCourse?.id === c.id;
-    const tl  = totalLessons(c);
-    return `
-      <div class="course-option ${sel?'selected':''}" onclick="selectCourse('${c.id}')" id="co-${c.id}">
-        <div class="co-emoji">${c.emoji||'📚'}</div>
-        <div class="co-info">
-          <div class="co-title">${c.title}</div>
-          <div class="co-meta">${[c.instructor, tl?tl+' lecciones':'', c.duration].filter(Boolean).join(' · ')}</div>
-        </div>
-        <div class="co-price">
-          ${c.priceOld?`<div class="co-price-old">${c.priceOld}</div>`:''}
-          <div class="co-price-now">${c.price||'Consultar'}</div>
-        </div>
-        <div class="co-radio"><div class="co-radio-dot"></div></div>
-      </div>`;
-  }).join('');
+  list.innerHTML = cart.map((item, index) => `
+    <div class="cart-item">
+      <div class="cart-item-img">${item.emoji || '📚'}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.title}</div>
+        <div class="cart-item-price">${item.price}</div>
+      </div>
+      <button class="cart-item-remove" onclick="removeItem(${index})">✕</button>
+    </div>
+  `).join('');
+
+  summary.innerHTML = cart.map(item => `
+    <div class="summary-row">
+      <span>${item.title}</span>
+      <span>${item.price}</span>
+    </div>
+  `).join('');
+
+  calculateTotal();
 }
 
-window.selectCourse = function(id) {
-  selectedCourse = allCourses.find(c => c.id === id) || null;
-  document.querySelectorAll('.course-option').forEach(el => el.classList.remove('selected'));
-  document.getElementById('co-'+id)?.classList.add('selected');
-  const btn = document.getElementById('btnContinue');
-  if (btn) btn.disabled = false;
-};
-
-window.confirmarCurso = function() {
-  if (!selectedCourse) return;
-  const sec = document.getElementById('sectionPago');
-  sec.classList.remove('hidden');
-  renderSelectedSummary();
-  renderBankData();
-  // Actualizar steps
-  const sd1 = document.getElementById('sd1');
-  const sd2 = document.getElementById('sd2');
-  const sl2 = document.getElementById('sl2');
-  if (sd1) { sd1.textContent='✓'; sd1.className='step-dot done'; }
-  if (sd2) sd2.className='step-dot active';
-  if (sl2) sl2.className='step-lbl active';
-  setTimeout(() => sec.scrollIntoView({behavior:'smooth', block:'start'}), 100);
-};
-
-function renderSelectedSummary() {
-  const c = selectedCourse;
-  const el = document.getElementById('selectedSummary');
-  if (!el || !c) return;
-  el.innerHTML = `
-    <div class="ss-emoji">${c.emoji||'📚'}</div>
-    <div class="ss-info">
-      <div class="ss-title">${c.title}</div>
-      <div class="ss-price">${c.price||'Precio a consultar'}</div>
-    </div>
-    <span class="ss-change" onclick="cambiarCurso()">← Cambiar curso</span>`;
-}
-
-window.cambiarCurso = function() {
-  document.getElementById('sectionPago').classList.add('hidden');
-  const sd1 = document.getElementById('sd1');
-  const sd2 = document.getElementById('sd2');
-  const sl2 = document.getElementById('sl2');
-  if (sd1) { sd1.textContent='1'; sd1.className='step-dot active'; }
-  if (sd2) sd2.className='step-dot';
-  if (sl2) sl2.className='step-lbl';
-  document.getElementById('sectionCursos').scrollIntoView({behavior:'smooth'});
-};
-
-function renderBankData() {
-  const p  = paymentData;
-  const el = document.getElementById('bankGrid');
-  if (!el) return;
-  const banco    = p.banco    || '—';
-  const titular  = p.titular  || '—';
-  const clabe    = p.clabe    || '—';
-  const cuenta   = p.cuenta   || '';
-  const concepto = p.concepto || `Curso: ${selectedCourse?.title||''}`;
-  const nota     = p.nota     || '';
-
-  el.innerHTML = `
-    <div class="bank-field">
-      <div class="bank-label">Banco</div>
-      <div class="bank-value">${banco}</div>
-    </div>
-    <div class="bank-field">
-      <div class="bank-label">Titular</div>
-      <div class="bank-value">${titular}</div>
-    </div>
-    <div class="bank-field highlight full">
-      <div class="bank-label">CLABE Interbancaria</div>
-      <div class="bank-value mono">
-        <span id="clabeVal">${clabe}</span>
-        <button class="copy-btn" onclick="copyVal('clabeVal',this)">📋 Copiar</button>
-      </div>
-    </div>
-    ${cuenta?`
-    <div class="bank-field">
-      <div class="bank-label">Número de cuenta</div>
-      <div class="bank-value mono">
-        <span id="cuentaVal">${cuenta}</span>
-        <button class="copy-btn" onclick="copyVal('cuentaVal',this)">📋 Copiar</button>
-      </div>
-    </div>`:''}
-    <div class="bank-field ${cuenta?'':'full'}">
-      <div class="bank-label">Concepto / Referencia</div>
-      <div class="bank-value">
-        <span id="conceptoVal">${concepto}</span>
-        <button class="copy-btn" onclick="copyVal('conceptoVal',this)">📋 Copiar</button>
-      </div>
-    </div>
-    ${selectedCourse?.price?`
-    <div class="bank-field green full">
-      <div class="bank-label">Monto a transferir</div>
-      <div class="bank-value">${selectedCourse.price}</div>
-    </div>`:''}
-    ${nota?`
-    <div class="bank-field full" style="background:var(--surface3)">
-      <div class="bank-label">Nota</div>
-      <div class="bank-value" style="font-size:12px;color:var(--muted);font-weight:400">ℹ️ ${nota}</div>
-    </div>`:''}`;
-}
-
-window.copyVal = function(id, btn) {
-  const val = document.getElementById(id)?.textContent?.trim();
-  if (!val || val==='—') return;
-  navigator.clipboard.writeText(val).then(() => {
-    btn.textContent='✓ Copiado'; btn.classList.add('copied');
-    setTimeout(()=>{ btn.textContent='📋 Copiar'; btn.classList.remove('copied'); }, 2000);
+function calculateTotal() {
+  let total = 0;
+  cart.forEach(item => {
+    // Limpiar el precio para sumar (quitar $, comas, etc)
+    const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, ''));
+    if (!isNaN(priceNum)) total += priceNum;
   });
+  document.getElementById('totalAmount').textContent = `$${total.toLocaleString()}`;
+}
+
+window.removeItem = function(index) {
+  cart.splice(index, 1);
+  localStorage.setItem('ku_cart', JSON.stringify(cart));
+  renderCart();
 };
 
-window.enviarComprobante = function() {
-  const c  = selectedCourse;
-  const p  = paymentData;
-  const wa = p.whatsapp || '5523202164';
-  const msg = `Hola, acabo de realizar el pago del curso *${c?.title||''}* (${c?.price||'precio acordado'}).\n\n📋 *Datos del pago:*\nBanco: ${p.banco||'—'}\nTitular: ${p.titular||'—'}\nConcepto: ${p.concepto||'Curso KÜ Akademie'}\n\nMi correo de acceso: ${currentUser?.email||''}\n\n📎 Adjunto mi comprobante. Por favor activen mi acceso. ¡Gracias!`;
-  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+function renderBankInfo(p) {
+  document.getElementById('bankName').textContent = p.bank || '—';
+  document.getElementById('bankHolder').textContent = p.holder || '—';
+  document.getElementById('bankAccount').textContent = p.account || '—';
+}
+
+window.copyVal = function(id) {
+  const val = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(val);
+  // Pequeño feedback visual podría ir aquí
+};
+
+window.enviarWhatsApp = function() {
+  const wa = paymentConfig?.whatsapp || '5523202164';
+  const total = document.getElementById('totalAmount').textContent;
+  const fecha = new Date().toLocaleDateString();
+  
+  let cursosStr = cart.map(c => `• ${c.title} — *${c.price}*`).join('\n');
+
+  const ticket = `Hola, acabo de realizar mi pago para la academia:
+
+*🎫 RESUMEN DE COMPRA*
+----------------------------------
+👤 *Alumno:* ${userData?.name || auth.currentUser.email}
+📧 *Correo:* ${auth.currentUser.email}
+📅 *Fecha:* ${fecha}
+----------------------------------
+📚 *CURSOS ADQUIRIDOS:*
+${cursosStr}
+
+💰 *TOTAL A PAGAR:* *${total}*
+----------------------------------
+🏦 *MÉTODO:* Transferencia Bancaria
+📌 *ESTADO:* Comprobante adjunto abajo
+
+*Por favor, agradecería que validen mi pago para comenzar con mis lecciones. ¡Gracias!*`;
+
+  const url = `https://wa.me/${wa}?text=${encodeURIComponent(ticket)}`;
+  window.open(url, '_blank');
+  
+  // Opcional: Limpiar carrito después de pagar
+  // localStorage.removeItem('ku_cart');
 };
 </script>
 </body>
