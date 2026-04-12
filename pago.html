@@ -164,6 +164,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
         <div class="discount-badge" id="discountBadge"></div>
       </div>
 
+      <!-- NOTA 24 HORAS -->
+      <div style="background:rgba(240,185,66,.08);border:1px solid rgba(240,185,66,.2);border-radius:12px;padding:12px 14px;margin-top:16px;display:flex;align-items:flex-start;gap:8px">
+        <span style="font-size:16px;flex-shrink:0">⏰</span>
+        <div style="font-size:12px;color:var(--amber);line-height:1.6">
+          <strong style="color:#f5c842">Tu acceso se activa en máximo 24 horas</strong> tras confirmar tu pago. Si realizas la transferencia en horario nocturno, se activará a primera hora del siguiente día hábil.
+        </div>
+      </div>
+
       <!-- BOTÓN DE PAGO -->
       <button class="pay-btn" id="btnPagar" onclick="enviarWhatsApp()">
         <span>Realicé mi pago</span>
@@ -380,15 +388,9 @@ window.enviarWhatsApp = function() {
 📚 *CURSOS ADQUIRIDOS:*
 ${cursosStr}
 
-💰 *SUBTOTAL:* $${(() => { let s=0; cart.forEach(i=>{const p=parseFloat(i.price.replace(/[^0-9.]/g,''));if(!isNaN(p))s+=p;}); return s.toLocaleString(); })()}
+💰 *SUBTOTAL:* $${(() => { let s=0; cart.forEach(i=>{const p=parseFloat(i.price.replace(/[^0-9.]/g,''));if(!isNaN(p))s+=p;}); return s.toFixed(2); })()} MXN
 ${appliedDiscount ? `🏷️ *DESCUENTO (${appliedDiscount.code} -${appliedDiscount.pct}%):* aplicado` : ''}
 💰 *TOTAL A PAGAR:* *${total}*
-----------------------------------
-🏦 *DATOS DE LA TRANSFERENCIA:*
-Banco: ${paymentConfig?.bank || '—'}
-Titular: ${paymentConfig?.holder || '—'}
-CLABE: ${paymentConfig?.clabe || '—'}
-Concepto usado: ${paymentConfig?.concept || 'Servicio educativo'}
 📌 *ESTADO:* Comprobante adjunto abajo
 
 *Por favor, agradecería que validen mi pago para comenzar con mis lecciones. ¡Gracias!*`;
