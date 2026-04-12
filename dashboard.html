@@ -383,35 +383,19 @@ async function loadCourses() {
     const myCourses = allCourses.filter(c => assignedCourses.includes(c.id) || assignedCourses.includes(c.title));
     const exploreCourses = allCourses.filter(c => !assignedCourses.includes(c.id) && !assignedCourses.includes(c.title));
 
-    // Leer progreso desde progress/{uid} — misma coleccion que usa el aula
-    let progressData = {};
-    try {
-      const progSnap = await getDoc(doc(db, 'progress', currentUser.uid));
-      if (progSnap.exists()) progressData = progSnap.data();
-    } catch(e) {}
-
-    renderMyCourses(myCourses, progressData);
+    renderMyCourses(myCourses);
     renderExploreCourses(exploreCourses);
-
-    // Stats actualizados con progreso real
+    
     document.getElementById('statActive').textContent = myCourses.length;
-    const totalProgress = myCourses.length > 0
-      ? Math.round(myCourses.reduce((sum, c) => sum + (progressData[c.id]?.percent || 0), 0) / myCourses.length)
-      : 0;
-    document.getElementById('statProgress').innerHTML = `${totalProgress}<em>%</em>`;
-    const totalLessonsCompleted = myCourses.reduce((sum, c) => sum + (progressData[c.id]?.completed || 0), 0);
-    document.getElementById('statLessons').textContent = totalLessonsCompleted;
   } catch(e) { console.error(e); }
 }
 
-function renderMyCourses(courses, progressData = {}) {
+function renderMyCourses(courses) {
   const grid = document.getElementById('myCoursesGrid');
   
   grid.innerHTML = courses.map(c => {
-    // Leer desde progress/{uid} — igual que el aula
-    const progressVal = progressData[c.id]?.percent || 0;
-    const lessonsCompleted = progressData[c.id]?.completed || 0;
-    const totalLessons = c.units ? c.units.reduce((s,u) => s+(u.lessons||[]).length, 0) : (c.lessons||[]).length || 0;
+    // 1. Obtenemos el progreso (si no existe, ponemos 0)
+    const progressVal = (studentData && studentData.progress && studentData.progress[c.id]) || 0;
     
     return `
     <div class="course-card unlocked" onclick="enterCourse('${c.id}','${c.title}')">
@@ -450,7 +434,10 @@ function renderExploreCourses(courses) {
       </div>
       <div class="course-body">
         <div class="course-title">${c.title}</div>
-        <div class="price-now">${c.price || 'Consultar'}</div>
+        <div class="course-price-row">
+          ${c.priceOld ? `<span class="price-old">${c.priceOld}</span>` : ''}
+          <span class="price-now">${c.price || 'Consultar'}</span>
+        </div>
         <button class="acquire-btn" onclick="addToCart('${c.id}', event)">🛒 Añadir al carrito</button>
         <button class="btn-detail-link" onclick="openCourseDetail('${c.id}', event)">👁 Detalles</button>
       </div>
