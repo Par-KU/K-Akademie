@@ -291,7 +291,7 @@ function calculateTotal() {
     if (discRow) discRow.remove();
   }
 
-  document.getElementById('totalAmount').textContent = `$${finalTotal.toLocaleString()}`;
+  document.getElementById('totalAmount').textContent = `$${finalTotal.toFixed(2)} MXN`;
 }
 
 window.onDiscountInput = function() {
