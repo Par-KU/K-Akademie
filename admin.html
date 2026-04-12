@@ -724,40 +724,45 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
             <button class="btn-save" onclick="saveConfig()" style="margin-top:4px">Guardar</button>
           </div>
 
-          <!-- CARD DE PAGOS -->
+          <!-- CARD: DATOS DE PAGO -->
           <div class="config-card" style="grid-column:1/-1">
             <h4>💳 Datos bancarios para pagos</h4>
-            <p>Esta información aparece en la página de pago cuando un alumno quiere adquirir un curso. Para la referencia/concepto usa un texto genérico como "Servicio educativo" — evita nombres de cursos o montos para no tener problemas con el SAT o el banco.</p>
+            <p>Esta información aparece en la página de pago. Para el concepto usa texto genérico como "Servicio educativo" — evita nombres de cursos o montos para no tener problemas con el SAT o el banco.</p>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-              <div class="field">
-                <label>Banco</label>
-                <input type="text" id="payBank" placeholder="BBVA / Banamex / HSBC...">
-              </div>
-              <div class="field">
-                <label>Titular de la cuenta</label>
-                <input type="text" id="payHolder" placeholder="Nombre completo del titular">
-              </div>
-              <div class="field">
-                <label>CLABE interbancaria (18 dígitos)</label>
-                <input type="text" id="payClabe" placeholder="012345678901234567" maxlength="18">
-              </div>
-              <div class="field">
-                <label>Número de cuenta (opcional)</label>
-                <input type="text" id="payAccount" placeholder="1234567890">
-              </div>
+              <div class="field"><label>Banco</label><input type="text" id="payBank" placeholder="BBVA / Banamex / HSBC..."></div>
+              <div class="field"><label>Titular de la cuenta</label><input type="text" id="payHolder" placeholder="Nombre completo del titular"></div>
+              <div class="field"><label>CLABE interbancaria (18 dígitos)</label><input type="text" id="payClabe" placeholder="012345678901234567" maxlength="18"></div>
+              <div class="field"><label>Número de cuenta (opcional)</label><input type="text" id="payAccount" placeholder="1234567890"></div>
               <div class="field">
                 <label>Referencia / Concepto</label>
                 <input type="text" id="payConcept" placeholder="Servicio educativo">
-                <span style="font-size:11px;color:var(--amber);margin-top:4px;display:block">⚠ Recomendado: "Servicio educativo" — texto genérico para evitar observaciones SAT/banco</span>
+                <span style="font-size:11px;color:var(--amber);margin-top:4px;display:block">⚠ Recomendado: "Servicio educativo"</span>
               </div>
               <div class="field">
-                <label>WhatsApp para recibir comprobantes</label>
+                <label>WhatsApp para comprobantes</label>
                 <input type="text" id="payWhatsapp" placeholder="5523202164">
                 <span style="font-size:11px;color:var(--muted);margin-top:4px;display:block">Solo números, sin espacios ni +</span>
               </div>
             </div>
             <button class="btn-save" onclick="savePaymentConfig()">💾 Guardar datos de pago</button>
           </div>
+
+          <!-- CARD: CÓDIGOS DE DESCUENTO -->
+          <div class="config-card" style="grid-column:1/-1">
+            <h4>🏷️ Códigos de descuento</h4>
+            <p>Define hasta 5 códigos con su porcentaje. Déjalos vacíos para desactivarlos. El alumno escribe el código en la página de pago y el descuento se aplica automáticamente al total.</p>
+            <div style="display:grid;grid-template-columns:1fr 100px 180px 80px;gap:8px;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+              <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px">Código</span>
+              <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px">% Desc.</span>
+              <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px">Vista previa</span>
+              <span></span>
+            </div>
+            <div id="discountRows">
+              <!-- renderizado por JS -->
+            </div>
+            <button class="btn-save" onclick="saveDiscounts()" style="margin-top:4px">💾 Guardar códigos</button>
+          </div>
+
         </div>
       </div>
 
@@ -995,6 +1000,7 @@ async function showApp(user) {
     loadCourses();
     loadLandingData();
     loadPaymentConfig();
+    loadDiscounts();
   }
 }
 
@@ -1690,6 +1696,78 @@ window.saveLandingSection = async function(section) {
 };
 
 // CONFIG SAVE
+// ── DISCOUNT CODES ──
+const DISC_COUNT = 5;
+
+function renderDiscountRows(codes = []) {
+  const container = document.getElementById('discountRows');
+  if (!container) return;
+  let html = '';
+  for (let n = 1; n <= DISC_COUNT; n++) {
+    const saved = codes[n-1] || {};
+    html += `
+      <div style="display:grid;grid-template-columns:1fr 100px 180px 80px;gap:8px;align-items:center;margin-bottom:10px">
+        <input type="text" id="discCode${n}" value="${saved.code||''}" placeholder="Ej: VERANO"
+          oninput="updateDiscPreview(${n})" onkeyup="this.value=this.value.toUpperCase()"
+          style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:100%;text-transform:uppercase">
+        <input type="number" id="discPct${n}" value="${saved.pct||''}" placeholder="%" min="1" max="100"
+          oninput="updateDiscPreview(${n})"
+          style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:100%">
+        <div id="discPreview${n}" style="font-family:'Sora',sans-serif;font-size:13px;font-weight:600;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;min-height:38px;color:var(--muted)">
+          ${saved.code && saved.pct ? `<span style="color:var(--green)">${saved.code} → -${saved.pct}%</span>` : '—'}
+        </div>
+        <button class="btn-danger" onclick="clearDiscount(${n})" style="padding:9px 12px;font-size:11px">✕</button>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+window.updateDiscPreview = function(n) {
+  const code = document.getElementById(`discCode${n}`)?.value.trim().toUpperCase();
+  const pct  = document.getElementById(`discPct${n}`)?.value.trim();
+  const prev = document.getElementById(`discPreview${n}`);
+  if (!prev) return;
+  if (code && pct) {
+    prev.innerHTML = `<span style="color:var(--green)">${code} → -${pct}%</span>`;
+  } else {
+    prev.innerHTML = '<span style="color:var(--muted)">—</span>';
+  }
+};
+
+window.clearDiscount = function(n) {
+  const c = document.getElementById(`discCode${n}`);
+  const p = document.getElementById(`discPct${n}`);
+  const pr = document.getElementById(`discPreview${n}`);
+  if (c) c.value = '';
+  if (p) p.value = '';
+  if (pr) pr.innerHTML = '<span style="color:var(--muted)">—</span>';
+};
+
+async function loadDiscounts() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'discounts'));
+    const codes = snap.exists() ? (snap.data().codes || []) : [];
+    renderDiscountRows(codes);
+  } catch(e) {
+    renderDiscountRows([]);
+  }
+}
+
+window.saveDiscounts = async function() {
+  const codes = [];
+  for (let n = 1; n <= DISC_COUNT; n++) {
+    const code = document.getElementById(`discCode${n}`)?.value.trim().toUpperCase() || '';
+    const pct  = document.getElementById(`discPct${n}`)?.value.trim() || '';
+    codes.push({ code, pct: pct ? Number(pct) : '' });
+  }
+  try {
+    await setDoc(doc(db, 'config', 'discounts'), { codes, updatedAt: new Date().toISOString() });
+    showToast('Códigos de descuento guardados ✓', '#4caf82');
+  } catch(e) {
+    showToast('Error: ' + e.message, '#e05555');
+  }
+};
+
 // ── PAYMENT CONFIG ──
 async function loadPaymentConfig() {
   try {
