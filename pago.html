@@ -397,5 +397,57 @@ Concepto usado: ${paymentConfig?.concept || 'Servicio educativo'}
   window.open(url, '_blank');
 };
 </script>
+
+<!-- RESPONSIVE PAGO -->
+<style>
+@media (max-width: 850px) {
+  .topbar { padding: 0 16px; height: 52px; }
+  .tb-brand { font-size: 14px; }
+
+  .pay-container {
+    grid-template-columns: 1fr;
+    margin: 16px auto;
+    padding: 0 14px;
+    gap: 16px;
+  }
+
+  /* Resumen sube arriba en mobile */
+  .summary-side { order: -1; }
+  .summary-card { position: static; border-radius: 16px; padding: 20px; }
+
+  .pay-main-card { padding: 20px 16px; border-radius: 16px; }
+  .section-title { font-size: 16px; margin-bottom: 16px; }
+
+  /* Datos bancarios en columna */
+  .bank-grid { grid-template-columns: 1fr; gap: 10px; }
+  .full { grid-column: 1; }
+  .bank-field { padding: 12px 14px; border-radius: 12px; }
+  .bank-value { font-size: 13px; padding-right: 60px; }
+  .copy-btn { font-size: 10px; padding: 5px 8px; }
+
+  /* Carrito */
+  .cart-item { padding: 10px 12px; gap: 10px; }
+  .cart-item-img { width: 40px; height: 40px; font-size: 16px; }
+  .cart-item-name { font-size: 13px; }
+
+  /* Resumen lateral */
+  .summary-row { font-size: 13px; }
+  .total-amount { font-size: 24px; }
+
+  /* Botón y descuento */
+  .pay-btn { padding: 15px; font-size: 14px; border-radius: 12px; }
+  .discount-input { font-size: 12px; padding: 9px 12px; }
+  .discount-apply-btn { padding: 9px 12px; font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  .pay-container { padding: 0 10px; }
+  .pay-main-card { padding: 16px 12px; }
+  .summary-card { padding: 16px; }
+  .section-title { font-size: 15px; }
+  .bank-value { font-size: 12px; }
+  .total-amount { font-size: 22px; }
+}
+</style>
 </body>
 </html>
