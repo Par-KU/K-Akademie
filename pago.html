@@ -114,9 +114,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-seri
           <div class="bank-value" id="bankConcept">Servicio educativo</div>
           <button class="copy-btn" onclick="copyVal('bankConcept')">Copiar</button>
         </div>
-        <div class="bank-field full" style="border-color: var(--purple-dim); background: var(--purple-light);">
-          <div class="bank-label" style="color:var(--purple)">Concepto de pago — escribe tu nombre al transferir</div>
+        <div class="bank-field" style="border-color: var(--purple-dim); background: var(--purple-light);">
+          <div class="bank-label" style="color:var(--purple)">Nombre del alumno</div>
           <div class="bank-value" id="userNameLabel">Cargando...</div>
+        </div>
+        <div class="bank-field" style="border-color: var(--purple-dim); background: var(--purple-light);">
+          <div class="bank-label" style="color:var(--purple)">Matrícula</div>
+          <div class="bank-value" id="userMatriculaLabel">—</div>
         </div>
       </div>
     </div>
@@ -180,6 +184,9 @@ onAuthStateChanged(auth, async user => {
   if (!snap.empty) {
     userData = snap.docs[0].data();
     document.getElementById('userNameLabel').textContent = userData.name || user.email;
+    // Mostrar matrícula si existe
+    const matriculaEl = document.getElementById('userMatriculaLabel');
+    if (matriculaEl) matriculaEl.textContent = userData.matricula || 'Sin matrícula';
   }
 
   // Obtener configuración de pagos
@@ -277,6 +284,7 @@ window.enviarWhatsApp = function() {
 *🎫 RESUMEN DE COMPRA*
 ----------------------------------
 👤 *Alumno:* ${userData?.name || auth.currentUser.email}
+🎓 *Matrícula:* ${userData?.matricula || 'Sin matrícula'}
 📧 *Correo:* ${auth.currentUser.email}
 📅 *Fecha:* ${fecha}
 ----------------------------------
