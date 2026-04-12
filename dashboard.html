@@ -392,19 +392,33 @@ async function loadCourses() {
 
 function renderMyCourses(courses) {
   const grid = document.getElementById('myCoursesGrid');
-  grid.innerHTML = courses.map(c => `
+  
+  grid.innerHTML = courses.map(c => {
+    // 1. Obtenemos el progreso (si no existe, ponemos 0)
+    const progressVal = (studentData && studentData.progress && studentData.progress[c.id]) || 0;
+    
+    return `
     <div class="course-card unlocked" onclick="enterCourse('${c.id}','${c.title}')">
       <div class="course-thumb">
         ${c.imageUrl ? `<img src="${c.imageUrl}">` : `<div style="font-size:40px">${c.emoji||'📚'}</div>`}
         <div class="course-thumb-overlay"></div>
         <div class="course-badge badge-active">Activo</div>
+        
+        <div class="course-progress-bar">
+          <div class="course-progress-fill" style="width: ${progressVal}%"></div>
+        </div>
       </div>
+      
       <div class="course-body">
         <div class="course-title">${c.title}</div>
+        <div class="course-meta">
+          <span class="course-pct">${progressVal}% completado</span>
+        </div>
         <button class="continue-btn">Ir al aula</button>
       </div>
     </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function renderExploreCourses(courses) {
