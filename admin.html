@@ -748,6 +748,47 @@ tbody td{padding:12px 16px;font-size:13px;color:var(--text);vertical-align:middl
             <button class="btn-save" onclick="savePaymentConfig()">💾 Guardar datos de pago</button>
           </div>
 
+          <!-- CARD: PLANES DE PRECIOS -->
+          <div class="config-card" style="grid-column:1/-1">
+            <h4>💰 Planes de precios</h4>
+            <p>Configura los planes que verán los alumnos en la página de pago. Activa el Acceso Total cuando tengas suficientes cursos disponibles.</p>
+
+            <!-- PLAN INDIVIDUAL -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span style="font-size:16px">📖</span>
+                <span style="font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:#fff">Plan Individual</span>
+                <span style="font-size:11px;color:var(--muted);margin-left:auto">Siempre activo — el alumno paga por curso</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field"><label>Descripción</label><input type="text" id="planIndDesc" placeholder="1 curso · 1 año de acceso"></div>
+                <div class="field"><label>Nota visible al alumno</label><input type="text" id="planIndNote" placeholder="Accede a tu curso por 1 año completo"></div>
+              </div>
+            </div>
+
+            <!-- PLAN ACCESO TOTAL -->
+            <div style="background:var(--surface2);border:1px solid var(--purple-light);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+                <span style="font-size:16px">🎓</span>
+                <span style="font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:#fff">Plan Acceso Total</span>
+                <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+                  <span style="font-size:11px;color:var(--muted)" id="planTotalStatusLabel">Inactivo</span>
+                  <div class="toggle-switch" id="planTotalToggle" onclick="togglePlanTotal()" title="Activar/desactivar Acceso Total"></div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="field"><label>Precio</label><input type="text" id="planTotalPrecio" placeholder="$599 MXN"></div>
+                <div class="field"><label>Descripción</label><input type="text" id="planTotalDesc" placeholder="Todos los cursos · 1 año de acceso"></div>
+                <div class="field" style="grid-column:1/-1"><label>Mensaje promocional (visible al alumno en pago)</label><input type="text" id="planTotalPromo" placeholder="¡Accede a todos nuestros cursos por un año completo!"></div>
+              </div>
+              <div style="margin-top:12px;padding:10px 14px;background:rgba(240,185,66,.06);border:1px solid rgba(240,185,66,.2);border-radius:8px;font-size:12px;color:var(--amber)">
+                ⚠ Activa este plan solo cuando tengas suficientes cursos disponibles (recomendado: 20+)
+              </div>
+            </div>
+
+            <button class="btn-save" onclick="savePricingConfig()">💾 Guardar planes</button>
+          </div>
+
           <!-- CARD: CÓDIGOS DE DESCUENTO -->
           <div class="config-card" style="grid-column:1/-1">
             <h4>🏷️ Códigos de descuento</h4>
@@ -1015,6 +1056,7 @@ async function showApp(user) {
     loadLandingData();
     loadPaymentConfig();
     loadDiscounts();
+    loadPricingConfig();
   }
 }
 
@@ -1855,6 +1897,54 @@ window.savePaymentConfig = async function() {
   try {
     await setDoc(doc(db, 'config', 'payments'), data);
     showToast('Datos de pago guardados ✓', '#4caf82');
+  } catch(e) {
+    showToast('Error: ' + e.message, '#e05555');
+  }
+};
+
+// ── PRICING CONFIG ──
+window.togglePlanTotal = function() {
+  const tog = document.getElementById('planTotalToggle');
+  const lbl = document.getElementById('planTotalStatusLabel');
+  tog.classList.toggle('on');
+  lbl.textContent = tog.classList.contains('on') ? 'Activo' : 'Inactivo';
+  lbl.style.color = tog.classList.contains('on') ? 'var(--green)' : 'var(--muted)';
+};
+
+async function loadPricingConfig() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'pricing'));
+    if (!snap.exists()) return;
+    const d = snap.data();
+    const tog = document.getElementById('planTotalToggle');
+    const lbl = document.getElementById('planTotalStatusLabel');
+    if (d.totalActivo) {
+      tog.classList.add('on');
+      lbl.textContent = 'Activo';
+      lbl.style.color = 'var(--green)';
+    }
+    if (d.totalPrecio)  document.getElementById('planTotalPrecio').value = d.totalPrecio;
+    if (d.totalDesc)    document.getElementById('planTotalDesc').value   = d.totalDesc;
+    if (d.totalPromo)   document.getElementById('planTotalPromo').value  = d.totalPromo;
+    if (d.indDesc)      document.getElementById('planIndDesc').value     = d.indDesc;
+    if (d.indNote)      document.getElementById('planIndNote').value     = d.indNote;
+  } catch(e) {}
+}
+
+window.savePricingConfig = async function() {
+  const tog = document.getElementById('planTotalToggle');
+  const data = {
+    totalActivo: tog.classList.contains('on'),
+    totalPrecio: document.getElementById('planTotalPrecio')?.value.trim() || '',
+    totalDesc:   document.getElementById('planTotalDesc')?.value.trim()   || '',
+    totalPromo:  document.getElementById('planTotalPromo')?.value.trim()  || '',
+    indDesc:     document.getElementById('planIndDesc')?.value.trim()     || '',
+    indNote:     document.getElementById('planIndNote')?.value.trim()     || '',
+    updatedAt:   new Date().toISOString()
+  };
+  try {
+    await setDoc(doc(db, 'config', 'pricing'), data);
+    showToast('Planes de precios guardados ✓', '#4caf82');
   } catch(e) {
     showToast('Error: ' + e.message, '#e05555');
   }
