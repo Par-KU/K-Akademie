@@ -304,6 +304,34 @@ function renderCart() {
 }
 
 function calculateTotal() {
+  const summaryEl = document.getElementById('summaryItems');
+
+  // Si está en modo Acceso Total, calcular sobre ese precio
+  if (usingAccesoTotal) {
+    const precioAT = parseFloat((pricingConfig?.totalPrecio || '599').replace(/[^0-9.]/g, ''));
+    let finalTotal = precioAT;
+
+    // Quitar fila de descuento anterior si existe
+    const discRowOld = document.getElementById('summaryDiscountRow');
+    if (discRowOld) discRowOld.remove();
+
+    if (appliedDiscount) {
+      const discount = Math.round(precioAT * appliedDiscount.pct / 100);
+      finalTotal = precioAT - discount;
+      if (summaryEl && !document.getElementById('summaryDiscountRow')) {
+        summaryEl.insertAdjacentHTML('beforeend', `
+          <div class="summary-row" id="summaryDiscountRow" style="color:var(--green)">
+            <span>🏷️ Descuento (${appliedDiscount.code} -${appliedDiscount.pct}%)</span>
+            <span>-$${discount.toFixed(2)}</span>
+          </div>`);
+      }
+    }
+
+    document.getElementById('totalAmount').textContent = `$${finalTotal.toFixed(2)} MXN`;
+    return;
+  }
+
+  // Modo normal — calcular sobre el carrito
   let subtotal = 0;
   cart.forEach(item => {
     const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, ''));
@@ -311,7 +339,6 @@ function calculateTotal() {
   });
 
   let finalTotal = subtotal;
-  const summaryEl = document.getElementById('summaryItems');
 
   if (appliedDiscount) {
     const discount = Math.round(subtotal * appliedDiscount.pct / 100);
@@ -321,7 +348,7 @@ function calculateTotal() {
       summaryEl.insertAdjacentHTML('beforeend', `
         <div class="summary-row" id="summaryDiscountRow" style="color:var(--green)">
           <span>🏷️ Descuento (${appliedDiscount.code} -${appliedDiscount.pct}%)</span>
-          <span>-$${discount.toLocaleString()}</span>
+          <span>-$${discount.toFixed(2)}</span>
         </div>`);
     }
   } else {
@@ -338,27 +365,50 @@ let _cartOriginal = null;
 window.switchToAccesoTotal = function() {
   if (!pricingConfig?.totalActivo) return;
   _cartOriginal = [...cart]; // guardar carrito original
+  cart = []; // limpiar carrito — AT reemplaza todo
   usingAccesoTotal = true;
-  // Mostrar en resumen como un solo ítem
+  appliedDiscount = null; // resetear descuento previo
+
+  // Limpiar carrito visual
+  const cartListEl = document.getElementById('cartList');
+  if (cartListEl) cartListEl.innerHTML = `
+    <div class="cart-item" style="border-color:rgba(124,106,247,.3);background:rgba(124,106,247,.06)">
+      <div class="cart-item-img">🎓</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">Acceso Total · 1 año</div>
+        <div class="cart-item-price">${pricingConfig.totalPrecio || '$599 MXN'}</div>
+      </div>
+    </div>`;
+
+  // Mostrar en resumen
   const summaryEl = document.getElementById('summaryItems');
   if (summaryEl) summaryEl.innerHTML = `
     <div class="summary-row" style="color:var(--text)">
       <span>🎓 Acceso Total · 1 año</span>
       <span style="color:var(--teal);font-weight:600">${pricingConfig.totalPrecio || '$599 MXN'}</span>
     </div>`;
-  // Actualizar total
-  const precio = parseFloat((pricingConfig.totalPrecio || '599').replace(/[^0-9.]/g, ''));
-  document.getElementById('totalAmount').textContent = `$${precio.toFixed(2)} MXN`;
-  // Cambiar botones
+
+  // Resetear UI de descuento
+  const discInput = document.getElementById('discountInput');
+  const discBtn   = document.getElementById('discountApplyBtn');
+  const discFb    = document.getElementById('discountFeedback');
+  const discBadge = document.getElementById('discountBadge');
+  if (discInput) { discInput.value = ''; discInput.disabled = false; discInput.classList.remove('valid','invalid'); }
+  if (discBtn)   { discBtn.textContent = 'Aplicar'; discBtn.disabled = true; discBtn.classList.remove('active'); }
+  if (discFb)    { discFb.textContent = ''; discFb.className = 'discount-feedback'; }
+  if (discBadge) discBadge.classList.remove('show');
+
+  // Cambiar botones del banner
   document.getElementById('btnSwitchTotal').style.display = 'none';
   document.getElementById('btnRevertTotal').style.display = 'block';
-  // Ocultar descuento
-  document.getElementById('discountFeedback').textContent = '';
+
+  calculateTotal();
   showToast('¡Acceso Total seleccionado! 🎓', '#4ecdc4');
 };
 
 window.revertToCarrito = function() {
   usingAccesoTotal = false;
+  appliedDiscount = null;
   if (_cartOriginal) cart = _cartOriginal;
   document.getElementById('btnSwitchTotal').style.display = 'block';
   document.getElementById('btnRevertTotal').style.display = 'none';
