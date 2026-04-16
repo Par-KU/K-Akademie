@@ -383,32 +383,19 @@ async function loadCourses() {
     const myCourses = allCourses.filter(c => assignedCourses.includes(c.id) || assignedCourses.includes(c.title));
     const exploreCourses = allCourses.filter(c => !assignedCourses.includes(c.id) && !assignedCourses.includes(c.title));
 
-    // Leer progreso real desde progress/{uid}
-    let progressData = {};
-    try {
-      const progSnap = await getDoc(doc(db, 'progress', currentUser.uid));
-      if (progSnap.exists()) progressData = progSnap.data();
-    } catch(e) {}
-
-    renderMyCourses(myCourses, progressData);
+    renderMyCourses(myCourses);
     renderExploreCourses(exploreCourses);
-
-    // Stats
+    
     document.getElementById('statActive').textContent = myCourses.length;
-    const totalProgress = myCourses.length > 0
-      ? Math.round(myCourses.reduce((sum, c) => sum + (progressData[c.id]?.percent || 0), 0) / myCourses.length)
-      : 0;
-    document.getElementById('statProgress').innerHTML = `${totalProgress}<em>%</em>`;
-    const totalLessons = myCourses.reduce((sum, c) => sum + (progressData[c.id]?.completed || 0), 0);
-    document.getElementById('statLessons').textContent = totalLessons;
   } catch(e) { console.error(e); }
 }
 
-function renderMyCourses(courses, progressData = {}) {
+function renderMyCourses(courses) {
   const grid = document.getElementById('myCoursesGrid');
   
   grid.innerHTML = courses.map(c => {
-    const progressVal = progressData[c.id]?.percent || 0;
+    // 1. Obtenemos el progreso (si no existe, ponemos 0)
+    const progressVal = (studentData && studentData.progress && studentData.progress[c.id]) || 0;
     
     return `
     <div class="course-card unlocked" onclick="enterCourse('${c.id}','${c.title}')">
@@ -437,22 +424,39 @@ function renderMyCourses(courses, progressData = {}) {
 function renderExploreCourses(courses) {
   window._exploreCoursesData = courses;
   const grid = document.getElementById('exploreCoursesGrid');
-  grid.innerHTML = courses.map(c => `
+  grid.innerHTML = courses.map(c => {
+    const badgeMap = { popular:'🔥 Popular', new:'✨ Nuevo', hot:'⭐ Top ventas' };
+    const badgeHtml = c.badge && badgeMap[c.badge]
+      ? `<div class="course-badge" style="background:var(--purple-light);color:var(--purple);border:1px solid rgba(124,106,247,.3)">${badgeMap[c.badge]}</div>`
+      : '';
+    return `
     <div class="course-card locked-card">
       <div class="course-thumb">
         ${c.imageUrl ? `<img src="${c.imageUrl}">` : `<div style="font-size:40px">${c.emoji||'📚'}</div>`}
+        <div class="course-thumb-overlay"></div>
         <div class="lock-overlay-new">
           <div class="lock-badge-txt">BLOQUEADO</div>
         </div>
+        ${badgeHtml}
       </div>
       <div class="course-body">
+        ${c.category ? `<div class="course-cat">${c.category}</div>` : ''}
         <div class="course-title">${c.title}</div>
-        <div class="price-now">${c.price || 'Consultar'}</div>
+        ${c.instructor ? `<div class="course-instructor">👤 ${c.instructor}</div>` : ''}
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap">
+          ${c.rating ? `<span style="font-size:12px;color:var(--amber)">⭐ ${c.rating}</span>` : ''}
+          ${c.students ? `<span style="font-size:12px;color:var(--muted)">👥 ${c.students} alumnos</span>` : ''}
+          ${c.duration ? `<span style="font-size:12px;color:var(--muted)">⏱ ${c.duration}</span>` : ''}
+        </div>
+        <div class="course-price-row">
+          ${c.priceOld ? `<span class="price-old">${c.priceOld}</span>` : ''}
+          <span class="price-now">${c.price || 'Consultar'}</span>
+        </div>
         <button class="acquire-btn" onclick="addToCart('${c.id}', event)">🛒 Añadir al carrito</button>
         <button class="btn-detail-link" onclick="openCourseDetail('${c.id}', event)">👁 Detalles</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 window.enterCourse = (id, title) => {
