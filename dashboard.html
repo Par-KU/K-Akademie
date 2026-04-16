@@ -383,19 +383,31 @@ async function loadCourses() {
     const myCourses = allCourses.filter(c => assignedCourses.includes(c.id) || assignedCourses.includes(c.title));
     const exploreCourses = allCourses.filter(c => !assignedCourses.includes(c.id) && !assignedCourses.includes(c.title));
 
-    renderMyCourses(myCourses);
+    // Leer progreso real desde progress/{uid}
+    let progressData = {};
+    try {
+      const progSnap = await getDoc(doc(db, 'progress', currentUser.uid));
+      if (progSnap.exists()) progressData = progSnap.data();
+    } catch(e) {}
+
+    renderMyCourses(myCourses, progressData);
     renderExploreCourses(exploreCourses);
-    
+
     document.getElementById('statActive').textContent = myCourses.length;
+    const totalProgress = myCourses.length > 0
+      ? Math.round(myCourses.reduce((sum, c) => sum + (progressData[c.id]?.percent || 0), 0) / myCourses.length)
+      : 0;
+    document.getElementById('statProgress').innerHTML = `${totalProgress}<em>%</em>`;
+    const totalLessons = myCourses.reduce((sum, c) => sum + (progressData[c.id]?.completed || 0), 0);
+    document.getElementById('statLessons').textContent = totalLessons;
   } catch(e) { console.error(e); }
 }
 
-function renderMyCourses(courses) {
+function renderMyCourses(courses, progressData = {}) {
   const grid = document.getElementById('myCoursesGrid');
   
   grid.innerHTML = courses.map(c => {
-    // 1. Obtenemos el progreso (si no existe, ponemos 0)
-    const progressVal = (studentData && studentData.progress && studentData.progress[c.id]) || 0;
+    const progressVal = progressData[c.id]?.percent || 0;
     
     return `
     <div class="course-card unlocked" onclick="enterCourse('${c.id}','${c.title}')">
